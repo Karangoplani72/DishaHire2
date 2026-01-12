@@ -1,49 +1,54 @@
+
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 3001;
-const JWT_SECRET = process.env.JWT_SECRET || 'dishahire-secure-default-key';
+const PORT = process.env.PORT || 10000;
+const JWT_SECRET = process.env.JWT_SECRET || 'dishahire-secure-enterprise-key-2024';
 
 // Middlewares
 app.use(cors());
-// Increased limit for high-resolution PDF resumes (base64 encoded)
-app.use(express.json({ limit: '25mb' })); 
-app.use(express.urlencoded({ extended: true, limit: '25mb' }));
-
-// Serve static files from the root directory (where bundled JS and index.html live)
+app.use(express.json({ limit: '20mb' }));
 app.use(express.static(__dirname));
 
-// MongoDB Connection with robust error handling for production
+// MongoDB Connection
 const MONGO_URI = process.env.MONGO_URI;
 
 if (!MONGO_URI) {
-  console.error("CRITICAL ERROR: MONGO_URI is missing. Set it in Render Environment Variables.");
+  console.error("❌ CRITICAL: MONGO_URI missing. Database features disabled.");
 } else {
   mongoose.connect(MONGO_URI)
-    .then(() => console.log('✅ Connected to MongoDB Atlas Cluster'))
-    .catch(err => {
-      console.error('❌ MongoDB Connection Failed:', err.message);
-      // Fix: cast process to any to resolve 'exit' does not exist on type 'Process' in some build environments
-      (process as any).exit(1); // Exit if DB connection fails in production
-    });
+    .then(() => console.log('✅ Connected to Secure MongoDB Atlas Cluster'))
+    .catch(err => console.error('❌ MongoDB Connection Failed:', err.message));
 }
 
-// Transformation Helper for JSON responses
+// Transformation Helper
 const transform = (doc: any, ret: any) => {
   ret.id = ret._id;
   delete ret._id;
   delete ret.__v;
+  delete ret.password;
 };
 
-// Schemas
+// --- SCHEMAS ---
+
+const UserSchema = new mongoose.Schema({
+  email: { type: String, unique: true, required: true, lowercase: true, trim: true },
+  name: { type: String, required: true },
+  password: { type: String, required: true },
+  role: { type: String, enum: ['USER', 'ADMIN'], default: 'USER' },
+  status: { type: String, enum: ['ACTIVE', 'SUSPENDED'], default: 'ACTIVE' },
+  createdAt: { type: Date, default: Date.now }
+}, { toJSON: { transform }, toObject: { transform } });
+
 const JobSchema = new mongoose.Schema({
   title: { type: String, required: true },
   company: { type: String, required: true },
@@ -56,13 +61,14 @@ const JobSchema = new mongoose.Schema({
 
 const EnquirySchema = new mongoose.Schema({
   type: { type: String, enum: ['CANDIDATE', 'EMPLOYER'] },
+  subject: String,
   name: String,
   email: String,
   message: String,
   company: String,
   priority: { type: String, default: 'NORMAL' },
   experience: String,
-  resumeData: String, // Storing base64 resume
+  resumeData: String,
   resumeName: String,
   status: { type: String, default: 'PENDING' },
   createdAt: { type: Date, default: Date.now }
@@ -73,120 +79,148 @@ const SubscriberSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 }, { toJSON: { transform }, toObject: { transform } });
 
+const User = mongoose.model('User', UserSchema);
 const Job = mongoose.model('Job', JobSchema);
 const Enquiry = mongoose.model('Enquiry', EnquirySchema);
 const Subscriber = mongoose.model('Subscriber', SubscriberSchema);
 
 // --- AUTH MIDDLEWARE ---
-const authenticateAdmin = (req: any, res: any, next: any) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Access denied. Authentication required.' });
-  }
 
-  const token = authHeader.split(' ')[1];
+const authenticate = async (req: any, res: any, next: any) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ error: 'Identity required' });
+  
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = decoded;
+    const token = authHeader.split(' ')[1];
+    const decoded: any = jwt.verify(token, JWT_SECRET);
+    const user = await User.findById(decoded.id);
+    if (!user || user.status === 'SUSPENDED') return res.status(403).json({ error: 'Access denied' });
+    req.user = user;
     next();
   } catch (err) {
-    return res.status(403).json({ error: 'Session expired or invalid token.' });
+    return res.status(401).json({ error: 'Session expired' });
   }
 };
 
 // --- AUTH ROUTES ---
-app.post('/api/auth/login', (req, res) => {
-  const { email, password } = req.body;
-  const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'dishahire.0818@gmail.com';
-  const ADMIN_PASS = process.env.ADMIN_PASSWORD;
 
-  if (!ADMIN_PASS) {
-    return res.status(500).json({ error: 'Server misconfiguration: Admin password not set.' });
-  }
-
-  if (email === ADMIN_EMAIL && password === ADMIN_PASS) {
-    const token = jwt.sign({ email, role: 'ADMIN' }, JWT_SECRET, { expiresIn: '24h' });
-    return res.json({ token, user: { email, name: 'DishaHire Admin', role: 'ADMIN' } });
-  }
-  res.status(401).json({ error: 'Invalid administrative credentials.' });
+app.get('/api/auth/me', authenticate, (req, res) => {
+  res.json({ user: req.user });
 });
 
-// --- PUBLIC API ---
-app.get('/api/jobs', async (req, res) => {
+app.post('/api/auth/signup', async (req, res) => {
+  const { name, email, password } = req.body;
   try {
-    const jobs = await Job.find().sort({ postedDate: -1 });
-    res.json(jobs);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to retrieve job listings.' });
+    const existing = await User.findOne({ email: email.toLowerCase() });
+    if (existing) return res.status(400).json({ error: 'Identity already exists' });
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+    const user = new User({ name, email: email.toLowerCase(), password: hashedPassword });
+    await user.save();
+
+    const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '10d' });
+    res.status(201).json({ token, user });
+  } catch (e) {
+    res.status(500).json({ error: 'Signup failed' });
   }
+});
+
+app.post('/api/auth/login', async (req, res) => {
+  const { email, password } = req.body;
+  const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'dishahire.0818@gmail.com').toLowerCase();
+  const ADMIN_PASS = process.env.ADMIN_PASSWORD;
+
+  try {
+    // Admin Override
+    if (email.toLowerCase() === ADMIN_EMAIL) {
+      if (ADMIN_PASS && password !== ADMIN_PASS) return res.status(401).json({ error: 'Invalid admin key' });
+      
+      let admin = await User.findOne({ email: ADMIN_EMAIL, role: 'ADMIN' });
+      if (!admin) {
+        const hashedPassword = await bcrypt.hash(password, 12);
+        admin = new User({ email: ADMIN_EMAIL, name: 'DishaHire Admin', password: hashedPassword, role: 'ADMIN' });
+        await admin.save();
+      }
+      
+      const token = jwt.sign({ id: admin._id, role: 'ADMIN' }, JWT_SECRET, { expiresIn: '10d' });
+      return res.json({ token, user: admin });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) return res.status(404).json({ error: 'Account not found' });
+
+    const isValid = await bcrypt.compare(password, user.password);
+    if (!isValid) return res.status(401).json({ error: 'Invalid credentials' });
+
+    const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '10d' });
+    res.json({ token, user });
+  } catch (e) {
+    res.status(500).json({ error: 'Login failure' });
+  }
+});
+
+// --- DATA ROUTES ---
+
+app.get('/api/jobs', async (req, res) => {
+  const data = await Job.find().sort({ postedDate: -1 });
+  res.json(data);
+});
+
+app.post('/api/jobs', authenticate, async (req, res) => {
+  if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Admin only' });
+  const job = new Job(req.body);
+  await job.save();
+  res.status(201).json(job);
+});
+
+app.delete('/api/jobs/:id', authenticate, async (req, res) => {
+  if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Admin only' });
+  await Job.findByIdAndDelete(req.params.id);
+  res.json({ success: true });
+});
+
+app.get('/api/enquiries', authenticate, async (req, res) => {
+  if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Admin only' });
+  const data = await Enquiry.find().sort({ createdAt: -1 });
+  res.json(data);
+});
+
+app.get('/api/my-applications', authenticate, async (req, res) => {
+  const data = await Enquiry.find({ email: req.user.email }).sort({ createdAt: -1 });
+  res.json(data);
 });
 
 app.post('/api/enquiries', async (req, res) => {
-  try {
-    const enq = new Enquiry(req.body);
-    await enq.save();
-    res.status(201).json({ message: 'Success: Your inquiry has been transmitted to our consultants.' });
-  } catch (error) {
-    console.error('Enquiry error:', error);
-    res.status(400).json({ error: 'Transmission error. Please verify input data.' });
-  }
+  const enq = new Enquiry(req.body);
+  await enq.save();
+  res.status(201).json(enq);
+});
+
+app.patch('/api/enquiries/:id/status', authenticate, async (req, res) => {
+  if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Admin only' });
+  const enq = await Enquiry.findByIdAndUpdate(req.params.id, { status: req.body.status }, { new: true });
+  res.json(enq);
+});
+
+app.get('/api/subscribers', authenticate, async (req, res) => {
+  if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Admin only' });
+  const data = await Subscriber.find().sort({ createdAt: -1 });
+  res.json(data);
 });
 
 app.post('/api/subscribers', async (req, res) => {
   try {
     const sub = new Subscriber(req.body);
     await sub.save();
-    res.status(201).json({ message: 'Successfully subscribed to insights.' });
-  } catch (error: any) {
-    if (error.code === 11000) return res.status(200).json({ message: 'Already subscribed.' });
-    res.status(400).json({ error: 'Subscription failed.' });
+    res.status(201).json(sub);
+  } catch (e) {
+    res.status(200).json({ message: 'Already active' });
   }
 });
 
-// --- ADMIN PROTECTED API ---
-app.post('/api/jobs', authenticateAdmin, async (req, res) => {
-  try {
-    const job = new Job(req.body);
-    await job.save();
-    res.status(201).json(job);
-  } catch (err) {
-    res.status(400).json({ error: 'Invalid job data provided.' });
-  }
-});
-
-app.delete('/api/jobs/:id', authenticateAdmin, async (req, res) => {
-  try {
-    await Job.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Listing permanently removed.' });
-  } catch (err) {
-    res.status(404).json({ error: 'Listing not found.' });
-  }
-});
-
-app.get('/api/enquiries', authenticateAdmin, async (req, res) => {
-  try {
-    const enquiries = await Enquiry.find().sort({ createdAt: -1 });
-    res.json(enquiries);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch database records.' });
-  }
-});
-
-app.get('/api/subscribers', authenticateAdmin, async (req, res) => {
-  try {
-    const subs = await Subscriber.find().sort({ createdAt: -1 });
-    res.json(subs);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch subscriber list.' });
-  }
-});
-
-// SPA FALLBACK: Critical for deep-linking in React (e.g., /jobs, /admin)
+// SPA Fallback
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 DishaHire Professional Backend active on port ${PORT}`);
-  console.log(`📡 Production Environment: ${process.env.NODE_ENV || 'development'}`);
-});
+app.listen(PORT, () => console.log(`🚀 DishaHire Server Active on Port ${PORT}`));

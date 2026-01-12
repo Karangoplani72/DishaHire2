@@ -2,65 +2,40 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Lock, ShieldCheck, ArrowRight, Loader2, AlertCircle, CheckCircle, Smartphone } from 'lucide-react';
+import { Mail, Lock, ShieldCheck, ArrowRight, Loader2, AlertCircle, User, CheckCircle } from 'lucide-react';
 import { useAuth } from '../components/AuthContext.tsx';
 
-type LoginMethod = 'EMAIL' | 'PHONE';
+type AuthMode = 'LOGIN' | 'SIGNUP';
 
 const Login: React.FC = () => {
-  const [method, setMethod] = useState<LoginMethod>('EMAIL');
+  const [mode, setMode] = useState<AuthMode>('LOGIN');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [otpCode, setOtpCode] = useState('');
-  const [userName, setUserName] = useState('');
-  const [step, setStep] = useState(1);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  const { loginEmail, requestOTP, verifyOTP } = useAuth();
+  const { loginEmail, signupEmail } = useAuth();
   const navigate = useNavigate();
 
-  const handleEmailLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     
-    const ok = await loginEmail(email, password);
+    let ok = false;
+    if (mode === 'LOGIN') {
+      ok = await loginEmail(email, password);
+    } else {
+      ok = await signupEmail(name, email, password);
+    }
+
     if (ok) {
       setSuccess(true);
       setTimeout(() => navigate('/'), 1200);
     } else {
-      setError('Invalid credentials or security timeout. Please try again.');
-      setLoading(false);
-    }
-  };
-
-  const handlePhoneRequest = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    const ok = await requestOTP(phoneNumber);
-    if (ok) {
-      setStep(2);
-      setLoading(false);
-    } else {
-      setError('System could not transmit code to this number.');
-      setLoading(false);
-    }
-  };
-
-  const handleOtpVerify = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    const ok = await verifyOTP(phoneNumber, otpCode, userName);
-    if (ok) {
-      setSuccess(true);
-      setTimeout(() => navigate('/'), 1200);
-    } else {
-      setError('Verification failed. Code may have expired.');
+      setError(mode === 'LOGIN' ? 'Invalid credentials provided.' : 'Account creation failed. Identity may already exist.');
       setLoading(false);
     }
   };
@@ -97,79 +72,67 @@ const Login: React.FC = () => {
               <p className="text-gray-400 font-serif italic">Enter your professional credentials to continue.</p>
             </div>
 
-            {/* Tabs */}
+            {/* Toggle Tabs */}
             <div className="flex bg-gray-50 p-1.5 rounded-2xl mb-10 border border-gray-100">
-              {(['EMAIL', 'PHONE'] as LoginMethod[]).map(m => (
-                <button
-                  key={m}
-                  onClick={() => { setMethod(m); setError(''); setStep(1); }}
-                  className={`flex-1 py-4 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl transition-all ${method === m ? 'bg-brand-dark text-white shadow-xl' : 'text-gray-400 hover:text-brand-dark'}`}
-                >
-                  {m === 'PHONE' ? 'Mobile' : m}
-                </button>
-              ))}
+              <button
+                onClick={() => { setMode('LOGIN'); setError(''); }}
+                className={`flex-1 py-4 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl transition-all ${mode === 'LOGIN' ? 'bg-brand-dark text-white shadow-xl' : 'text-gray-400 hover:text-brand-dark'}`}
+              >
+                Sign In
+              </button>
+              <button
+                onClick={() => { setMode('SIGNUP'); setError(''); }}
+                className={`flex-1 py-4 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl transition-all ${mode === 'SIGNUP' ? 'bg-brand-dark text-white shadow-xl' : 'text-gray-400 hover:text-brand-dark'}`}
+              >
+                Create Account
+              </button>
             </div>
 
             <AnimatePresence mode="wait">
-              {method === 'EMAIL' && (
-                <motion.form key="email" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} onSubmit={handleEmailLogin} className="space-y-6">
+              <motion.form 
+                key={mode}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                onSubmit={handleSubmit} 
+                className="space-y-6"
+              >
+                {mode === 'SIGNUP' && (
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Corporate Email</label>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Full Name</label>
                     <div className="relative">
-                      <Mail className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-300" size={20} />
-                      <input required type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full pl-16 pr-6 py-5 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-brand-gold/30 outline-none transition-all font-medium text-brand-dark" placeholder="professional@company.com" />
+                      <User className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-300" size={20} />
+                      <input required type="text" value={name} onChange={e => setName(e.target.value)} className="w-full pl-16 pr-6 py-5 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-brand-gold/30 outline-none transition-all font-medium text-brand-dark" placeholder="Legal Name" />
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Security Key</label>
-                    <div className="relative">
-                      <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-300" size={20} />
-                      <input required type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full pl-16 pr-6 py-5 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-brand-gold/30 outline-none transition-all font-medium text-brand-dark" placeholder="••••••••••••" />
-                    </div>
+                )}
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Corporate Email</label>
+                  <div className="relative">
+                    <Mail className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-300" size={20} />
+                    <input required type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full pl-16 pr-6 py-5 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-brand-gold/30 outline-none transition-all font-medium text-brand-dark" placeholder="professional@company.com" />
                   </div>
-                  <button disabled={loading} className="w-full bg-brand-dark text-white py-6 rounded-2xl font-black text-lg flex items-center justify-center gap-4 hover:bg-brand-accent transition-all shadow-2xl">
-                    {loading ? <Loader2 className="animate-spin" /> : <>Enter Hub <ArrowRight size={22} /></>}
-                  </button>
-                </motion.form>
-              )}
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Security Key</label>
+                  <div className="relative">
+                    <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-300" size={20} />
+                    <input required type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full pl-16 pr-6 py-5 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-brand-gold/30 outline-none transition-all font-medium text-brand-dark" placeholder="••••••••••••" />
+                  </div>
+                </div>
 
-              {method === 'PHONE' && (
-                <motion.div key="phone" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-                  {step === 1 ? (
-                    <form onSubmit={handlePhoneRequest} className="space-y-6">
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Mobile Identity</label>
-                        <div className="relative">
-                          <Smartphone className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-300" size={20} />
-                          <input required type="tel" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} className="w-full pl-16 pr-6 py-5 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-brand-gold/30 outline-none transition-all font-medium" placeholder="+91 00000 00000" />
-                        </div>
-                      </div>
-                      <button disabled={loading} className="w-full bg-brand-dark text-white py-6 rounded-2xl font-black text-lg flex items-center justify-center gap-4 shadow-2xl">
-                        {loading ? <Loader2 className="animate-spin" /> : <>Request One-Time Code <ArrowRight size={22} /></>}
-                      </button>
-                    </form>
-                  ) : (
-                    <form onSubmit={handleOtpVerify} className="space-y-8">
-                      <div className="space-y-2">
-                         <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Enter 6-Digit Code</label>
-                         <input required maxLength={6} value={otpCode} onChange={e => setOtpCode(e.target.value)} className="w-full py-6 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-brand-gold/30 outline-none transition-all text-center text-4xl font-black tracking-[0.5em] text-brand-dark" placeholder="000000" />
-                      </div>
-                      <button disabled={loading} className="w-full bg-brand-dark text-white py-6 rounded-2xl font-black text-lg flex items-center justify-center gap-4 shadow-2xl">
-                        {loading ? <Loader2 className="animate-spin" /> : <>Verify Identity <ArrowRight size={22} /></>}
-                      </button>
-                      <button type="button" onClick={() => setStep(1)} className="w-full text-[10px] font-black uppercase text-brand-gold tracking-widest hover:underline">Change Mobile Identity</button>
-                    </form>
-                  )}
-                </motion.div>
-              )}
+                {error && (
+                  <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex items-center gap-4 p-5 bg-red-50 text-red-600 rounded-[1.5rem] border border-red-100 text-xs font-bold">
+                    <AlertCircle size={22} className="flex-shrink-0" />
+                    <span>{error}</span>
+                  </motion.div>
+                )}
+
+                <button disabled={loading} className="w-full bg-brand-dark text-white py-6 rounded-2xl font-black text-lg flex items-center justify-center gap-4 hover:bg-brand-accent transition-all shadow-2xl disabled:opacity-50">
+                  {loading ? <Loader2 className="animate-spin" /> : <>{mode === 'LOGIN' ? 'Enter Hub' : 'Join Network'} <ArrowRight size={22} /></>}
+                </button>
+              </motion.form>
             </AnimatePresence>
-
-            {error && (
-              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="mt-10 flex items-center gap-4 p-5 bg-red-50 text-red-600 rounded-[1.5rem] border border-red-100 text-xs font-bold">
-                <AlertCircle size={22} className="flex-shrink-0" />
-                <span>{error}</span>
-              </motion.div>
-            )}
 
             <div className="mt-12 pt-8 border-t border-gray-100 text-center">
               <button onClick={() => navigate('/')} className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 hover:text-brand-gold transition-colors">Return to DishaHire Public Site</button>

@@ -2,26 +2,22 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 export enum UserRole {
-  GUEST = 'GUEST',
   USER = 'USER',
   ADMIN = 'ADMIN'
 }
 
 interface UserProfile {
   id?: string;
-  email?: string;
-  phone?: string;
+  email: string;
   name: string;
   role: UserRole;
   picture?: string;
-  provider?: string;
 }
 
 interface AuthContextType {
   user: UserProfile | null;
   loginEmail: (email: string, password: string) => Promise<boolean>;
-  requestOTP: (identifier: string) => Promise<boolean>;
-  verifyOTP: (identifier: string, code: string, name?: string) => Promise<boolean>;
+  signupEmail: (name: string, email: string, password: string) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
   isAdmin: boolean;
@@ -30,13 +26,12 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API_BASE = (window as any).VITE_API_URL || 'https://dishahire-backend.onrender.com/api';
+const API_BASE = '/api';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isChecking, setIsChecking] = useState(true);
 
-  // Industry Standard: On mount, verify the token with the server
   useEffect(() => {
     const verifySession = async () => {
       const token = localStorage.getItem('dh_admin_token');
@@ -54,13 +49,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const data = await response.json();
           setUser(data.user);
         } else {
-          // Token invalid
           localStorage.removeItem('dh_admin_token');
           localStorage.removeItem('dh_user_profile');
           setUser(null);
         }
       } catch (err) {
-        console.error("Session verification failure.");
+        console.error("Session restoration failed.");
       } finally {
         setIsChecking(false);
       }
@@ -86,33 +80,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       return false;
     } catch (err) {
-      console.error("Login Network Error:", err);
       return false;
     }
   };
 
-  const requestOTP = async (identifier: string): Promise<boolean> => {
+  const signupEmail = async (name: string, email: string, password: string): Promise<boolean> => {
     try {
-      const res = await fetch(`${API_BASE}/auth/request-otp`, {
+      const response = await fetch(`${API_BASE}/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ identifier })
+        body: JSON.stringify({ name, email, password })
       });
-      return res.ok;
-    } catch (err) {
-      return false;
-    }
-  };
 
-  const verifyOTP = async (identifier: string, code: string, name?: string): Promise<boolean> => {
-    try {
-      const res = await fetch(`${API_BASE}/auth/verify-otp`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ identifier, code, name })
-      });
-      if (res.ok) {
-        const { token, user } = await res.json();
+      if (response.ok) {
+        const { token, user } = await response.json();
         localStorage.setItem('dh_admin_token', token);
         localStorage.setItem('dh_user_profile', JSON.stringify(user));
         setUser(user);
@@ -136,8 +117,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     <AuthContext.Provider value={{ 
       user, 
       loginEmail, 
-      requestOTP,
-      verifyOTP,
+      signupEmail,
       logout, 
       isAuthenticated: !!user,
       isAdmin: user?.role === UserRole.ADMIN,

@@ -47,7 +47,7 @@ export const db = {
   deleteJob: async (id: string): Promise<void> => fetcher(`/jobs/${id}`, { method: 'DELETE' }),
   
   getEnquiries: async (): Promise<Enquiry[]> => fetcher('/enquiries', {}, []),
-  getMyApplications: async (email: string): Promise<Enquiry[]> => fetcher(`/enquiries?email=${email}`, {}, []),
+  getMyApplications: async (email: string): Promise<Enquiry[]> => fetcher('/my-applications', {}, []),
   
   addEnquiry: async (enquiry: any): Promise<Enquiry> => fetcher('/enquiries', { method: 'POST', body: JSON.stringify(enquiry) }),
   
