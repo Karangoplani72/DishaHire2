@@ -241,7 +241,7 @@ const Footer = () => {
 
 const ProtectedAdmin = ({ children }: { children: React.ReactNode }) => {
   const { isAdmin, isAuthenticated, isChecking } = useAuth();
-  if (isChecking) return null; // Wait for session check
+  if (isChecking) return null; // Wait for security verification
   if (!isAuthenticated || !isAdmin) return <Navigate to="/admin/login" replace />;
   return <>{children}</>;
 };
@@ -249,7 +249,7 @@ const ProtectedAdmin = ({ children }: { children: React.ReactNode }) => {
 const App: React.FC = () => {
   const { isChecking } = useAuth();
 
-  // Industry Standard: Professional splash loader during session verification
+  // Industry Standard: Professional splash loader during security verification
   if (isChecking) {
     return (
       <div className="min-h-screen bg-brand-dark flex flex-col items-center justify-center space-y-8">

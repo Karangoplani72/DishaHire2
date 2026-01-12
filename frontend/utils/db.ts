@@ -1,7 +1,7 @@
 
 import { Job, Enquiry, Testimonial, ApplicationStatus } from '../types';
 
-const API_BASE = (window as any).VITE_API_URL || 'https://dishahire-backend.onrender.com/api';
+const API_BASE = '/api';
 
 const fetcher = async (url: string, options?: RequestInit, fallbackData?: any) => {
   const token = localStorage.getItem('dh_admin_token');
@@ -17,9 +17,7 @@ const fetcher = async (url: string, options?: RequestInit, fallbackData?: any) =
       headers
     });
     
-    // Industry Standard: Handle 401 Globally
     if (res.status === 401) {
-      console.warn("Session expired. Forcing re-authentication.");
       localStorage.removeItem('dh_admin_token');
       localStorage.removeItem('dh_user_profile');
       if (!window.location.hash.includes('login')) {
@@ -49,7 +47,7 @@ export const db = {
   deleteJob: async (id: string): Promise<void> => fetcher(`/jobs/${id}`, { method: 'DELETE' }),
   
   getEnquiries: async (): Promise<Enquiry[]> => fetcher('/enquiries', {}, []),
-  getMyApplications: async (email: string): Promise<Enquiry[]> => fetcher(`/my-applications?email=${email}`, {}, []),
+  getMyApplications: async (email: string): Promise<Enquiry[]> => fetcher(`/enquiries?email=${email}`, {}, []),
   
   addEnquiry: async (enquiry: any): Promise<Enquiry> => fetcher('/enquiries', { method: 'POST', body: JSON.stringify(enquiry) }),
   
@@ -62,5 +60,17 @@ export const db = {
 
   subscribeNewsletter: async (email: string): Promise<void> => fetcher('/subscribers', { method: 'POST', body: JSON.stringify({ email }) }),
   getSubscribers: async (): Promise<any[]> => fetcher('/subscribers', {}, []),
-  getTestimonials: async (): Promise<Testimonial[]> => fetcher('/testimonials', {}, [])
+  getTestimonials: async (): Promise<Testimonial[]> => {
+    return [
+      { 
+        id: '1', 
+        name: 'Rajesh Kumar', 
+        role: 'HR Director', 
+        company: 'FinCorp', 
+        content: 'DishaHire consistently provides candidates who are technically sound and culturally aligned.', 
+        rating: 5, 
+        isApproved: true 
+      }
+    ];
+  }
 };

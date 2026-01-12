@@ -2,10 +2,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Lock, Phone, ShieldCheck, ArrowRight, Loader2, AlertCircle, User, CheckCircle, Smartphone } from 'lucide-react';
+import { Mail, Lock, ShieldCheck, ArrowRight, Loader2, AlertCircle, CheckCircle, Smartphone } from 'lucide-react';
 import { useAuth } from '../components/AuthContext.tsx';
 
-type LoginMethod = 'GOOGLE' | 'EMAIL' | 'PHONE';
+type LoginMethod = 'EMAIL' | 'PHONE';
 
 const Login: React.FC = () => {
   const [method, setMethod] = useState<LoginMethod>('EMAIL');
@@ -19,7 +19,7 @@ const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  const { loginEmail, requestOTP, verifyOTP, loginGoogle } = useAuth();
+  const { loginEmail, requestOTP, verifyOTP } = useAuth();
   const navigate = useNavigate();
 
   const handleEmailLogin = async (e: React.FormEvent) => {
@@ -65,19 +65,6 @@ const Login: React.FC = () => {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    setLoading(true);
-    setError('');
-    const ok = await loginGoogle();
-    if (ok) {
-      setSuccess(true);
-      setTimeout(() => navigate('/'), 1200);
-    } else {
-      setError('External identity synchronization failed.');
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-brand-dark flex items-center justify-center p-4">
       {/* Background Decor */}
@@ -112,7 +99,7 @@ const Login: React.FC = () => {
 
             {/* Tabs */}
             <div className="flex bg-gray-50 p-1.5 rounded-2xl mb-10 border border-gray-100">
-              {(['EMAIL', 'PHONE', 'GOOGLE'] as LoginMethod[]).map(m => (
+              {(['EMAIL', 'PHONE'] as LoginMethod[]).map(m => (
                 <button
                   key={m}
                   onClick={() => { setMethod(m); setError(''); setStep(1); }}
@@ -173,16 +160,6 @@ const Login: React.FC = () => {
                       <button type="button" onClick={() => setStep(1)} className="w-full text-[10px] font-black uppercase text-brand-gold tracking-widest hover:underline">Change Mobile Identity</button>
                     </form>
                   )}
-                </motion.div>
-              )}
-
-              {method === 'GOOGLE' && (
-                <motion.div key="google" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8 py-4">
-                   <p className="text-center text-gray-400 font-serif italic text-lg leading-relaxed">Seamlessly link your verified Google Workspace profile to access the DishaHire network.</p>
-                   <button onClick={handleGoogleLogin} disabled={loading} className="w-full flex items-center justify-center gap-4 py-6 bg-white border-2 border-gray-100 rounded-3xl hover:bg-gray-50 transition-all font-black uppercase text-xs tracking-[0.2em] shadow-lg">
-                     <img src="https://www.google.com/favicon.ico" className="w-6 h-6" alt="G" />
-                     {loading ? 'Synchronizing...' : 'Authorize via Google'}
-                   </button>
                 </motion.div>
               )}
             </AnimatePresence>

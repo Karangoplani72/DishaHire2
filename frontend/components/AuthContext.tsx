@@ -22,11 +22,10 @@ interface AuthContextType {
   loginEmail: (email: string, password: string) => Promise<boolean>;
   requestOTP: (identifier: string) => Promise<boolean>;
   verifyOTP: (identifier: string, code: string, name?: string) => Promise<boolean>;
-  loginGoogle: () => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
   isAdmin: boolean;
-  isChecking: boolean; // Industry Standard: track initial session restoration
+  isChecking: boolean; 
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -37,7 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isChecking, setIsChecking] = useState(true);
 
-  // Industry Standard: On mount, verify the token with the server, don't just trust localStorage
+  // Industry Standard: On mount, verify the token with the server
   useEffect(() => {
     const verifySession = async () => {
       const token = localStorage.getItem('dh_admin_token');
@@ -52,16 +51,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
 
         if (response.ok) {
-          const { user } = await response.json();
-          setUser(user);
+          const data = await response.json();
+          setUser(data.user);
         } else {
-          // Token is likely invalid or expired
+          // Token invalid
           localStorage.removeItem('dh_admin_token');
           localStorage.removeItem('dh_user_profile');
           setUser(null);
         }
       } catch (err) {
-        console.error("Session verification failed. Network issue?");
+        console.error("Session verification failure.");
       } finally {
         setIsChecking(false);
       }
@@ -87,7 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       return false;
     } catch (err) {
-      console.error("Login Error:", err);
+      console.error("Login Network Error:", err);
       return false;
     }
   };
@@ -125,45 +124,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const loginGoogle = async (): Promise<boolean> => {
-    // Standard Production Strategy: Simulate a real OAuth provider redirection/popup
-    // and then sync the result with our backend for JWT issuance.
-    try {
-      const name = prompt("Select Google Account (Simulated OAuth):", "Professional Candidate");
-      if (!name) return false;
-      
-      const email = name.toLowerCase().replace(/\s/g, '.') + "@gmail.com";
-
-      const res = await fetch(`${API_BASE}/auth/social-login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email,
-          name,
-          picture: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=b08d3e&color=fff`,
-          provider: 'GOOGLE'
-        })
-      });
-
-      if (res.ok) {
-        const { token, user } = await res.json();
-        localStorage.setItem('dh_admin_token', token);
-        localStorage.setItem('dh_user_profile', JSON.stringify(user));
-        setUser(user);
-        return true;
-      }
-      return false;
-    } catch (err) {
-      console.error('Google Auth Sync Failure:', err);
-      return false;
-    }
-  };
-
   const logout = () => {
     setUser(null);
     localStorage.removeItem('dh_admin_token');
     localStorage.removeItem('dh_user_profile');
-    // For production, a hard reload on logout clears sensitive in-memory state
     window.location.hash = '/';
     window.location.reload();
   };
@@ -174,7 +138,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       loginEmail, 
       requestOTP,
       verifyOTP,
-      loginGoogle,
       logout, 
       isAuthenticated: !!user,
       isAdmin: user?.role === UserRole.ADMIN,
