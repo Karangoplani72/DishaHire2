@@ -5,11 +5,11 @@ import cors from 'cors';
 import jwt from 'jsonwebtoken';
 
 const app = express();
-const PORT = process.env.PORT || 10000; // Render default
+const PORT = process.env.PORT || 10000; 
 const JWT_SECRET = process.env.JWT_SECRET || 'dishahire-secure-default-key';
 
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || '*',
+  origin: true, 
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
@@ -24,18 +24,10 @@ const MONGO_URI = process.env.MONGO_URI;
 if (!MONGO_URI) {
   console.error("❌ CRITICAL ERROR: MONGO_URI environment variable is missing.");
 } else {
-  // Extracting basic info for logging without exposing credentials
-  const sanitizedUri = MONGO_URI.replace(/:([^@]+)@/, ':****@');
-  console.log(`Connecting to: ${sanitizedUri}`);
-
   mongoose.connect(MONGO_URI)
     .then(() => console.log('✅ Success: Connected to MongoDB Atlas'))
     .catch(err => {
       console.error('❌ MongoDB Connection Failed:', err.message);
-      if (err.message.includes('bad auth')) {
-        console.error('👉 Suggestion: Check the username and password in your MONGO_URI.');
-      }
-      // Do not exit in all environments, but log clearly
     });
 }
 
@@ -93,12 +85,19 @@ const authenticateAdmin = (req: any, res: any, next: any) => {
 app.post('/api/auth/login', (req, res) => {
   const { email, password } = req.body;
   const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'dishahire.0818@gmail.com';
-  const ADMIN_PASS = process.env.ADMIN_PASSWORD;
+  
+  // Priority: 1. Environment Variable, 2. The specific password you provided
+  const ADMIN_PASS = process.env.ADMIN_PASSWORD || 'DishaHire@Admin#2024';
+
+  console.log(`Login attempt for: ${email}`);
 
   if (email === ADMIN_EMAIL && password === ADMIN_PASS) {
     const token = jwt.sign({ email, role: 'ADMIN' }, JWT_SECRET, { expiresIn: '24h' });
+    console.log("✅ Admin login successful");
     return res.json({ token, user: { email, name: 'Admin', role: 'ADMIN' } });
   }
+  
+  console.log("❌ Admin login failed: Invalid credentials");
   res.status(401).json({ error: 'Invalid credentials' });
 });
 

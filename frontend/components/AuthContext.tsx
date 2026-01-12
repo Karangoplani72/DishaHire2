@@ -36,7 +36,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const loginAdmin = async (password: string): Promise<boolean> => {
-    const API_BASE = (window as any).VITE_API_URL || 'http://localhost:3001/api';
+    // UPDATED: Pointing to live backend URL
+    const API_BASE = (window as any).VITE_API_URL || 'https://dishahire-backend.onrender.com/api';
+    
     try {
       const response = await fetch(`${API_BASE}/auth/login`, {
         method: 'POST',
@@ -53,6 +55,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       return false;
     } catch (err) {
+      console.error("Login request failed:", err);
       return false;
     }
   };
@@ -72,7 +75,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
     localStorage.removeItem('dh_admin_token');
     localStorage.removeItem('dh_user_profile');
-    window.location.hash = '/'; 
+    // Using reload to clear any sensitive state
+    window.location.hash = '/';
+    window.location.reload();
   };
 
   return (

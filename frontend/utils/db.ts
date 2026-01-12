@@ -1,8 +1,9 @@
 
 import { Job, Enquiry, Testimonial } from '../types';
 
-// IMPORTANT: Set VITE_API_URL in Render Static Site env vars (e.g., https://your-backend.onrender.com/api)
-const API_BASE = (window as any).VITE_API_URL || 'http://localhost:3001/api';
+// Points to your live Render backend. 
+// Uses environment variable if present, otherwise defaults to your production URL.
+const API_BASE = (window as any).VITE_API_URL || 'https://dishahire-backend.onrender.com/api';
 
 const fetcher = async (url: string, options?: RequestInit, fallbackData?: any) => {
   const token = localStorage.getItem('dh_admin_token');
@@ -25,8 +26,10 @@ const fetcher = async (url: string, options?: RequestInit, fallbackData?: any) =
     }
     
     const data = await res.json();
+    // Return the data directly. If it's an array, it returns the array.
     return data;
   } catch (err) {
+    console.error(`Fetch error for ${url}:`, err);
     if (fallbackData) return fallbackData;
     throw err;
   }
