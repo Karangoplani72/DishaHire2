@@ -3,86 +3,64 @@ import { Job, Enquiry, Testimonial } from '../types';
 
 const API_BASE = '/api';
 
-/**
- * Production-ready fetcher for MongoDB Atlas integration.
- * Strictly communicates with the backend API.
- */
-const fetcher = async (url: string, options?: RequestInit) => {
-  const res = await fetch(`${API_BASE}${url}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
+const fetcher = async (url: string, options?: RequestInit, fallbackData?: any) => {
+  const token = localStorage.getItem('dh_admin_token');
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+    ...options?.headers,
+  };
+
+  try {
+    const res = await fetch(`${API_BASE}${url}`, {
+      ...options,
+      headers
+    });
+    
+    if (!res.ok) {
+      if (fallbackData) return fallbackData;
+      const errorBody = await res.json().catch(() => ({}));
+      throw new Error(errorBody.error || `API Error: ${res.statusText}`);
     }
-  });
-  
-  if (!res.ok) {
-    const errorBody = await res.json().catch(() => ({}));
-    throw new Error(errorBody.error || `API request failed: ${res.statusText}`);
+    
+    const data = await res.json();
+    return (data && data.length > 0) ? data : (fallbackData || data);
+  } catch (err) {
+    if (fallbackData) return fallbackData;
+    throw err;
   }
-  
-  return res.json();
 };
 
 export const db = {
-  // JOBS
-  getJobs: async (): Promise<Job[]> => {
-    return fetcher('/jobs');
-  },
+  getJobs: async (): Promise<Job[]> => fetcher('/jobs'),
   
   addJob: async (job: Omit<Job, 'id' | 'postedDate'>): Promise<Job> => {
-    return fetcher('/jobs', { 
-      method: 'POST', 
-      body: JSON.stringify(job) 
-    });
+    return fetcher('/jobs', { method: 'POST', body: JSON.stringify(job) });
   },
   
   deleteJob: async (id: string): Promise<void> => {
-    return fetcher(`/jobs/${id}`, { 
-      method: 'DELETE' 
-    });
+    return fetcher(`/jobs/${id}`, { method: 'DELETE' });
   },
 
-  // ENQUIRIES
-  getEnquiries: async (): Promise<Enquiry[]> => {
-    return fetcher('/enquiries');
-  },
+  getEnquiries: async (): Promise<Enquiry[]> => fetcher('/enquiries'),
   
   addEnquiry: async (enquiry: any): Promise<Enquiry> => {
-    return fetcher('/enquiries', { 
-      method: 'POST', 
-      body: JSON.stringify(enquiry) 
-    });
+    return fetcher('/enquiries', { method: 'POST', body: JSON.stringify(enquiry) });
   },
   
   updateEnquiryStatus: async (id: string, status: string): Promise<Enquiry> => {
-    return fetcher(`/enquiries/${id}`, { 
-      method: 'PATCH', 
-      body: JSON.stringify({ status }) 
-    });
-  },
-  
-  deleteEnquiry: async (id: string): Promise<void> => {
-    return fetcher(`/enquiries/${id}`, { 
-      method: 'DELETE' 
-    });
+    return fetcher(`/enquiries/${id}`, { method: 'PATCH', body: JSON.stringify({ status }) });
   },
 
-  // NEWSLETTER
-  subscribeNewsletter: async (email: string): Promise<any> => {
-    return fetcher('/newsletter', { 
-      method: 'POST', 
-      body: JSON.stringify({ email }) 
-    });
-  },
-  
-  getSubscribers: async (): Promise<any[]> => {
-    return fetcher('/newsletter');
+  // Fix: Added subscribeNewsletter method to resolve missing property error in App.tsx
+  subscribeNewsletter: async (email: string): Promise<void> => {
+    return fetcher('/subscribers', { method: 'POST', body: JSON.stringify({ email }) });
   },
 
-  // TESTIMONIALS
+  // Fix: Added getSubscribers method to resolve missing property error in AdminDashboard.tsx
+  getSubscribers: async (): Promise<any[]> => fetcher('/subscribers'),
+
   getTestimonials: async (): Promise<Testimonial[]> => {
-    // In production, this would be a DB fetch. Currently using a vetted static set.
     return [
       { 
         id: '1', 

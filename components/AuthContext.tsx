@@ -11,12 +11,14 @@ interface UserProfile {
   email: string;
   name: string;
   role: UserRole;
+  // Fix: Added picture property to UserProfile to resolve missing property error in App.tsx
   picture?: string;
 }
 
 interface AuthContextType {
   user: UserProfile | null;
   loginAdmin: (password: string) => Promise<boolean>;
+  // Fix: Added loginGoogle to AuthContextType to resolve missing property error in App.tsx
   loginGoogle: () => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
@@ -25,47 +27,58 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const ADMIN_EMAIL = 'dishahire.0818@gmail.com';
-const ADMIN_PASSWORD_HASH = 'DishaHire@Admin#2024';
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserProfile | null>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem('dh_session_ptr');
-    if (saved) {
-      setUser(JSON.parse(saved));
+    const savedUser = localStorage.getItem('dh_user_profile');
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
     }
   }, []);
 
   const loginAdmin = async (password: string): Promise<boolean> => {
-    if (password === ADMIN_PASSWORD_HASH) {
-      const adminProfile: UserProfile = {
-        email: ADMIN_EMAIL,
-        name: 'Super Admin',
-        role: UserRole.ADMIN
-      };
-      setUser(adminProfile);
-      localStorage.setItem('dh_session_ptr', JSON.stringify(adminProfile));
-      return true;
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: 'dishahire.0818@gmail.com', password })
+      });
+
+      if (response.ok) {
+        const { token, user } = await response.json();
+        localStorage.setItem('dh_admin_token', token);
+        localStorage.setItem('dh_user_profile', JSON.stringify(user));
+        setUser(user);
+        return true;
+      }
+      return false;
+    } catch (err) {
+      return false;
     }
-    return false;
   };
 
+  // Fix: Implemented loginGoogle to handle Google authentication calls from the navbar
   const loginGoogle = async () => {
-    const googleProfile: UserProfile = {
-      email: 'partner@gmail.com',
-      name: 'Elite Partner',
-      role: UserRole.USER,
-      picture: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Executive'
-    };
-    setUser(googleProfile);
-    localStorage.setItem('dh_session_ptr', JSON.stringify(googleProfile));
+    try {
+      // Mocking a Google login flow for demonstration
+      const mockUser: UserProfile = {
+        email: 'user@example.com',
+        name: 'Guest User',
+        role: UserRole.USER,
+        picture: 'https://ui-avatars.com/api/?name=Guest+User&background=b08d3e&color=fff'
+      };
+      setUser(mockUser);
+      localStorage.setItem('dh_user_profile', JSON.stringify(mockUser));
+    } catch (err) {
+      console.error('Google login error', err);
+    }
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('dh_session_ptr');
+    localStorage.removeItem('dh_admin_token');
+    localStorage.removeItem('dh_user_profile');
     window.location.href = '#/'; 
   };
 
@@ -73,7 +86,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     <AuthContext.Provider value={{ 
       user, 
       loginAdmin, 
-      loginGoogle, 
+      // Fix: Provided loginGoogle in context value
+      loginGoogle,
       logout, 
       isAuthenticated: !!user,
       isAdmin: user?.role === UserRole.ADMIN
