@@ -1,10 +1,10 @@
 
-import { Job, Enquiry, Testimonial } from '../types';
+import { Job, Enquiry, Testimonial, ApplicationStatus } from '../types';
 
 const API_BASE = '/api';
 
 const fetcher = async (url: string, options?: RequestInit, fallbackData?: any) => {
-  const token = localStorage.getItem('dh_admin_token');
+  const token = localStorage.getItem('dh_access_token');
   const headers = {
     'Content-Type': 'application/json',
     ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
@@ -12,66 +12,36 @@ const fetcher = async (url: string, options?: RequestInit, fallbackData?: any) =
   };
 
   try {
-    const res = await fetch(`${API_BASE}${url}`, {
-      ...options,
-      headers
-    });
-    
-    if (!res.ok) {
-      if (fallbackData) return fallbackData;
-      const errorBody = await res.json().catch(() => ({}));
-      throw new Error(errorBody.error || `API Error: ${res.statusText}`);
+    const res = await fetch(`${API_BASE}${url}`, { ...options, headers });
+    if (res.status === 401) {
+      localStorage.removeItem('dh_access_token');
+      throw new Error('Unauthorized');
     }
-    
     const data = await res.json();
-    return (data && data.length > 0) ? data : (fallbackData || data);
+    return res.ok ? data : fallbackData;
   } catch (err) {
-    if (fallbackData) return fallbackData;
-    throw err;
+    return fallbackData;
   }
 };
 
 export const db = {
-  getJobs: async (): Promise<Job[]> => fetcher('/jobs'),
+  getJobs: () => fetcher('/jobs', {}, []),
+  addJob: (job: any) => fetcher('/jobs', { method: 'POST', body: JSON.stringify(job) }),
+  deleteJob: (id: string) => fetcher(`/jobs/${id}`, { method: 'DELETE' }),
   
-  addJob: async (job: Omit<Job, 'id' | 'postedDate'>): Promise<Job> => {
-    return fetcher('/jobs', { method: 'POST', body: JSON.stringify(job) });
-  },
+  getEnquiries: () => fetcher('/enquiries', {}, []),
+  addEnquiry: (enq: any) => fetcher('/enquiries', { method: 'POST', body: JSON.stringify(enq) }),
+  getMyApplications: (email: string) => fetcher(`/enquiries?email=${email}`, {}, []),
   
-  deleteJob: async (id: string): Promise<void> => {
-    return fetcher(`/jobs/${id}`, { method: 'DELETE' });
-  },
+  getBlogs: () => fetcher('/blogs', {}, []),
+  addBlog: (blog: any) => fetcher('/blogs', { method: 'POST', body: JSON.stringify(blog) }),
+  deleteBlog: (id: string) => fetcher(`/blogs/${id}`, { method: 'DELETE' }),
 
-  getEnquiries: async (): Promise<Enquiry[]> => fetcher('/enquiries'),
-  
-  addEnquiry: async (enquiry: any): Promise<Enquiry> => {
-    return fetcher('/enquiries', { method: 'POST', body: JSON.stringify(enquiry) });
-  },
-  
-  updateEnquiryStatus: async (id: string, status: string): Promise<Enquiry> => {
-    return fetcher(`/enquiries/${id}`, { method: 'PATCH', body: JSON.stringify({ status }) });
-  },
+  getTestimonials: () => fetcher('/testimonials', {}, []),
+  getAdminTestimonials: () => fetcher('/admin/testimonials', {}, []),
+  submitFeedback: (fb: any) => fetcher('/testimonials', { method: 'POST', body: JSON.stringify(fb) }),
+  moderateTestimonial: (id: string, update: any) => fetcher(`/testimonials/${id}`, { method: 'PATCH', body: JSON.stringify(update) }),
 
-  // Fix: Added subscribeNewsletter method to resolve missing property error in App.tsx
-  subscribeNewsletter: async (email: string): Promise<void> => {
-    return fetcher('/subscribers', { method: 'POST', body: JSON.stringify({ email }) });
-  },
-
-  // Fix: Added getSubscribers method to resolve missing property error in AdminDashboard.tsx
-  getSubscribers: async (): Promise<any[]> => fetcher('/subscribers'),
-
-  getTestimonials: async (): Promise<Testimonial[]> => {
-    return [
-      { 
-        id: '1', 
-        name: 'Rajesh Kumar', 
-        role: 'HR Director', 
-        company: 'FinCorp', 
-        content: 'Finding a consultancy that understands Quality over Quantity is rare. DishaHire consistently provides candidates who are not just technically sound but also culturally aligned.', 
-        rating: 5, 
-        isApproved: true, 
-        adminReply: 'Thank you for the trust, Rajesh.' 
-      }
-    ];
-  }
+  subscribeNewsletter: (email: string) => fetcher('/subscribers', { method: 'POST', body: JSON.stringify({ email }) }),
+  getSubscribers: () => fetcher('/subscribers', {}, [])
 };

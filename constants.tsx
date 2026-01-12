@@ -2,21 +2,23 @@
 import React from 'react';
 import { Briefcase, Users, FileCheck, Building2, TrendingUp, ShieldCheck } from 'lucide-react';
 
-export const BRAND_COLORS = {
-  DARK: '#0d3d3b',
-  GOLD: '#b08d3e',
-  TEXT_GOLD: '#c7a354',
-};
-
-export const LOGO_URL = 'https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/www/public/og.png'; // Placeholder for the actual logo asset if not provided locally
-
 export const NAV_LINKS = [
   { name: 'Home', href: '/' },
   { name: 'About', href: '/about' },
   { name: 'Services', href: '/services' },
   { name: 'Jobs', href: '/jobs' },
+  { name: 'Career', href: '/career' },
   { name: 'Terms', href: '/terms' },
 ];
+
+export const CONTACT_INFO = {
+  email: 'dishahire.0818@gmail.com',
+  phone: '+91 84879 98492',
+  whatsapp: 'https://wa.me/918487998492',
+  linkedin: 'https://www.linkedin.com/in/sandhya-tekwani-711123274',
+  instagram: 'https://www.instagram.com/disha_hire_0818',
+  address: 'Rajkot, Gujarat'
+};
 
 export const INDUSTRIES = [
   'IT & Technology',
@@ -25,15 +27,6 @@ export const INDUSTRIES = [
   'Sales & Marketing',
   'Healthcare',
   'Finance & Accounts'
-];
-
-export const PROCESS_STEPS = [
-  { icon: <Building2 className="w-8 h-8" />, title: 'Requirements', desc: 'Understanding client goals & culture' },
-  { icon: <TrendingUp className="w-8 h-8" />, title: 'Sourcing', desc: 'Deep-dive talent hunting across channels' },
-  { icon: <FileCheck className="w-8 h-8" />, title: 'Screening', desc: 'Rigorous assessment & technical vetting' },
-  { icon: <Users className="w-8 h-8" />, title: 'Coordination', desc: 'Seamless interview management' },
-  { icon: <Briefcase className="w-8 h-8" />, title: 'Placement', desc: 'Final selection and offer support' },
-  { icon: <ShieldCheck className="w-8 h-8" />, title: 'Follow-up', desc: 'Post-placement success tracking' },
 ];
 
 export const COMMERCIAL_TERMS = [

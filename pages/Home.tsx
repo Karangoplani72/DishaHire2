@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Briefcase, Building, Users, CheckCircle2, Star, Quote, ChevronRight, ShieldCheck } from 'lucide-react';
-import { INDUSTRIES, PROCESS_STEPS } from '../constants.tsx';
+// Removed missing PROCESS_STEPS member from import to resolve module error
+import { INDUSTRIES } from '../constants.tsx';
 import EnquiryModal from '../components/EnquiryModal.tsx';
 import { EnquiryType, Testimonial } from '../types.ts';
 import { db } from '../utils/db.ts';

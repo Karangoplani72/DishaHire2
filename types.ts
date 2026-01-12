@@ -4,6 +4,9 @@ export enum EnquiryType {
   EMPLOYER = 'EMPLOYER'
 }
 
+// Added ApplicationStatus type to resolve import error in utils/db.ts
+export type ApplicationStatus = 'PENDING' | 'REPLIED' | 'ARCHIVED' | 'REVIEWING' | 'INTERVIEWING' | 'SHORTLISTED' | 'OFFERED' | 'REJECTED';
+
 export interface Job {
   id: string;
   title: string;
@@ -22,7 +25,8 @@ export interface Enquiry {
   email: string;
   phone: string;
   message: string;
-  status: 'PENDING' | 'REPLIED' | 'ARCHIVED';
+  // Updated status to use ApplicationStatus type
+  status: ApplicationStatus;
   priority?: 'NORMAL' | 'HIGH';
   company?: string;
   experience?: string;
