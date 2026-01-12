@@ -7,121 +7,109 @@ export enum UserRole {
 }
 
 interface UserProfile {
-  id?: string;
+  id: string;
   email: string;
   name: string;
   role: UserRole;
+  // Added picture property to resolve missing property error in App.tsx
   picture?: string;
 }
 
 interface AuthContextType {
   user: UserProfile | null;
-  loginEmail: (email: string, password: string) => Promise<boolean>;
-  signupEmail: (name: string, email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signup: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   isAuthenticated: boolean;
   isAdmin: boolean;
-  isChecking: boolean; 
+  isChecking: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-const API_BASE = '/api';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
-    const verifySession = async () => {
-      const token = localStorage.getItem('dh_admin_token');
+    const verify = async () => {
+      const token = localStorage.getItem('dh_access_token');
       if (!token) {
         setIsChecking(false);
         return;
       }
-
       try {
-        const response = await fetch(`${API_BASE}/auth/me`, {
+        const res = await fetch('/api/auth/me', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-
-        if (response.ok) {
-          const data = await response.json();
+        if (res.ok) {
+          const data = await res.json();
           setUser(data.user);
         } else {
-          localStorage.removeItem('dh_admin_token');
-          localStorage.removeItem('dh_user_profile');
-          setUser(null);
+          localStorage.removeItem('dh_access_token');
         }
-      } catch (err) {
-        console.error("Session restoration failed.");
+      } catch (e) {
+        console.error("Auth verify failed");
       } finally {
         setIsChecking(false);
       }
     };
-
-    verifySession();
+    verify();
   }, []);
 
-  const loginEmail = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string) => {
     try {
-      const response = await fetch(`${API_BASE}/auth/login`, {
+      const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       });
-
-      if (response.ok) {
-        const { token, user } = await response.json();
-        localStorage.setItem('dh_admin_token', token);
-        localStorage.setItem('dh_user_profile', JSON.stringify(user));
-        setUser(user);
-        return true;
+      const data = await res.json();
+      if (res.ok) {
+        localStorage.setItem('dh_access_token', data.token);
+        setUser(data.user);
+        return { success: true };
       }
-      return false;
-    } catch (err) {
-      return false;
+      return { success: false, error: data.error };
+    } catch (e) {
+      return { success: false, error: 'Network failure' };
     }
   };
 
-  const signupEmail = async (name: string, email: string, password: string): Promise<boolean> => {
+  const signup = async (name: string, email: string, password: string) => {
     try {
-      const response = await fetch(`${API_BASE}/auth/signup`, {
+      const res = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password })
       });
-
-      if (response.ok) {
-        const { token, user } = await response.json();
-        localStorage.setItem('dh_admin_token', token);
-        localStorage.setItem('dh_user_profile', JSON.stringify(user));
-        setUser(user);
-        return true;
+      const data = await res.json();
+      if (res.ok) {
+        localStorage.setItem('dh_access_token', data.token);
+        setUser(data.user);
+        return { success: true };
       }
-      return false;
-    } catch (err) {
-      return false;
+      return { success: false, error: data.error };
+    } catch (e) {
+      return { success: false, error: 'Network failure' };
     }
   };
 
   const logout = () => {
+    localStorage.removeItem('dh_access_token');
     setUser(null);
-    localStorage.removeItem('dh_admin_token');
-    localStorage.removeItem('dh_user_profile');
     window.location.hash = '/';
-    window.location.reload();
   };
 
   return (
     <AuthContext.Provider value={{ 
       user, 
-      loginEmail, 
-      signupEmail,
+      login, 
+      signup, 
       logout, 
       isAuthenticated: !!user,
       isAdmin: user?.role === UserRole.ADMIN,
-      isChecking
+      isChecking 
     }}>
       {children}
     </AuthContext.Provider>

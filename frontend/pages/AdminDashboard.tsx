@@ -3,23 +3,12 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LayoutDashboard, Users, Briefcase, MessageSquare, LogOut, 
-  Trash2, Plus, X, Loader2, Database, Download, ExternalLink, Mail,
-  TrendingUp, Calendar, Filter, Send, ArrowUpRight,
-  Building, MapPin, CheckCircle
+  Trash2, Plus, X, Loader2, Database, ExternalLink, Mail,
+  Calendar, Filter, Send, Download
 } from 'lucide-react';
 import { Job, Enquiry, ApplicationStatus } from '../types.ts';
 import { db } from '../utils/db.ts';
 import { useAuth } from '../components/AuthContext.tsx';
-
-const STATUS_OPTIONS: { value: ApplicationStatus, label: string }[] = [
-  { value: 'PENDING', label: 'Pending Review' },
-  { value: 'REVIEWING', label: 'In Review' },
-  { value: 'INTERVIEWING', label: 'Interviewing' },
-  { value: 'SHORTLISTED', label: 'Shortlisted' },
-  { value: 'OFFERED', label: 'Offered' },
-  { value: 'REJECTED', label: 'Rejected' },
-  { value: 'ARCHIVED', label: 'Archived' }
-];
 
 const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'enquiries' | 'jobs' | 'subscribers'>('overview');
@@ -29,12 +18,6 @@ const AdminDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isJobModalOpen, setIsJobModalOpen] = useState(false);
   const [publishing, setPublishing] = useState(false);
-  
-  // Filtering States
-  const [dateStart, setDateStart] = useState('');
-  const [dateEnd, setDateEnd] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
-
   const { logout } = useAuth();
   
   const [newJob, setNewJob] = useState({ 
@@ -68,45 +51,12 @@ const AdminDashboard: React.FC = () => {
     refreshData();
   }, []);
 
-  const stats = useMemo(() => {
-    const today = new Date().toDateString();
-    return {
-      totalEnquiries: enquiries.length,
-      todayEnquiries: enquiries.filter(e => new Date(e.createdAt).toDateString() === today).length,
-      activeJobs: jobs.length,
-      totalNetwork: subscribers.length
-    };
-  }, [enquiries, jobs, subscribers]);
-
-  const filteredEnquiries = useMemo(() => {
-    return enquiries.filter(e => {
-      const matchSearch = e.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          e.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          (e.subject && e.subject.toLowerCase().includes(searchQuery.toLowerCase()));
-      
-      const eDate = new Date(e.createdAt).getTime();
-      
-      const matchStart = dateStart ? eDate >= new Date(dateStart).setHours(0,0,0,0) : true;
-      const matchEnd = dateEnd ? eDate <= new Date(dateEnd).setHours(23,59,59,999) : true; 
-      
-      return matchSearch && matchStart && matchEnd;
-    }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }, [enquiries, searchQuery, dateStart, dateEnd]);
-
-  const handleStatusChange = async (id: string, newStatus: ApplicationStatus) => {
-    try {
-      await db.updateEnquiryStatus(id, newStatus);
-      setEnquiries(prev => prev.map(e => e.id === id ? { ...e, status: newStatus } : e));
-    } catch (err) {
-      alert('Status update failed.');
-    }
-  };
-
   const handleAddJob = async (e: React.FormEvent) => {
     e.preventDefault();
     setPublishing(true);
     try {
-      await db.addJob(newJob);
+      // Direct call to root API
+      const response = await db.addJob(newJob);
       setIsJobModalOpen(false);
       await refreshData();
       alert('Role successfully published to Atlas Hub.');
@@ -125,12 +75,6 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleEmailReply = (enquiry: Enquiry) => {
-    const subject = encodeURIComponent(`RE: DishaHire - ${enquiry.subject || 'Inquiry'}`);
-    const body = encodeURIComponent(`Dear ${enquiry.name},\n\nThank you for reaching out to DishaHire. We have reviewed your message and would like to discuss this further.\n\nBest regards,\nDishaHire Team`);
-    window.location.href = `mailto:${enquiry.email}?subject=${subject}&body=${body}`;
-  };
-
   const downloadResume = (base64Data: string, fileName: string) => {
     const link = document.createElement('a');
     link.href = base64Data;
@@ -143,8 +87,8 @@ const AdminDashboard: React.FC = () => {
       {/* Sidebar */}
       <motion.div initial={{ x: -20 }} animate={{ x: 0 }} className="w-80 bg-brand-dark text-white flex flex-col fixed inset-y-0 z-20 shadow-2xl">
         <div className="p-10 border-b border-white/10">
-           <div className="text-2xl font-serif font-bold tracking-widest">DISHA<span className="text-brand-gold">ADMIN</span></div>
-           <div className="text-[10px] uppercase tracking-widest text-gray-500 mt-1 font-bold">Rajkot Hub Controller</div>
+           <div className="text-2xl font-serif font-bold tracking-widest">DISHA<span className="text-brand-gold ml-1">ADMIN</span></div>
+           <div className="text-[10px] uppercase tracking-widest text-gray-500 mt-1 font-bold">Secure Access Portal</div>
         </div>
         <nav className="flex-grow py-8 space-y-1">
           {[
@@ -166,7 +110,7 @@ const AdminDashboard: React.FC = () => {
         <div className="p-10 border-t border-white/10 space-y-4">
           <button onClick={() => window.location.hash = '/'} className="w-full flex items-center space-x-4 text-gray-500 hover:text-white transition-all text-[11px] uppercase tracking-widest font-bold">
             <ExternalLink size={18} />
-            <span>View Website</span>
+            <span>View Hub</span>
           </button>
           <button onClick={logout} className="w-full flex items-center space-x-4 text-red-400 hover:text-red-300 transition-all text-[11px] uppercase tracking-widest font-bold">
             <LogOut size={18} />
@@ -177,162 +121,58 @@ const AdminDashboard: React.FC = () => {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col ml-80">
-        <header className="h-20 bg-white border-b px-12 flex items-center justify-between sticky top-0 z-10 shadow-sm">
+        <header className="h-24 bg-white border-b px-12 flex items-center justify-between sticky top-0 z-10 shadow-sm">
           <h1 className="font-serif font-bold text-xl text-brand-dark capitalize">{activeTab}</h1>
           <div className="flex items-center space-x-4">
-             <div className="text-[10px] font-black text-brand-gold bg-brand-gold/5 px-3 py-1 rounded border border-brand-gold/20 flex items-center gap-2">
-               <Database size={12}/> ATLAS SYNC ACTIVE
+             <div className="text-[10px] font-black text-brand-gold bg-brand-gold/5 px-4 py-2 rounded-full border border-brand-gold/20 flex items-center gap-2">
+               <Database size={14}/> CLUSTER SYNC ACTIVE
              </div>
              <button onClick={refreshData} className="p-2 text-gray-400 hover:text-brand-dark transition-colors">
-               <Loader2 size={18} className={loading ? 'animate-spin' : ''} />
+               <Loader2 size={20} className={loading ? 'animate-spin' : ''} />
              </button>
           </div>
         </header>
 
         <main className="p-12 space-y-10">
-          {activeTab === 'overview' && (
-            <div className="space-y-10 animate-in fade-in duration-500">
-               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                  {[
-                    { label: "Today's Inquiries", val: stats.todayEnquiries, icon: <Calendar className="text-brand-gold"/>, color: 'bg-brand-gold/10' },
-                    { label: "Total Inquiries", val: stats.totalEnquiries, icon: <MessageSquare className="text-blue-500"/>, color: 'bg-blue-50' },
-                    { label: "Active Roles", val: stats.activeJobs, icon: <Briefcase className="text-green-500"/>, color: 'bg-green-50' },
-                    { label: "Talent Network", val: stats.totalNetwork, icon: <Users className="text-purple-500"/>, color: 'bg-purple-50' }
-                  ].map((s, i) => (
-                    <div key={i} className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
-                      <div className={`w-12 h-12 ${s.color} rounded-2xl flex items-center justify-center mb-4`}>
-                        {s.icon}
-                      </div>
-                      <div className="text-3xl font-serif font-bold text-brand-dark">{s.val}</div>
-                      <div className="text-[10px] uppercase font-black text-gray-400 tracking-widest mt-1">{s.label}</div>
-                    </div>
-                  ))}
-               </div>
-
-               <div className="bg-white rounded-3xl border border-gray-100 p-10">
-                  <h2 className="text-xl font-serif font-bold text-brand-dark mb-6">Recent Global Inquiries</h2>
-                  <div className="space-y-4">
-                    {enquiries.slice(0, 5).map(e => (
-                      <div key={e.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-transparent hover:border-brand-gold/10 transition-all">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center font-bold text-brand-dark shadow-sm">
-                            {e.name.charAt(0)}
-                          </div>
-                          <div>
-                            <div className="font-bold text-brand-dark text-sm">{e.name}</div>
-                            <div className="text-[10px] text-gray-400 uppercase font-bold tracking-widest">{e.subject || e.type}</div>
-                          </div>
-                        </div>
-                        <div className="text-[10px] font-bold text-gray-400">{new Date(e.createdAt).toLocaleDateString()}</div>
-                      </div>
-                    ))}
-                  </div>
-               </div>
-            </div>
-          )}
-
           {activeTab === 'enquiries' && (
-            <div className="space-y-8 animate-in fade-in duration-500">
-              <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm flex flex-col md:flex-row gap-6 items-end">
-                <div className="flex-1 space-y-2">
-                  <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Search</label>
-                  <div className="relative">
-                    <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={16} />
-                    <input 
-                      type="text" 
-                      placeholder="Name, Email, or Subject..." 
-                      className="w-full pl-12 pr-4 py-3 bg-gray-50 border rounded-xl outline-none focus:border-brand-gold/30 text-sm"
-                      value={searchQuery}
-                      onChange={e => setSearchQuery(e.target.value)}
-                    />
+            <div className="space-y-6">
+              {enquiries.map(e => (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} key={e.id} className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex gap-4">
+                      <div className="w-14 h-14 bg-brand-dark text-white rounded-2xl flex items-center justify-center font-bold text-xl">
+                        {e.name.charAt(0)}
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold text-brand-dark">{e.name}</h3>
+                        <p className="text-sm text-gray-400">{e.email}</p>
+                      </div>
+                    </div>
+                    <div className="text-[10px] font-black text-brand-gold bg-brand-gold/5 px-3 py-1 rounded uppercase tracking-widest">
+                      {e.type}
+                    </div>
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">From Date</label>
-                  <input type="date" className="w-full px-4 py-3 bg-gray-50 border rounded-xl outline-none text-sm" value={dateStart} onChange={e => setDateStart(e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">To Date</label>
-                  <input type="date" className="w-full px-4 py-3 bg-gray-50 border rounded-xl outline-none text-sm" value={dateEnd} onChange={e => setDateEnd(e.target.value)} />
-                </div>
-                <button onClick={() => { setSearchQuery(''); setDateStart(''); setDateEnd(''); }} className="px-6 py-3 text-brand-gold text-xs font-bold hover:underline">Reset</button>
-              </div>
-
-              <div className="space-y-6">
-                {filteredEnquiries.map(e => (
-                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key={e.id} className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm group hover:shadow-xl transition-all">
-                    <div className="flex justify-between items-start mb-6">
-                      <div className="flex gap-4">
-                        <div className="w-14 h-14 bg-brand-dark text-white rounded-[1.5rem] flex items-center justify-center text-xl font-bold">
-                          {e.name.charAt(0)}
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-3">
-                            <h3 className="text-xl font-bold text-brand-dark">{e.name}</h3>
-                            <span className="text-[9px] font-black uppercase px-2 py-1 rounded-full bg-brand-gold/10 text-brand-gold">
-                              {e.type}
-                            </span>
-                          </div>
-                          <div className="flex items-center text-sm text-gray-500 mt-1 gap-4 font-medium">
-                            <span className="flex items-center gap-1 font-bold text-brand-dark">{e.subject}</span>
-                            <span className="flex items-center gap-1"><Mail size={14}/> {e.email}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex flex-col items-end gap-3">
-                        <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{new Date(e.createdAt).toLocaleDateString()}</div>
-                        <div className="relative">
-                          <select 
-                            value={e.status} 
-                            onChange={(ev) => handleStatusChange(e.id, ev.target.value as ApplicationStatus)}
-                            className="bg-brand-light border border-brand-gold/20 text-brand-dark text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-xl outline-none focus:ring-2 ring-brand-gold/30 transition-all cursor-pointer"
-                          >
-                            {STATUS_OPTIONS.map(opt => (
-                              <option key={opt.value} value={opt.value}>{opt.label}</option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
+                  <p className="bg-gray-50 p-6 rounded-2xl text-sm italic mb-6 border border-gray-100 font-serif">"{e.message}"</p>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-gray-400">{new Date(e.createdAt).toLocaleDateString()}</span>
+                    <div className="flex gap-3">
+                      {e.resumeData && (
+                        <button onClick={() => downloadResume(e.resumeData!, e.resumeName!)} className="bg-brand-light text-brand-dark px-6 py-2 rounded-xl text-xs font-bold border border-brand-gold/10 hover:bg-brand-gold/10">
+                          <Download size={14}/> CV
+                        </button>
+                      )}
+                      <a href={`mailto:${e.email}`} className="bg-brand-dark text-white px-6 py-2 rounded-xl text-xs font-bold hover:bg-brand-accent">Reply</a>
                     </div>
-                    
-                    <div className="bg-gray-50 p-6 rounded-2xl text-sm text-gray-700 leading-relaxed border border-gray-100 mb-6 font-serif italic">
-                      "{e.message}"
-                    </div>
-
-                    <div className="flex items-center justify-between pt-2">
-                       <div className="flex items-center gap-6">
-                          {e.experience && (
-                            <div className="flex flex-col">
-                              <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Experience Profile</span>
-                              <span className="text-xs font-bold text-brand-dark">{e.experience}</span>
-                            </div>
-                          )}
-                          {e.priority === 'HIGH' && (
-                            <span className="text-[10px] text-red-600 font-black uppercase bg-red-50 px-3 py-1 rounded-full animate-pulse">Urgent Priority</span>
-                          )}
-                       </div>
-                       
-                       <div className="flex items-center gap-4">
-                         {e.resumeData && (
-                           <button onClick={() => downloadResume(e.resumeData!, e.resumeName!)} className="flex items-center gap-2 bg-brand-light text-brand-dark px-6 py-3 rounded-xl text-xs font-bold border border-brand-gold/10 hover:bg-brand-gold/10">
-                             <Download size={14}/> Download CV
-                           </button>
-                         )}
-                         <button onClick={() => handleEmailReply(e)} className="flex items-center gap-2 bg-brand-dark text-white px-8 py-3 rounded-xl text-xs font-bold hover:bg-brand-accent transition-all shadow-lg shadow-brand-dark/10">
-                           <Send size={14}/> Compose Reply
-                         </button>
-                       </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
+                  </div>
+                </motion.div>
+              ))}
             </div>
           )}
-          
+
           {activeTab === 'jobs' && (
             <div className="space-y-8 animate-in fade-in duration-500">
                <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-serif font-bold text-brand-dark">Active Recruitment Listings</h2>
+                <h2 className="text-2xl font-serif font-bold text-brand-dark">Atlas Recruitment Listings</h2>
                 <button onClick={() => setIsJobModalOpen(true)} className="bg-brand-dark text-white px-8 py-4 rounded-2xl font-bold flex items-center gap-3">
                   <Plus size={20} /> Add Role
                 </button>
@@ -354,27 +194,23 @@ const AdminDashboard: React.FC = () => {
           )}
 
           {activeTab === 'subscribers' && (
-            <div className="bg-white rounded-[2.5rem] border border-gray-100 overflow-hidden shadow-sm animate-in fade-in duration-500">
-              <table className="w-full text-left">
-                <thead className="bg-gray-50/50">
+            <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden">
+               <table className="w-full text-left">
+                <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest text-gray-400">Member Email</th>
-                    <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest text-gray-400">Date Joined</th>
-                    <th className="px-10 py-6"></th>
+                    <th className="px-10 py-6 text-[10px] font-black uppercase text-gray-400 tracking-widest">Email Address</th>
+                    <th className="px-10 py-6 text-[10px] font-black uppercase text-gray-400 tracking-widest">Date Joined</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">
                   {subscribers.map(sub => (
-                    <tr key={sub.id} className="hover:bg-gray-50/50 transition-colors">
+                    <tr key={sub.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-10 py-6 font-bold text-brand-dark">{sub.email}</td>
                       <td className="px-10 py-6 text-xs text-gray-500">{new Date(sub.createdAt).toLocaleDateString()}</td>
-                      <td className="px-10 py-6 text-right">
-                        <a href={`mailto:${sub.email}`} className="text-[10px] font-black text-brand-gold uppercase tracking-widest hover:underline px-6">Email</a>
-                      </td>
                     </tr>
                   ))}
                 </tbody>
-              </table>
+               </table>
             </div>
           )}
         </main>
@@ -384,51 +220,43 @@ const AdminDashboard: React.FC = () => {
         {isJobModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-brand-dark/95 backdrop-blur-md" onClick={() => setIsJobModalOpen(false)} />
-            <div className="bg-white w-full max-w-3xl rounded-[3rem] p-12 relative z-10 shadow-2xl">
+            <div className="bg-white w-full max-w-2xl rounded-[3rem] p-12 relative z-10 shadow-2xl">
               <h3 className="text-3xl font-serif font-bold text-brand-dark mb-10">New Atlas Posting</h3>
               <form onSubmit={handleAddJob} className="space-y-6">
                 <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Job Title</label>
-                    <input required value={newJob.title} onChange={e => setNewJob({...newJob, title: e.target.value})} className="w-full px-5 py-4 bg-gray-50 border rounded-2xl outline-none focus:border-brand-gold/30" placeholder="e.g. Senior HR Manager" />
+                    <input required value={newJob.title} onChange={e => setNewJob({...newJob, title: e.target.value})} className="w-full px-5 py-4 bg-gray-50 border rounded-2xl outline-none focus:border-brand-gold/30" placeholder="e.g. HR Lead" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Company</label>
-                    <input required value={newJob.company} onChange={e => setNewJob({...newJob, company: e.target.value})} className="w-full px-5 py-4 bg-gray-50 border rounded-2xl outline-none focus:border-brand-gold/30" placeholder="Organization Name" />
+                    <input required value={newJob.company} onChange={e => setNewJob({...newJob, company: e.target.value})} className="w-full px-5 py-4 bg-gray-50 border rounded-2xl outline-none focus:border-brand-gold/30" placeholder="Organization" />
                   </div>
                 </div>
-                <div className="grid grid-cols-3 gap-6">
+                <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Location</label>
                     <input required value={newJob.location} onChange={e => setNewJob({...newJob, location: e.target.value})} className="w-full px-5 py-4 bg-gray-50 border rounded-2xl outline-none focus:border-brand-gold/30" placeholder="City" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Industry</label>
-                    <select value={newJob.industry} onChange={e => setNewJob({...newJob, industry: e.target.value})} className="w-full px-5 py-4 bg-gray-50 border rounded-2xl outline-none cursor-pointer">
-                      <option>IT & Technology</option>
-                      <option>Manufacturing</option>
-                      <option>Sales & Marketing</option>
-                      <option>Healthcare</option>
-                      <option>Finance</option>
-                      <option>BPO Support</option>
-                    </select>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Job Type</label>
-                    <select value={newJob.type} onChange={e => setNewJob({...newJob, type: e.target.value})} className="w-full px-5 py-4 bg-gray-50 border rounded-2xl outline-none cursor-pointer">
-                      <option>Full-time</option>
-                      <option>Contract</option>
-                      <option>Part-time</option>
-                      <option>Freelance</option>
-                    </select>
+                    <input required value={newJob.industry} onChange={e => setNewJob({...newJob, industry: e.target.value})} className="w-full px-5 py-4 bg-gray-50 border rounded-2xl outline-none focus:border-brand-gold/30" placeholder="e.g. Technology" />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Job Description & Requirements</label>
-                  <textarea rows={6} required value={newJob.description} onChange={e => setNewJob({...newJob, description: e.target.value})} className="w-full px-5 py-4 bg-gray-50 border rounded-2xl outline-none resize-none leading-relaxed focus:border-brand-gold/30" placeholder="Elaborate on specific requirements and responsibilities..."></textarea>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Job Type</label>
+                  <select value={newJob.type} onChange={e => setNewJob({...newJob, type: e.target.value})} className="w-full px-5 py-4 bg-gray-50 border rounded-2xl outline-none cursor-pointer">
+                    <option>Full-time</option>
+                    <option>Contract</option>
+                    <option>Part-time</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Description</label>
+                  <textarea rows={4} required value={newJob.description} onChange={e => setNewJob({...newJob, description: e.target.value})} className="w-full px-5 py-4 bg-gray-50 border rounded-2xl outline-none resize-none leading-relaxed focus:border-brand-gold/30" placeholder="Key responsibilities..."></textarea>
                 </div>
                 <button disabled={publishing} type="submit" className="w-full bg-brand-dark text-white py-5 rounded-2xl font-bold flex items-center justify-center gap-4 hover:bg-brand-accent transition-all shadow-xl">
-                  {publishing ? <Loader2 className="animate-spin"/> : <><Database size={20}/> Publish to Atlas Hub</>}
+                  {publishing ? <Loader2 className="animate-spin"/> : <><Database size={20}/> Publish Listing</>}
                 </button>
               </form>
             </div>

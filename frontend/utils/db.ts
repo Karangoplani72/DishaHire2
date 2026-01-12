@@ -4,7 +4,7 @@ import { Job, Enquiry, Testimonial, ApplicationStatus } from '../types';
 const API_BASE = '/api';
 
 const fetcher = async (url: string, options?: RequestInit, fallbackData?: any) => {
-  const token = localStorage.getItem('dh_admin_token');
+  const token = localStorage.getItem('dh_access_token');
   const headers = {
     'Content-Type': 'application/json',
     ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
@@ -18,8 +18,7 @@ const fetcher = async (url: string, options?: RequestInit, fallbackData?: any) =
     });
     
     if (res.status === 401) {
-      localStorage.removeItem('dh_admin_token');
-      localStorage.removeItem('dh_user_profile');
+      localStorage.removeItem('dh_access_token');
       if (!window.location.hash.includes('login')) {
          window.location.hash = '/login';
       }
@@ -45,19 +44,16 @@ export const db = {
   getJobs: async (): Promise<Job[]> => fetcher('/jobs', {}, []),
   addJob: async (job: any): Promise<Job> => fetcher('/jobs', { method: 'POST', body: JSON.stringify(job) }),
   deleteJob: async (id: string): Promise<void> => fetcher(`/jobs/${id}`, { method: 'DELETE' }),
-  
   getEnquiries: async (): Promise<Enquiry[]> => fetcher('/enquiries', {}, []),
-  getMyApplications: async (email: string): Promise<Enquiry[]> => fetcher('/my-applications', {}, []),
-  
-  addEnquiry: async (enquiry: any): Promise<Enquiry> => fetcher('/enquiries', { method: 'POST', body: JSON.stringify(enquiry) }),
-  
+  // Added getMyApplications to resolve missing property error in MyApplications.tsx
+  getMyApplications: async (email: string): Promise<Enquiry[]> => fetcher(`/enquiries?email=${email}`, {}, []),
+  addEnquiry: async (enquiry: any): Promise<any> => fetcher('/enquiries', { method: 'POST', body: JSON.stringify(enquiry) }),
   updateEnquiryStatus: async (id: string, status: ApplicationStatus): Promise<Enquiry> => {
     return fetcher(`/enquiries/${id}/status`, { 
       method: 'PATCH', 
       body: JSON.stringify({ status }) 
     });
   },
-
   subscribeNewsletter: async (email: string): Promise<void> => fetcher('/subscribers', { method: 'POST', body: JSON.stringify({ email }) }),
   getSubscribers: async (): Promise<any[]> => fetcher('/subscribers', {}, []),
   getTestimonials: async (): Promise<Testimonial[]> => {

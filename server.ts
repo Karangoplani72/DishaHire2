@@ -12,90 +12,69 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 10000;
-const JWT_SECRET = process.env.JWT_SECRET || 'dishahire-secure-enterprise-key-2024';
+const JWT_SECRET = process.env.JWT_SECRET || 'dh_secure_enterprise_prod_2024_k8s_cluster_key';
 
-// Middlewares
+// --- PRODUCTION MIDDLEWARE ---
 app.use(cors());
-app.use(express.json({ limit: '20mb' }));
+app.use(express.json({ limit: '10mb' }));
 app.use(express.static(__dirname));
 
-// MongoDB Connection
+// --- MONGODB CONNECTION ---
 const MONGO_URI = process.env.MONGO_URI;
-
 if (!MONGO_URI) {
-  console.error("❌ CRITICAL: MONGO_URI missing.");
+  console.error("❌ CRITICAL: MONGO_URI environment variable is missing.");
 } else {
   mongoose.connect(MONGO_URI)
-    .then(() => console.log('✅ Connected to Secure MongoDB Atlas Cluster'))
-    .catch(err => console.error('❌ MongoDB Connection Failed:', err.message));
+    .then(() => console.log('✅ Production Database Connected'))
+    .catch(err => console.error('❌ DB Connection Error:', err.message));
 }
 
-// Transformation Helper
-const transform = (doc: any, ret: any) => {
-  ret.id = ret._id;
-  delete ret._id;
-  delete ret.__v;
-  delete ret.password;
-};
-
 // --- SCHEMAS ---
-
 const UserSchema = new mongoose.Schema({
   email: { type: String, unique: true, required: true, lowercase: true, trim: true },
   name: { type: String, required: true },
   password: { type: String, required: true },
   role: { type: String, enum: ['USER', 'ADMIN'], default: 'USER' },
-  status: { type: String, enum: ['ACTIVE', 'SUSPENDED'], default: 'ACTIVE' },
   createdAt: { type: Date, default: Date.now }
-}, { toJSON: { transform }, toObject: { transform } });
+});
 
 const JobSchema = new mongoose.Schema({
   title: { type: String, required: true },
   company: { type: String, required: true },
-  location: { type: String, required: true },
+  location: String,
   type: { type: String, default: 'Full-time' },
-  industry: { type: String, required: true },
-  description: { type: String, required: true },
+  industry: String,
+  description: String,
   postedDate: { type: Date, default: Date.now }
-}, { toJSON: { transform }, toObject: { transform } });
+});
 
 const EnquirySchema = new mongoose.Schema({
-  type: { type: String, enum: ['CANDIDATE', 'EMPLOYER'] },
-  subject: String,
-  name: { type: String, required: true },
-  email: { type: String, required: true },
-  phone: String, // Restored missing field
+  type: { type: String, enum: ['CANDIDATE', 'EMPLOYER'], required: true },
+  name: String,
+  email: String,
   message: String,
-  company: String,
-  priority: { type: String, default: 'NORMAL' },
-  experience: String,
   resumeData: String,
   resumeName: String,
   status: { type: String, default: 'PENDING' },
   createdAt: { type: Date, default: Date.now }
-}, { toJSON: { transform }, toObject: { transform } });
-
-const SubscriberSchema = new mongoose.Schema({
-  email: { type: String, required: true, unique: true },
-  createdAt: { type: Date, default: Date.now }
-}, { toJSON: { transform }, toObject: { transform } });
+});
 
 const User = mongoose.model('User', UserSchema);
 const Job = mongoose.model('Job', JobSchema);
 const Enquiry = mongoose.model('Enquiry', EnquirySchema);
-const Subscriber = mongoose.model('Subscriber', SubscriberSchema);
+const Subscriber = mongoose.model('Subscriber', new mongoose.Schema({ email: String, createdAt: { type: Date, default: Date.now } }));
 
-// --- AUTH MIDDLEWARE ---
+// --- SECURITY MIDDLEWARES ---
 
 const authenticate = async (req: any, res: any, next: any) => {
   const authHeader = req.headers.authorization;
-  if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ error: 'Identity required' });
+  if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ error: 'Session required' });
   
   try {
     const token = authHeader.split(' ')[1];
     const decoded: any = jwt.verify(token, JWT_SECRET);
-    const user = await User.findById(decoded.id);
-    if (!user || user.status === 'SUSPENDED') return res.status(403).json({ error: 'Access denied' });
+    const user = await User.findById(decoded.id).select('-password');
+    if (!user) return res.status(401).json({ error: 'Identity revoked' });
     req.user = user;
     next();
   } catch (err) {
@@ -103,128 +82,102 @@ const authenticate = async (req: any, res: any, next: any) => {
   }
 };
 
-// --- AUTH ROUTES ---
+const adminOnly = (req: any, res: any, next: any) => {
+  if (req.user?.role !== 'ADMIN') return res.status(403).json({ error: 'Privileged access required' });
+  next();
+};
 
-app.get('/api/auth/me', authenticate, (req, res) => {
-  res.json({ user: req.user });
-});
+// --- AUTH ROUTES ---
 
 app.post('/api/auth/signup', async (req, res) => {
   const { name, email, password } = req.body;
   try {
     const existing = await User.findOne({ email: email.toLowerCase() });
-    if (existing) return res.status(400).json({ error: 'Identity already exists' });
+    if (existing) return res.status(400).json({ error: 'Account already exists' });
 
     const hashedPassword = await bcrypt.hash(password, 12);
     const user = new User({ name, email: email.toLowerCase(), password: hashedPassword });
     await user.save();
 
-    const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '10d' });
-    res.status(201).json({ token, user });
+    const token = jwt.sign({ id: user._id, role: 'USER' }, JWT_SECRET, { expiresIn: '7d' });
+    res.status(201).json({ token, user: { id: user._id, name, email, role: 'USER' } });
   } catch (e) {
-    res.status(500).json({ error: 'Signup failed' });
+    res.status(500).json({ error: 'Account creation failure' });
   }
 });
 
 app.post('/api/auth/login', async (req, res) => {
   const { email, password } = req.body;
-  const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'dishahire.0818@gmail.com').toLowerCase();
-  const ADMIN_PASS = process.env.ADMIN_PASSWORD;
+  const ENV_ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'dishahire.0818@gmail.com').toLowerCase();
+  const ENV_ADMIN_PASS = process.env.ADMIN_PASSWORD;
 
   try {
-    if (email.toLowerCase() === ADMIN_EMAIL) {
-      if (ADMIN_PASS && password !== ADMIN_PASS) return res.status(401).json({ error: 'Invalid admin key' });
-      
-      let admin = await User.findOne({ email: ADMIN_EMAIL, role: 'ADMIN' });
+    // 1. Check for Fixed Admin from Environment Variables
+    if (email.toLowerCase() === ENV_ADMIN_EMAIL && ENV_ADMIN_PASS && password === ENV_ADMIN_PASS) {
+      let admin = await User.findOne({ email: ENV_ADMIN_EMAIL, role: 'ADMIN' });
       if (!admin) {
         const hashedPassword = await bcrypt.hash(password, 12);
-        admin = new User({ email: ADMIN_EMAIL, name: 'DishaHire Admin', password: hashedPassword, role: 'ADMIN' });
+        admin = new User({ email: ENV_ADMIN_EMAIL, name: 'DishaHire Master', password: hashedPassword, role: 'ADMIN' });
         await admin.save();
       }
-      
-      const token = jwt.sign({ id: admin._id, role: 'ADMIN' }, JWT_SECRET, { expiresIn: '10d' });
-      return res.json({ token, user: admin });
+      const token = jwt.sign({ id: admin._id, role: 'ADMIN' }, JWT_SECRET, { expiresIn: '12h' });
+      return res.json({ token, user: { id: admin._id, name: admin.name, email: admin.email, role: 'ADMIN' } });
     }
 
+    // 2. Regular User Login
     const user = await User.findOne({ email: email.toLowerCase() });
-    if (!user) return res.status(404).json({ error: 'Account not found' });
+    if (!user) return res.status(401).json({ error: 'Invalid credentials' });
 
     const isValid = await bcrypt.compare(password, user.password);
     if (!isValid) return res.status(401).json({ error: 'Invalid credentials' });
 
-    const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '10d' });
-    res.json({ token, user });
+    const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
+    res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role } });
   } catch (e) {
-    res.status(500).json({ error: 'Login failure' });
+    res.status(500).json({ error: 'Security bridge failure' });
   }
 });
 
-// --- DATA ROUTES ---
+app.get('/api/auth/me', authenticate, (req, res) => {
+  res.json({ user: req.user });
+});
+
+// --- PROTECTED DATA ROUTES ---
 
 app.get('/api/jobs', async (req, res) => {
   const data = await Job.find().sort({ postedDate: -1 });
   res.json(data);
 });
 
-app.post('/api/jobs', authenticate, async (req, res) => {
-  if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Admin authorization required' });
+app.post('/api/jobs', authenticate, adminOnly, async (req, res) => {
   try {
     const job = new Job(req.body);
     await job.save();
     res.status(201).json(job);
-  } catch (err: any) {
-    res.status(400).json({ error: err.message });
+  } catch (e) {
+    res.status(400).json({ error: 'Validation failed' });
   }
 });
 
-app.delete('/api/jobs/:id', authenticate, async (req, res) => {
-  if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Admin only' });
+app.delete('/api/jobs/:id', authenticate, adminOnly, async (req, res) => {
   await Job.findByIdAndDelete(req.params.id);
   res.json({ success: true });
 });
 
-app.get('/api/enquiries', authenticate, async (req, res) => {
-  if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Admin only' });
+app.get('/api/enquiries', authenticate, adminOnly, async (req, res) => {
   const data = await Enquiry.find().sort({ createdAt: -1 });
-  res.json(data);
-});
-
-app.get('/api/my-applications', authenticate, async (req, res) => {
-  const data = await Enquiry.find({ email: req.user.email }).sort({ createdAt: -1 });
   res.json(data);
 });
 
 app.post('/api/enquiries', async (req, res) => {
   const enq = new Enquiry(req.body);
   await enq.save();
-  res.status(201).json(enq);
+  res.status(201).json({ success: true });
 });
 
-app.patch('/api/enquiries/:id/status', authenticate, async (req, res) => {
-  if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Admin only' });
-  const enq = await Enquiry.findByIdAndUpdate(req.params.id, { status: req.body.status }, { new: true });
-  res.json(enq);
-});
-
-app.get('/api/subscribers', authenticate, async (req, res) => {
-  if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Admin only' });
-  const data = await Subscriber.find().sort({ createdAt: -1 });
-  res.json(data);
-});
-
-app.post('/api/subscribers', async (req, res) => {
-  try {
-    const sub = new Subscriber(req.body);
-    await sub.save();
-    res.status(201).json(sub);
-  } catch (e) {
-    res.status(200).json({ message: 'Already active' });
-  }
-});
-
-// SPA Fallback
+// SPA FALLBACK
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.listen(PORT, () => console.log(`🚀 DishaHire Server Active on Port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Production Hub running on Port ${PORT}`));
