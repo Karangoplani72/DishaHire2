@@ -1,12 +1,13 @@
 
 {
-  "name": "dishahire-fullstack",
-  "version": "1.0.0",
+  "name": "dishahire-enterprise",
+  "version": "1.1.0",
   "type": "module",
   "scripts": {
-    "dev": "tsx server.ts",
+    "install-all": "npm install",
     "build": "esbuild index.tsx --bundle --outfile=index.bundle.js --format=esm --platform=browser --minify --external:react --external:react-dom --external:react-router-dom --external:lucide-react --external:framer-motion",
-    "start": "tsx server.ts"
+    "start": "tsx server.ts",
+    "dev": "tsx watch server.ts"
   },
   "dependencies": {
     "express": "^4.18.2",
@@ -18,6 +19,11 @@
     "helmet": "^7.1.0",
     "tsx": "^4.7.1",
     "esbuild": "^0.20.1",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2",
+    "lucide-react": "^0.462.0",
+    "framer-motion": "^11.11.17"
   }
 }

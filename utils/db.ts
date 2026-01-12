@@ -1,5 +1,5 @@
 
-import { Job, Enquiry, Testimonial, ApplicationStatus } from '../types';
+import { Job, Enquiry, Testimonial, ApplicationStatus } from '../types.ts';
 
 const API_BASE = '/api';
 
@@ -13,35 +13,44 @@ const fetcher = async (url: string, options?: RequestInit, fallbackData?: any) =
 
   try {
     const res = await fetch(`${API_BASE}${url}`, { ...options, headers });
+    
     if (res.status === 401) {
       localStorage.removeItem('dh_access_token');
+      if (!window.location.hash.includes('login')) {
+         window.location.hash = '/login';
+      }
       throw new Error('Unauthorized');
     }
-    const data = await res.json();
-    return res.ok ? data : fallbackData;
-  } catch (err) {
-    return fallbackData;
+
+    const data = await res.json().catch(() => null);
+    if (!res.ok) throw new Error(data?.error || `Error ${res.status}`);
+    
+    return data || fallbackData;
+  } catch (err: any) {
+    console.error(`DB Fetch Error [${url}]:`, err.message);
+    if (fallbackData !== undefined) return fallbackData;
+    throw err;
   }
 };
 
 export const db = {
-  getJobs: () => fetcher('/jobs', {}, []),
-  addJob: (job: any) => fetcher('/jobs', { method: 'POST', body: JSON.stringify(job) }),
-  deleteJob: (id: string) => fetcher(`/jobs/${id}`, { method: 'DELETE' }),
+  getJobs: (): Promise<Job[]> => fetcher('/jobs', {}, []),
+  addJob: (job: any): Promise<Job> => fetcher('/jobs', { method: 'POST', body: JSON.stringify(job) }),
+  deleteJob: (id: string): Promise<void> => fetcher(`/jobs/${id}`, { method: 'DELETE' }),
   
-  getEnquiries: () => fetcher('/enquiries', {}, []),
-  addEnquiry: (enq: any) => fetcher('/enquiries', { method: 'POST', body: JSON.stringify(enq) }),
-  getMyApplications: (email: string) => fetcher(`/enquiries?email=${email}`, {}, []),
+  getEnquiries: (): Promise<Enquiry[]> => fetcher('/enquiries', {}, []),
+  getMyApplications: (email: string): Promise<Enquiry[]> => fetcher(`/enquiries?email=${email}`, {}, []),
+  addEnquiry: (enquiry: any): Promise<any> => fetcher('/enquiries', { method: 'POST', body: JSON.stringify(enquiry) }),
+  updateEnquiryStatus: (id: string, status: ApplicationStatus): Promise<Enquiry> => 
+    fetcher(`/enquiries/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
   
-  getBlogs: () => fetcher('/blogs', {}, []),
-  addBlog: (blog: any) => fetcher('/blogs', { method: 'POST', body: JSON.stringify(blog) }),
-  deleteBlog: (id: string) => fetcher(`/blogs/${id}`, { method: 'DELETE' }),
+  getBlogs: (): Promise<any[]> => fetcher('/blogs', {}, []),
+  addBlog: (blog: any): Promise<any> => fetcher('/blogs', { method: 'POST', body: JSON.stringify(blog) }),
+  deleteBlog: (id: string): Promise<void> => fetcher(`/blogs/${id}`, { method: 'DELETE' }),
 
-  getTestimonials: () => fetcher('/testimonials', {}, []),
-  getAdminTestimonials: () => fetcher('/admin/testimonials', {}, []),
-  submitFeedback: (fb: any) => fetcher('/testimonials', { method: 'POST', body: JSON.stringify(fb) }),
-  moderateTestimonial: (id: string, update: any) => fetcher(`/testimonials/${id}`, { method: 'PATCH', body: JSON.stringify(update) }),
-
-  subscribeNewsletter: (email: string) => fetcher('/subscribers', { method: 'POST', body: JSON.stringify({ email }) }),
-  getSubscribers: () => fetcher('/subscribers', {}, [])
+  getTestimonials: (): Promise<Testimonial[]> => fetcher('/testimonials', {}, []),
+  getAdminTestimonials: (): Promise<Testimonial[]> => fetcher('/admin/testimonials', {}, []),
+  moderateTestimonial: (id: string, update: any): Promise<any> => fetcher(`/testimonials/${id}`, { method: 'PATCH', body: JSON.stringify(update) }),
+  
+  subscribeNewsletter: (email: string): Promise<void> => fetcher('/subscribers', { method: 'POST', body: JSON.stringify({ email }) }),
 };
