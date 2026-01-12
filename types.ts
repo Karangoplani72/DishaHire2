@@ -24,6 +24,8 @@ export interface Enquiry {
   name: string;
   email: string;
   phone: string;
+  // Added subject property to resolve Property 'subject' does not exist error in MyApplications.tsx
+  subject?: string;
   message: string;
   // Updated status to use ApplicationStatus type
   status: ApplicationStatus;

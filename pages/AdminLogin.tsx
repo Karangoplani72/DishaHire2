@@ -8,7 +8,8 @@ const AdminLogin: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { loginAdmin } = useAuth();
+  // Use login instead of loginAdmin which is not defined in AuthContext
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -16,11 +17,12 @@ const AdminLogin: React.FC = () => {
     setError('');
     setLoading(true);
 
-    const success = await loginAdmin(password);
-    if (success) {
+    // Call standard login with the designated admin email
+    const result = await login('dishahire.0818@gmail.com', password);
+    if (result.success) {
       navigate('/admin');
     } else {
-      setError('Invalid credentials. Access denied.');
+      setError(result.error || 'Invalid credentials. Access denied.');
       setLoading(false);
     }
   };
