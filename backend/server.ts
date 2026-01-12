@@ -8,7 +8,6 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const JWT_SECRET = process.env.JWT_SECRET || 'dishahire-secure-default-key';
 
-// In production, set FRONTEND_URL to your Render Static Site URL (e.g., https://dishahire.onrender.com)
 const corsOptions = {
   origin: process.env.FRONTEND_URL || '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -80,7 +79,7 @@ const authenticateAdmin = (req: any, res: any, next: any) => {
     req.user = decoded;
     next();
   } catch (err) {
-    return res.status(403).json({ error: 'Invalid or expired token' });
+    return res.status(403).json({ error: 'Invalid token' });
   }
 };
 
@@ -91,44 +90,36 @@ app.post('/api/auth/login', (req, res) => {
 
   if (email === ADMIN_EMAIL && password === ADMIN_PASS) {
     const token = jwt.sign({ email, role: 'ADMIN' }, JWT_SECRET, { expiresIn: '24h' });
-    return res.json({ token, user: { email, name: 'DishaHire Admin', role: 'ADMIN' } });
+    return res.json({ token, user: { email, name: 'Admin', role: 'ADMIN' } });
   }
-  res.status(401).json({ error: 'Invalid administrative credentials' });
+  res.status(401).json({ error: 'Invalid credentials' });
 });
 
 app.get('/api/jobs', async (req, res) => {
-  try {
-    const jobs = await Job.find().sort({ postedDate: -1 });
-    res.json(jobs);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch jobs' });
-  }
+  const jobs = await Job.find().sort({ postedDate: -1 });
+  res.json(jobs);
 });
 
 app.post('/api/enquiries', async (req, res) => {
-  try {
-    const enq = new Enquiry(req.body);
-    await enq.save();
-    res.status(201).json({ message: 'Success' });
-  } catch (err) {
-    res.status(400).json({ error: 'Failed to save enquiry' });
-  }
+  const enq = new Enquiry(req.body);
+  await enq.save();
+  res.status(201).json({ message: 'Success' });
 });
 
 app.post('/api/subscribers', async (req, res) => {
-  try {
-    const sub = new Subscriber(req.body);
-    await sub.save();
-    res.status(201).json({ message: 'Subscribed' });
-  } catch (err: any) {
-    if (err.code === 11000) return res.status(200).json({ message: 'Already subscribed' });
-    res.status(400).json({ error: 'Subscription failed' });
-  }
+  const sub = new Subscriber(req.body);
+  await sub.save();
+  res.status(201).json({ message: 'Subscribed' });
 });
 
 app.get('/api/enquiries', authenticateAdmin, async (req, res) => {
   const enquiries = await Enquiry.find().sort({ createdAt: -1 });
   res.json(enquiries);
+});
+
+app.get('/api/subscribers', authenticateAdmin, async (req, res) => {
+  const subs = await Subscriber.find().sort({ createdAt: -1 });
+  res.json(subs);
 });
 
 app.post('/api/jobs', authenticateAdmin, async (req, res) => {
@@ -139,7 +130,7 @@ app.post('/api/jobs', authenticateAdmin, async (req, res) => {
 
 app.delete('/api/jobs/:id', authenticateAdmin, async (req, res) => {
   await Job.findByIdAndDelete(req.params.id);
-  res.json({ message: 'Job deleted' });
+  res.json({ message: 'Deleted' });
 });
 
 app.listen(PORT, () => console.log(`🚀 API active on port ${PORT}`));
