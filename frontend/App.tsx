@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { HashRouter as Router, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
-import { Menu, X, Mail, Phone, MapPin, Linkedin, LogOut, User as UserIcon, ShieldCheck, Instagram, MessageCircle, Briefcase } from 'lucide-react';
+import { Menu, X, Mail, Phone, MapPin, Linkedin, LogOut, User as UserIcon, ShieldCheck, Instagram, MessageCircle, Briefcase, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Home from './pages/Home.tsx';
 import About from './pages/About.tsx';
@@ -240,12 +240,31 @@ const Footer = () => {
 };
 
 const ProtectedAdmin = ({ children }: { children: React.ReactNode }) => {
-  const { isAdmin, isAuthenticated } = useAuth();
+  const { isAdmin, isAuthenticated, isChecking } = useAuth();
+  if (isChecking) return null; // Wait for session check
   if (!isAuthenticated || !isAdmin) return <Navigate to="/admin/login" replace />;
   return <>{children}</>;
 };
 
 const App: React.FC = () => {
+  const { isChecking } = useAuth();
+
+  // Industry Standard: Professional splash loader during session verification
+  if (isChecking) {
+    return (
+      <div className="min-h-screen bg-brand-dark flex flex-col items-center justify-center space-y-8">
+        <div className="flex flex-col items-center">
+          <span className="text-4xl font-serif font-bold tracking-widest leading-none text-white">DISHA<span className="text-brand-gold">HIRE</span></span>
+          <span className="text-[10px] uppercase tracking-[0.5em] text-gray-500 font-black mt-2">Security Hub</span>
+        </div>
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="text-brand-gold animate-spin" size={32} />
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-600">Verifying Secure Link...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Router>
       <div className="min-h-screen flex flex-col">

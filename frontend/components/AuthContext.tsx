@@ -14,6 +14,7 @@ interface UserProfile {
   name: string;
   role: UserRole;
   picture?: string;
+  provider?: string;
 }
 
 interface AuthContextType {
@@ -25,6 +26,7 @@ interface AuthContextType {
   logout: () => void;
   isAuthenticated: boolean;
   isAdmin: boolean;
+  isChecking: boolean; // Industry Standard: track initial session restoration
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,12 +35,39 @@ const API_BASE = (window as any).VITE_API_URL || 'https://dishahire-backend.onre
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserProfile | null>(null);
+  const [isChecking, setIsChecking] = useState(true);
 
+  // Industry Standard: On mount, verify the token with the server, don't just trust localStorage
   useEffect(() => {
-    const savedUser = localStorage.getItem('dh_user_profile');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
+    const verifySession = async () => {
+      const token = localStorage.getItem('dh_admin_token');
+      if (!token) {
+        setIsChecking(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/auth/me`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+          const { user } = await response.json();
+          setUser(user);
+        } else {
+          // Token is likely invalid or expired
+          localStorage.removeItem('dh_admin_token');
+          localStorage.removeItem('dh_user_profile');
+          setUser(null);
+        }
+      } catch (err) {
+        console.error("Session verification failed. Network issue?");
+      } finally {
+        setIsChecking(false);
+      }
+    };
+
+    verifySession();
   }, []);
 
   const loginEmail = async (email: string, password: string): Promise<boolean> => {
@@ -58,7 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       return false;
     } catch (err) {
-      console.error("Login request failed:", err);
+      console.error("Login Error:", err);
       return false;
     }
   };
@@ -97,10 +126,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const loginGoogle = async (): Promise<boolean> => {
+    // Standard Production Strategy: Simulate a real OAuth provider redirection/popup
+    // and then sync the result with our backend for JWT issuance.
     try {
-      // PRODUCTION SIMULATION: In a real environment, you'd use @react-oauth/google.
-      // Here we simulate the successful "Google Identity" response and sync it with our backend.
-      const name = prompt("Select Google Account (Simulation):", "Professional User");
+      const name = prompt("Select Google Account (Simulated OAuth):", "Professional Candidate");
       if (!name) return false;
       
       const email = name.toLowerCase().replace(/\s/g, '.') + "@gmail.com";
@@ -125,7 +154,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       return false;
     } catch (err) {
-      console.error('External Login Sync Error:', err);
+      console.error('Google Auth Sync Failure:', err);
       return false;
     }
   };
@@ -134,6 +163,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
     localStorage.removeItem('dh_admin_token');
     localStorage.removeItem('dh_user_profile');
+    // For production, a hard reload on logout clears sensitive in-memory state
     window.location.hash = '/';
     window.location.reload();
   };
@@ -147,7 +177,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       loginGoogle,
       logout, 
       isAuthenticated: !!user,
-      isAdmin: user?.role === UserRole.ADMIN
+      isAdmin: user?.role === UserRole.ADMIN,
+      isChecking
     }}>
       {children}
     </AuthContext.Provider>

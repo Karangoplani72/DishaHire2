@@ -17,17 +17,27 @@ const fetcher = async (url: string, options?: RequestInit, fallbackData?: any) =
       headers
     });
     
+    // Industry Standard: Handle 401 Globally
+    if (res.status === 401) {
+      console.warn("Session expired. Forcing re-authentication.");
+      localStorage.removeItem('dh_admin_token');
+      localStorage.removeItem('dh_user_profile');
+      if (!window.location.hash.includes('login')) {
+         window.location.hash = '/login';
+      }
+      throw new Error('Unauthorized');
+    }
+
     if (!res.ok) {
       const errorBody = await res.json().catch(() => ({}));
       throw new Error(errorBody.error || `API Error: ${res.statusText}`);
     }
     
     const data = await res.json();
-    // VULNERABILITY FIX: Distinguish between 'null/undefined' (error/loading) and '[]' (empty result).
-    // An empty array is a valid response and should NOT trigger the fallback.
     return (data !== null && data !== undefined) ? data : fallbackData;
-  } catch (err) {
-    console.error(`Fetch error for ${url}:`, err);
+  } catch (err: any) {
+    if (err.message === 'Unauthorized') throw err;
+    console.error(`Network or API failure for ${url}:`, err);
     if (fallbackData !== undefined) return fallbackData;
     throw err;
   }
