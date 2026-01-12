@@ -8,13 +8,15 @@ const AdminLogin: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { loginAdmin } = useAuth();
+  // Fix: changed loginAdmin to loginEmail to match AuthContext definition
+  const { loginEmail } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const success = await loginAdmin(password);
+    // Fix: use loginEmail with admin credentials as loginAdmin is not defined in the frontend AuthContext
+    const success = await loginEmail('dishahire.0818@gmail.com', password);
     if (success) navigate('/admin');
     else {
       setError('Invalid credentials.');

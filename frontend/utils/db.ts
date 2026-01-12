@@ -23,8 +23,9 @@ const fetcher = async (url: string, options?: RequestInit, fallbackData?: any) =
     }
     
     const data = await res.json();
-    // FIX: Only use fallback if data is null/undefined, NOT if it's an empty array.
-    return data !== undefined && data !== null ? data : fallbackData;
+    // VULNERABILITY FIX: Distinguish between 'null/undefined' (error/loading) and '[]' (empty result).
+    // An empty array is a valid response and should NOT trigger the fallback.
+    return (data !== null && data !== undefined) ? data : fallbackData;
   } catch (err) {
     console.error(`Fetch error for ${url}:`, err);
     if (fallbackData !== undefined) return fallbackData;
@@ -51,7 +52,5 @@ export const db = {
 
   subscribeNewsletter: async (email: string): Promise<void> => fetcher('/subscribers', { method: 'POST', body: JSON.stringify({ email }) }),
   getSubscribers: async (): Promise<any[]> => fetcher('/subscribers', {}, []),
-  getTestimonials: async (): Promise<Testimonial[]> => {
-    return fetcher('/testimonials', {}, []);
-  }
+  getTestimonials: async (): Promise<Testimonial[]> => fetcher('/testimonials', {}, [])
 };

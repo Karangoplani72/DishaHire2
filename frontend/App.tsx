@@ -11,13 +11,14 @@ import Terms from './pages/Terms.tsx';
 import MyApplications from './pages/MyApplications.tsx';
 import AdminDashboard from './pages/AdminDashboard.tsx';
 import AdminLogin from './pages/AdminLogin.tsx';
+import Login from './pages/Login.tsx';
 import { NAV_LINKS, CONTACT_INFO } from './constants.tsx';
 import { useAuth } from './components/AuthContext.tsx';
 import { db } from './utils/db.ts';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { user, loginGoogle, logout, isAdmin, isAuthenticated } = useAuth();
+  const { user, logout, isAdmin, isAuthenticated } = useAuth();
   const location = useLocation();
   const isAdminPath = location.pathname.startsWith('/admin');
 
@@ -70,13 +71,12 @@ const Navbar = () => {
               </div>
             ) : (
               <div className="flex items-center space-x-6">
-                <button 
-                  onClick={loginGoogle}
+                <Link 
+                  to="/login"
                   className="text-[10px] font-black uppercase tracking-widest border border-white/20 px-5 py-2 rounded-full hover:bg-white/5 transition flex items-center gap-2"
                 >
-                  <img src="https://www.google.com/favicon.ico" className="w-3 h-3" /> Login
-                </button>
-                <Link to="/admin/login" className="text-[10px] text-gray-500 hover:text-brand-gold transition uppercase font-black tracking-widest">Admin</Link>
+                  <ShieldCheck size={14} /> Secure Access
+                </Link>
               </div>
             )}
           </div>
@@ -119,7 +119,7 @@ const Navbar = () => {
               )}
               <div className="h-px bg-white/5 w-full" />
               {!isAuthenticated ? (
-                <button onClick={() => { loginGoogle(); setIsOpen(false); }} className="w-full bg-brand-gold text-brand-dark py-4 rounded-2xl font-bold">Client Login</button>
+                <Link to="/login" onClick={() => setIsOpen(false)} className="block w-full text-center bg-brand-gold text-brand-dark py-4 rounded-2xl font-bold">Client Login</Link>
               ) : (
                 <div className="flex items-center justify-between">
                    <span className="text-brand-gold font-bold">{user?.name}</span>
@@ -138,7 +138,7 @@ const Footer = () => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const location = useLocation();
-  const isAdminPath = location.pathname.startsWith('/admin');
+  const isAdminPath = location.pathname.startsWith('/admin') || location.pathname === '/login';
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -258,6 +258,7 @@ const App: React.FC = () => {
             <Route path="/jobs" element={<Jobs />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/my-applications" element={<MyApplications />} />
+            <Route path="/login" element={<Login />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/*" element={
               <ProtectedAdmin>

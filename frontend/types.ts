@@ -20,7 +20,7 @@ export interface Job {
 export interface Enquiry {
   id: string;
   type: EnquiryType;
-  subject?: string; // Explicitly track the job title or inquiry subject
+  subject?: string;
   name: string;
   email: string;
   message: string;
