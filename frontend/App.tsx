@@ -1,8 +1,7 @@
 
 import React, { useState } from 'react';
 import { HashRouter as Router, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
-import { Menu, X, Mail, Phone, MapPin, Linkedin, LogOut, User as UserIcon, ShieldCheck } from 'lucide-react';
-// Added missing imports for AnimatePresence and motion from framer-motion
+import { Menu, X, Mail, Phone, MapPin, Linkedin, LogOut, User as UserIcon, ShieldCheck, Instagram, MessageCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Home from './pages/Home.tsx';
 import About from './pages/About.tsx';
@@ -11,7 +10,7 @@ import Jobs from './pages/Jobs.tsx';
 import Terms from './pages/Terms.tsx';
 import AdminDashboard from './pages/AdminDashboard.tsx';
 import AdminLogin from './pages/AdminLogin.tsx';
-import { NAV_LINKS } from './constants.tsx';
+import { NAV_LINKS, CONTACT_INFO } from './constants.tsx';
 import { useAuth } from './components/AuthContext.tsx';
 import { db } from './utils/db.ts';
 
@@ -153,30 +152,42 @@ const Footer = () => {
           <p className="text-gray-400 text-sm leading-relaxed font-serif italic">
             Leading end-to-end recruitment consultancy firm focused on deliverable technical excellence.
           </p>
-          <div className="flex space-x-6 text-gray-500">
-            <Linkedin size={20} className="hover:text-brand-gold cursor-pointer transition" />
+          <div className="flex space-x-5">
+            <a href={CONTACT_INFO.linkedin} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-brand-gold hover:text-brand-dark transition-all">
+              <Linkedin size={18} />
+            </a>
+            <a href={CONTACT_INFO.instagram} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-brand-gold hover:text-brand-dark transition-all">
+              <Instagram size={18} />
+            </a>
+            <a href={CONTACT_INFO.whatsapp} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-brand-gold hover:text-brand-dark transition-all">
+              <MessageCircle size={18} />
+            </a>
           </div>
         </div>
         
         <div>
-          <h4 className="font-black text-[10px] mb-8 uppercase tracking-[0.4em] text-brand-gold">Global Verticals</h4>
+          <h4 className="font-black text-[10px] mb-8 uppercase tracking-[0.4em] text-brand-gold">Direct Verticals</h4>
           <ul className="space-y-4 text-xs text-gray-400 font-bold uppercase tracking-widest">
-            {['IT & Technology', 'Manufacturing', 'Healthcare', 'Finance'].map(v => (
+            {['IT & Technology', 'Manufacturing', 'Healthcare', 'BPO Support'].map(v => (
               <li key={v} className="hover:text-white transition-colors cursor-default">{v}</li>
             ))}
           </ul>
         </div>
 
         <div>
-          <h4 className="font-black text-[10px] mb-8 uppercase tracking-[0.4em] text-brand-gold">Contact Hub</h4>
+          <h4 className="font-black text-[10px] mb-8 uppercase tracking-[0.4em] text-brand-gold">Connect</h4>
           <ul className="space-y-4 text-sm text-gray-400">
             <li className="flex items-start space-x-3">
-              <MapPin size={16} className="text-brand-gold mt-1" />
-              <span>Corporate Hub, Mumbai</span>
+              <MapPin size={16} className="text-brand-gold mt-1 flex-shrink-0" />
+              <span>{CONTACT_INFO.address}</span>
             </li>
             <li className="flex items-center space-x-3">
-              <Mail size={16} className="text-brand-gold" />
-              <span>dishahire.0818@gmail.com</span>
+              <Mail size={16} className="text-brand-gold flex-shrink-0" />
+              <a href={`mailto:${CONTACT_INFO.email}`} className="hover:text-white transition-colors truncate">{CONTACT_INFO.email}</a>
+            </li>
+            <li className="flex items-center space-x-3">
+              <Phone size={16} className="text-brand-gold flex-shrink-0" />
+              <a href={`tel:${CONTACT_INFO.phone.replace(/\s/g, '')}`} className="hover:text-white transition-colors">{CONTACT_INFO.phone}</a>
             </li>
           </ul>
         </div>
@@ -195,7 +206,7 @@ const Footer = () => {
             />
             <button 
               disabled={loading}
-              className="bg-brand-gold text-brand-dark font-black uppercase text-[10px] tracking-widest px-6 py-3 rounded-r-xl hover:bg-white transition-all min-w-[80px]"
+              className="bg-brand-gold text-brand-dark font-black uppercase text-[10px] tracking-widest px-6 py-3 rounded-r-xl hover:bg-white transition-all"
             >
               {loading ? '...' : 'Join'}
             </button>
@@ -204,7 +215,7 @@ const Footer = () => {
       </div>
       <div className="max-w-7xl mx-auto px-4 mt-24 pt-8 border-t border-white/5 text-center flex flex-col items-center gap-4">
         <p className="text-[10px] font-black uppercase tracking-[0.5em] text-gray-600">
-          © {new Date().getFullYear()} DishaHire Consultancy | Professional Excellence Guaranteed
+          © {new Date().getFullYear()} DishaHire Consultancy | Excellence Guaranteed
         </p>
         <ShieldCheck className="text-brand-gold/20" size={32} />
       </div>

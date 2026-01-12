@@ -24,6 +24,8 @@ export interface Enquiry {
   status: string;
   company?: string;
   priority?: string;
+  // Added experience property used in AdminDashboard and EnquiryModal
+  experience?: string;
   resumeData?: string;
   resumeName?: string;
   createdAt: string;

@@ -10,6 +10,15 @@ export const NAV_LINKS = [
   { name: 'Terms', href: '/terms' },
 ];
 
+export const CONTACT_INFO = {
+  email: 'dishahire.0818@gmail.com',
+  phone: '+91 84879 98492',
+  whatsapp: 'https://wa.me/918487998492?text=Hello%20DishaHire%2C%20I%20am%20interested%20in%20your%20recruitment%20services.',
+  linkedin: 'https://www.linkedin.com/in/sandhya-tekwani-711123274?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app',
+  instagram: 'https://www.instagram.com/disha_hire_0818?igsh=NWp1YzIwc3p5eDN2',
+  address: 'Rajkot, Gujarat'
+};
+
 export const INDUSTRIES = [
   'IT & Technology',
   'BPO & Customer Support',

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
-import { INDUSTRIES } from '../constants.tsx';
+import { INDUSTRIES, CONTACT_INFO } from '../constants.tsx';
 import EnquiryModal from '../components/EnquiryModal.tsx';
 import { EnquiryType } from '../types.ts';
 
