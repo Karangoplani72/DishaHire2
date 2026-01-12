@@ -15,38 +15,23 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 10000;
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET || 'dishahire-enterprise-secret';
 const ENV_ADMIN_PASS = process.env.ADMIN_PASSWORD;
 
-if (!JWT_SECRET || !ENV_ADMIN_PASS) {
-  console.error("❌ SECURITY ALERT: JWT_SECRET or ADMIN_PASSWORD not set.");
-  process.exit(1);
-}
-
-// --- MIDDLEWARE ---
-app.use(helmet());
-app.use(cors({
-  origin: process.env.FRONTEND_URL || '*',
-  methods: ['GET', 'POST', 'PATCH', 'DELETE']
-}));
-
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 20,
-  message: { error: "Too many login attempts." }
-});
-
-app.use(express.json({ limit: '5mb' }));
+// Security Middleware
+app.use(helmet({ contentSecurityPolicy: false }));
+app.use(cors());
+app.use(express.json({ limit: '15mb' }));
 app.use(express.static(__dirname));
 
-// --- MONGODB ---
+// DB Connection
 mongoose.connect(process.env.MONGO_URI!)
-  .then(() => console.log('✅ Secure MongoDB Connected'))
-  .catch(err => console.error('❌ DB Error:', err.message));
+  .then(() => console.log('✅ Production MongoDB Connected'))
+  .catch(err => console.error('❌ DB Error:', err));
 
-// --- SCHEMAS ---
+// --- CONSOLIDATED SCHEMAS ---
 const User = mongoose.model('User', new mongoose.Schema({
-  email: { type: String, unique: true, required: true, lowercase: true },
+  email: { type: String, unique: true, required: true },
   name: { type: String, required: true },
   password: { type: String, required: true },
   role: { type: String, enum: ['USER', 'ADMIN'], default: 'USER' }
@@ -66,7 +51,11 @@ const Enquiry = mongoose.model('Enquiry', new mongoose.Schema({
   type: { type: String, enum: ['CANDIDATE', 'EMPLOYER'] },
   name: String,
   email: String,
+  subject: String,
   message: String,
+  company: String,
+  priority: String,
+  experience: String,
   resumeData: String,
   resumeName: String,
   status: { type: String, default: 'PENDING' },
@@ -78,9 +67,7 @@ const Testimonial = mongoose.model('Testimonial', new mongoose.Schema({
   role: String,
   company: String,
   content: String,
-  rating: { type: Number, default: 5 },
   isApproved: { type: Boolean, default: false },
-  adminReply: String,
   createdAt: { type: Date, default: Date.now }
 }));
 
@@ -92,18 +79,20 @@ const Blog = mongoose.model('Blog', new mongoose.Schema({
   date: { type: Date, default: Date.now }
 }));
 
-// --- MIDDLEWARES ---
+const Subscriber = mongoose.model('Subscriber', new mongoose.Schema({
+  email: { type: String, unique: true },
+  createdAt: { type: Date, default: Date.now }
+}));
+
+// Auth Middlewares
 const authenticate = async (req: any, res: any, next: any) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ error: 'Auth required' });
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'Auth Required' });
   try {
-    const token = authHeader.split(' ')[1];
-    const decoded: any = jwt.verify(token, JWT_SECRET!);
-    req.user = await User.findById(decoded.id).select('-password');
+    const decoded: any = jwt.verify(token, JWT_SECRET);
+    req.user = await User.findById(decoded.id);
     next();
-  } catch (err) {
-    res.status(401).json({ error: 'Session expired' });
-  }
+  } catch { res.status(401).json({ error: 'Expired' }); }
 };
 
 const adminOnly = (req: any, res: any, next: any) => {
@@ -112,67 +101,56 @@ const adminOnly = (req: any, res: any, next: any) => {
 };
 
 // --- ROUTES ---
-app.post('/api/auth/login', authLimiter, async (req, res) => {
+app.post('/api/auth/login', async (req, res) => {
   const { email, password } = req.body;
-  const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'dishahire.0818@gmail.com').toLowerCase();
+  const ADMIN_EMAIL = 'dishahire.0818@gmail.com';
   
-  if (email.toLowerCase() === ADMIN_EMAIL && password === ENV_ADMIN_PASS) {
+  if (email === ADMIN_EMAIL && password === ENV_ADMIN_PASS) {
     let admin = await User.findOne({ email: ADMIN_EMAIL, role: 'ADMIN' });
     if (!admin) {
       const hashed = await bcrypt.hash(ENV_ADMIN_PASS!, 12);
       admin = new User({ email: ADMIN_EMAIL, name: 'Admin', password: hashed, role: 'ADMIN' });
       await admin.save();
     }
-    const token = jwt.sign({ id: admin._id, role: 'ADMIN' }, JWT_SECRET!, { expiresIn: '12h' });
-    return res.json({ token, user: { name: admin.name, email: admin.email, role: 'ADMIN' } });
+    const token = jwt.sign({ id: admin._id, role: 'ADMIN' }, JWT_SECRET, { expiresIn: '7d' });
+    return res.json({ token, user: admin });
   }
 
-  const user = await User.findOne({ email: email.toLowerCase() });
+  const user = await User.findOne({ email });
   if (user && await bcrypt.compare(password, user.password)) {
-    const token = jwt.sign({ id: user._id, role: 'USER' }, JWT_SECRET!, { expiresIn: '7d' });
-    return res.json({ token, user: { name: user.name, email: user.email, role: 'USER' } });
+    const token = jwt.sign({ id: user._id, role: 'USER' }, JWT_SECRET, { expiresIn: '7d' });
+    return res.json({ token, user });
   }
-  res.status(401).json({ error: 'Invalid credentials' });
+  res.status(401).json({ error: 'Invalid' });
 });
 
 app.post('/api/auth/signup', async (req, res) => {
   const { name, email, password } = req.body;
   const hashed = await bcrypt.hash(password, 12);
-  const user = new User({ name, email: email.toLowerCase(), password: hashed });
+  const user = new User({ name, email, password: hashed });
   await user.save();
-  const token = jwt.sign({ id: user._id, role: 'USER' }, JWT_SECRET!, { expiresIn: '7d' });
-  res.json({ token, user: { name, email, role: 'USER' } });
+  const token = jwt.sign({ id: user._id, role: 'USER' }, JWT_SECRET, { expiresIn: '7d' });
+  res.json({ token, user });
 });
 
 app.get('/api/auth/me', authenticate, (req, res) => res.json({ user: req.user }));
 
-// JOBS
+// Public Data
 app.get('/api/jobs', async (req, res) => res.json(await Job.find().sort({ postedDate: -1 })));
-app.post('/api/jobs', authenticate, adminOnly, async (req, res) => res.json(await new Job(req.body).save()));
-app.delete('/api/jobs/:id', authenticate, adminOnly, async (req, res) => {
-  await Job.findByIdAndDelete(req.params.id);
-  res.json({ success: true });
-});
-
-// ENQUIRIES
-app.get('/api/enquiries', authenticate, adminOnly, async (req, res) => res.json(await Enquiry.find().sort({ createdAt: -1 })));
-app.post('/api/enquiries', async (req, res) => res.json(await new Enquiry(req.body).save()));
-
-// TESTIMONIALS
-app.get('/api/testimonials', async (req, res) => res.json(await Testimonial.find({ isApproved: true }).sort({ createdAt: -1 })));
-app.get('/api/admin/testimonials', authenticate, adminOnly, async (req, res) => res.json(await Testimonial.find().sort({ createdAt: -1 })));
-app.post('/api/testimonials', async (req, res) => res.json(await new Testimonial(req.body).save()));
-app.patch('/api/testimonials/:id', authenticate, adminOnly, async (req, res) => {
-  res.json(await Testimonial.findByIdAndUpdate(req.params.id, req.body, { new: true }));
-});
-
-// BLOGS
 app.get('/api/blogs', async (req, res) => res.json(await Blog.find().sort({ date: -1 })));
+app.get('/api/testimonials', async (req, res) => res.json(await Testimonial.find({ isApproved: true })));
+
+// Forms
+app.post('/api/enquiries', async (req, res) => res.json(await new Enquiry(req.body).save()));
+app.post('/api/subscribers', async (req, res) => res.json(await new Subscriber(req.body).save()));
+
+// Admin Endpoints
+app.get('/api/enquiries', authenticate, adminOnly, async (req, res) => res.json(await Enquiry.find().sort({ createdAt: -1 })));
+app.post('/api/jobs', authenticate, adminOnly, async (req, res) => res.json(await new Job(req.body).save()));
+app.delete('/api/jobs/:id', authenticate, adminOnly, async (req, res) => res.json(await Job.findByIdAndDelete(req.params.id)));
 app.post('/api/blogs', authenticate, adminOnly, async (req, res) => res.json(await new Blog(req.body).save()));
-app.delete('/api/blogs/:id', authenticate, adminOnly, async (req, res) => {
-  await Blog.findByIdAndDelete(req.params.id);
-  res.json({ success: true });
-});
+app.get('/api/admin/testimonials', authenticate, adminOnly, async (req, res) => res.json(await Testimonial.find()));
+app.patch('/api/testimonials/:id', authenticate, adminOnly, async (req, res) => res.json(await Testimonial.findByIdAndUpdate(req.params.id, req.body)));
 
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
-app.listen(PORT, () => console.log(`🚀 DishaHire System Live on ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 DishaHire Server on ${PORT}`));

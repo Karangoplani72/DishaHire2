@@ -54,9 +54,18 @@ export const db = {
       body: JSON.stringify({ status }) 
     });
   },
+  
+  // Added blog methods to resolve AdminDashboard errors
+  getBlogs: async (): Promise<any[]> => fetcher('/blogs', {}, []),
+  addBlog: async (blog: any): Promise<any> => fetcher('/blogs', { method: 'POST', body: JSON.stringify(blog) }),
+  deleteBlog: async (id: string): Promise<void> => fetcher(`/blogs/${id}`, { method: 'DELETE' }),
+
   subscribeNewsletter: async (email: string): Promise<void> => fetcher('/subscribers', { method: 'POST', body: JSON.stringify({ email }) }),
   getSubscribers: async (): Promise<any[]> => fetcher('/subscribers', {}, []),
+  
+  // Testimonials and Moderation
   getTestimonials: async (): Promise<Testimonial[]> => {
+    // Initial static data; in production this would call fetcher('/testimonials', {}, [])
     return [
       { 
         id: '1', 
@@ -68,5 +77,8 @@ export const db = {
         isApproved: true 
       }
     ];
-  }
+  },
+  // Added admin testimonial methods to resolve AdminDashboard errors
+  getAdminTestimonials: async (): Promise<Testimonial[]> => fetcher('/admin/testimonials', {}, []),
+  moderateTestimonial: async (id: string, update: any): Promise<any> => fetcher(`/testimonials/${id}`, { method: 'PATCH', body: JSON.stringify(update) }),
 };
