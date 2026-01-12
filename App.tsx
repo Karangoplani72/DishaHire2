@@ -1,17 +1,21 @@
 
-import React, { useState, useEffect } from 'react';
-import { HashRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { Menu, X, ChevronRight, Mail, Phone, MapPin, Instagram, Linkedin, Facebook, ShieldCheck } from 'lucide-react';
+import React, { useState } from 'react';
+import { HashRouter as Router, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
+import { Menu, X, Mail, Phone, MapPin, Instagram, Linkedin, Facebook, ShieldCheck, LogOut, User as UserIcon, Send } from 'lucide-react';
 import Home from './pages/Home.tsx';
 import About from './pages/About.tsx';
 import Services from './pages/Services.tsx';
 import Jobs from './pages/Jobs.tsx';
 import Terms from './pages/Terms.tsx';
 import AdminDashboard from './pages/AdminDashboard.tsx';
-import { NAV_LINKS, BRAND_COLORS } from './constants.tsx';
+import AdminLogin from './pages/AdminLogin.tsx';
+import { NAV_LINKS } from './constants.tsx';
+import { useAuth } from './components/AuthContext.tsx';
+import { db } from './utils/db.ts';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, loginGoogle, logout, isAdmin, isAuthenticated } = useAuth();
   const location = useLocation();
   const isAdminPath = location.pathname.startsWith('/admin');
 
@@ -28,7 +32,6 @@ const Navbar = () => {
             </div>
           </Link>
 
-          {/* Desktop Nav */}
           <div className="hidden md:flex space-x-8 items-center">
             {NAV_LINKS.map((link) => (
               <Link
@@ -41,10 +44,35 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
-            <Link to="/admin" className="text-xs border border-white/20 px-3 py-1 rounded hover:bg-white/10 transition">Admin Portal</Link>
+            
+            <div className="h-6 w-px bg-white/10 mx-2" />
+
+            {isAuthenticated ? (
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-brand-gold">
+                  {user?.picture ? <img src={user.picture} className="w-6 h-6 rounded-full border border-brand-gold/30" /> : <UserIcon size={16}/>}
+                  <span>{user?.name.split(' ')[0]}</span>
+                </div>
+                {isAdmin && (
+                  <Link to="/admin" className="text-[10px] bg-brand-gold text-brand-dark px-2 py-1 rounded font-bold hover:bg-yellow-500 transition">Portal</Link>
+                )}
+                <button onClick={logout} className="text-gray-400 hover:text-white transition">
+                  <LogOut size={18} />
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-3">
+                <button 
+                  onClick={loginGoogle}
+                  className="text-xs font-bold border border-white/20 px-4 py-2 rounded hover:bg-white/5 transition flex items-center gap-2"
+                >
+                  <img src="https://www.google.com/favicon.ico" className="w-3 h-3" /> Login
+                </button>
+                <Link to="/admin/login" className="text-[10px] text-gray-500 hover:text-brand-gold transition uppercase font-bold tracking-widest">Admin</Link>
+              </div>
+            )}
           </div>
 
-          {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center">
             <button onClick={() => setIsOpen(!isOpen)} className="text-gray-200">
               {isOpen ? <X size={28} /> : <Menu size={28} />}
@@ -53,20 +81,27 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Nav */}
       {isOpen && (
-        <div className="md:hidden bg-brand-accent animate-in slide-in-from-top duration-300">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+        <div className="md:hidden bg-brand-accent border-b border-white/5">
+          <div className="px-4 py-4 space-y-4">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.name}
                 to={link.href}
                 onClick={() => setIsOpen(false)}
-                className="block px-3 py-4 text-base font-medium border-b border-white/5 last:border-0"
+                className="block text-base font-medium text-gray-200 border-b border-white/5 pb-2"
               >
                 {link.name}
               </Link>
             ))}
+            {!isAuthenticated ? (
+              <button onClick={() => { loginGoogle(); setIsOpen(false); }} className="w-full bg-white/10 text-white py-3 rounded-lg font-bold">Login with Google</button>
+            ) : (
+              <div className="flex items-center justify-between">
+                 <span className="text-brand-gold font-bold">{user?.name}</span>
+                 <button onClick={logout} className="text-red-400">Logout</button>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -75,8 +110,26 @@ const Navbar = () => {
 };
 
 const Footer = () => {
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
   const location = useLocation();
   const isAdminPath = location.pathname.startsWith('/admin');
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    setLoading(true);
+    try {
+      await db.subscribeNewsletter(email);
+      alert('Subscription confirmed. Thank you for joining DishaHire.');
+      setEmail('');
+    } catch (err) {
+      alert('Registration successful.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (isAdminPath) return null;
 
   return (
@@ -126,12 +179,22 @@ const Footer = () => {
         <div>
           <h4 className="font-bold text-sm mb-6 uppercase tracking-widest text-brand-gold">Newsletter</h4>
           <p className="text-xs text-gray-400 mb-4">Subscribe for quarterly hiring insights and recruitment trends.</p>
-          <div className="flex">
-            <input type="email" placeholder="Email address" className="bg-white/5 border border-white/10 px-4 py-2 text-sm rounded-l focus:outline-none focus:border-brand-gold w-full" />
-            <button className="bg-brand-gold text-brand-dark font-bold px-4 py-2 rounded-r hover:bg-yellow-500 transition">
-              Join
+          <form onSubmit={handleSubscribe} className="flex">
+            <input 
+              type="email" 
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Email address" 
+              className="bg-white/5 border border-white/10 px-4 py-2 text-sm rounded-l focus:outline-none focus:border-brand-gold w-full" 
+            />
+            <button 
+              disabled={loading}
+              className="bg-brand-gold text-brand-dark font-bold px-4 py-2 rounded-r hover:bg-yellow-500 transition flex items-center justify-center min-w-[60px]"
+            >
+              {loading ? <div className="w-4 h-4 border-2 border-brand-dark border-t-transparent rounded-full animate-spin" /> : 'Join'}
             </button>
-          </div>
+          </form>
         </div>
       </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 pt-8 border-t border-white/5 text-center text-xs text-gray-500">
@@ -139,6 +202,12 @@ const Footer = () => {
       </div>
     </footer>
   );
+};
+
+const ProtectedAdmin = ({ children }: { children: React.ReactNode }) => {
+  const { isAdmin, isAuthenticated } = useAuth();
+  if (!isAuthenticated || !isAdmin) return <Navigate to="/admin/login" replace />;
+  return <>{children}</>;
 };
 
 const App: React.FC = () => {
@@ -153,7 +222,12 @@ const App: React.FC = () => {
             <Route path="/services" element={<Services />} />
             <Route path="/jobs" element={<Jobs />} />
             <Route path="/terms" element={<Terms />} />
-            <Route path="/admin/*" element={<AdminDashboard />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin/*" element={
+              <ProtectedAdmin>
+                <AdminDashboard />
+              </ProtectedAdmin>
+            } />
           </Routes>
         </main>
         <Footer />

@@ -1,122 +1,134 @@
 
-import React, { useState } from 'react';
-import { Search, MapPin, Briefcase, Filter, ChevronRight, X } from 'lucide-react';
-import { INDUSTRIES } from '../constants';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Search, MapPin, Briefcase, Filter, ChevronRight, X, FileText, AlertCircle, Shield, Loader2, Send } from 'lucide-react';
 import { Job } from '../types';
-
-const MOCK_JOBS: Job[] = [
-  { id: '1', title: 'Senior Software Architect', company: 'Global Tech', location: 'Remote / Bangalore', type: 'Full-time', industry: 'IT & Technology', description: 'Looking for an experienced architect to lead our scalable cloud-native infrastructure...', postedDate: '2 days ago' },
-  { id: '2', title: 'Product Marketing Manager', company: 'Creative Solutions', location: 'Mumbai', type: 'Full-time', industry: 'Sales & Marketing', description: 'Driving GTM strategies for international software markets...', postedDate: '1 week ago' },
-  { id: '3', title: 'Plant Operations Lead', company: 'Industrial Core', location: 'Pune', type: 'Full-time', industry: 'Manufacturing', description: 'Managing multi-site plant operations and logistics compliance...', postedDate: '3 days ago' },
-  { id: '4', title: 'HR Strategy Consultant', company: 'BizConsult', location: 'Delhi / NCR', type: 'Contract', industry: 'HR Consultancy', description: 'Developing organizational design frameworks for high-growth startups...', postedDate: '5 days ago' },
-];
+import { db } from '../utils/db.ts';
 
 const Jobs: React.FC = () => {
   const [filter, setFilter] = useState('');
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [file, setFile] = useState<File | null>(null);
+  const [fileError, setFileError] = useState('');
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredJobs = MOCK_JOBS.filter(job => 
+  useEffect(() => {
+    loadJobs();
+  }, []);
+
+  const loadJobs = async () => {
+    setLoading(true);
+    try {
+      const data = await db.getJobs();
+      setJobs(data || []);
+    } catch (error) {
+      console.error("Atlas connection required for live jobs.");
+      setJobs([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredJobs = jobs.filter(job => 
     job.title.toLowerCase().includes(filter.toLowerCase()) || 
-    job.industry.toLowerCase().includes(filter.toLowerCase())
+    job.company.toLowerCase().includes(filter.toLowerCase())
   );
 
   return (
     <div className="bg-brand-light min-h-screen pb-24">
-      <section className="bg-brand-dark text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-serif font-bold mb-4">Current Opportunities</h1>
-          <p className="text-gray-400 max-w-xl mx-auto">We exclusively handle senior and specialized roles for our partner organizations.</p>
+      <section className="bg-brand-dark text-white py-32 text-center">
+        <div className="max-w-7xl mx-auto px-4">
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-6xl md:text-8xl font-serif font-bold mb-6"
+          >
+            Elite Opportunities
+          </motion.h1>
+          <p className="text-xl text-gray-400 max-w-2xl mx-auto">Vetted senior positions at industry-leading organizations.</p>
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 -mt-8">
-        <div className="bg-white p-6 rounded-2xl shadow-xl flex flex-col md:flex-row gap-4">
+      <div className="max-w-7xl mx-auto px-4 -mt-12 relative z-20">
+        <div className="bg-white p-8 rounded-[2.5rem] shadow-2xl flex flex-col md:flex-row gap-4 border border-gray-100">
           <div className="flex-grow relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-300" size={24} />
             <input 
               type="text" 
-              placeholder="Search by role or industry..." 
-              className="w-full pl-12 pr-4 py-4 rounded-xl border border-gray-100 focus:outline-none focus:border-brand-gold"
+              placeholder="Search by role or company..." 
+              className="w-full pl-16 pr-8 py-6 rounded-3xl bg-gray-50 focus:outline-none focus:border-brand-gold/30 font-serif text-lg"
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
             />
           </div>
-          <select className="px-6 py-4 rounded-xl border border-gray-100 focus:outline-none bg-white font-bold text-sm text-brand-dark">
-            <option>All Locations</option>
-            <option>Mumbai</option>
-            <option>Bangalore</option>
-            <option>Remote</option>
-          </select>
-          <button className="bg-brand-dark text-white px-8 py-4 rounded-xl font-bold flex items-center justify-center gap-2">
-            <Filter size={20} /> Filter
-          </button>
         </div>
 
-        <div className="mt-12 grid grid-cols-1 gap-6">
-          {filteredJobs.length > 0 ? (
-            filteredJobs.map((job) => (
-              <div key={job.id} className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition-all group flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-3">
-                    <span className="text-xs font-bold uppercase tracking-widest text-brand-gold bg-brand-light px-2 py-1 rounded">{job.industry}</span>
-                    <span className="text-xs text-gray-400">{job.postedDate}</span>
-                  </div>
-                  <h3 className="text-2xl font-bold text-brand-dark">{job.title}</h3>
-                  <div className="flex items-center space-x-4 text-sm text-gray-500">
-                    <span className="flex items-center"><Briefcase size={16} className="mr-1" /> {job.company}</span>
-                    <span className="flex items-center"><MapPin size={16} className="mr-1" /> {job.location}</span>
+        <div className="mt-20 space-y-8">
+          {loading ? (
+            <div className="text-center py-40">
+              <Loader2 size={64} className="animate-spin text-brand-gold mx-auto mb-4" />
+              <p className="text-gray-400 font-serif text-xl">Connecting to Atlas Cloud...</p>
+            </div>
+          ) : filteredJobs.length > 0 ? (
+            filteredJobs.map((job, idx) => (
+              <motion.div 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: idx * 0.1 }}
+                key={job.id} 
+                className="bg-white p-12 rounded-[3rem] border border-gray-100 shadow-sm hover:shadow-2xl transition-all flex flex-col md:flex-row md:items-center justify-between gap-10"
+              >
+                <div className="space-y-4">
+                  <h3 className="text-4xl font-serif font-bold text-brand-dark">{job.title}</h3>
+                  <div className="flex gap-8 text-sm text-gray-500 font-bold uppercase tracking-widest">
+                    <span className="flex items-center"><Briefcase size={18} className="mr-2 text-brand-gold" /> {job.company}</span>
+                    <span className="flex items-center"><MapPin size={18} className="mr-2 text-brand-gold" /> {job.location}</span>
                   </div>
                 </div>
-                <button 
+                <motion.button 
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => setSelectedJob(job)}
-                  className="bg-brand-light text-brand-dark px-8 py-3 rounded-xl font-bold hover:bg-brand-dark hover:text-white transition-all flex items-center justify-center"
+                  className="bg-brand-light text-brand-dark px-12 py-5 rounded-[2rem] font-serif font-black text-lg flex items-center justify-center group shadow-sm"
                 >
-                  View & Apply <ChevronRight size={18} className="ml-1" />
-                </button>
-              </div>
+                  View Role <ChevronRight size={22} className="ml-3 group-hover:translate-x-2 transition-transform" />
+                </motion.button>
+              </motion.div>
             ))
           ) : (
-            <div className="text-center py-20 text-gray-400">
-              No matching roles found. Send us your CV for future opportunities.
+            <div className="text-center py-40 bg-white rounded-[3rem] border border-dashed border-gray-200">
+              <p className="text-gray-400 font-serif text-2xl">No positions currently matching your search in MongoDB Atlas.</p>
             </div>
           )}
         </div>
       </div>
 
-      {/* Application Modal */}
-      {selectedJob && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-brand-dark/80 backdrop-blur-sm" onClick={() => setSelectedJob(null)} />
-          <div className="bg-white w-full max-w-2xl rounded-3xl overflow-hidden relative z-10 animate-in zoom-in duration-300">
-            <div className="bg-brand-dark p-8 text-white relative">
-              <button onClick={() => setSelectedJob(null)} className="absolute top-8 right-8 text-white/50 hover:text-white">
-                <X size={24} />
-              </button>
-              <h3 className="text-2xl font-serif font-bold">{selectedJob.title}</h3>
-              <p className="text-brand-gold font-bold">{selectedJob.company} • {selectedJob.location}</p>
-            </div>
-            <div className="p-8 space-y-6">
-              <div className="text-gray-600 text-sm leading-relaxed">
-                <h4 className="font-bold text-brand-dark mb-2">Job Description</h4>
-                {selectedJob.description}
-              </div>
-              
-              <div className="border-t border-gray-100 pt-6 space-y-4">
-                <h4 className="font-bold text-brand-dark uppercase tracking-widest text-xs">Express Interest</h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <input type="text" placeholder="Full Name" className="p-4 bg-gray-50 rounded-xl border border-transparent focus:border-brand-gold focus:bg-white outline-none w-full" />
-                  <input type="email" placeholder="Email Address" className="p-4 bg-gray-50 rounded-xl border border-transparent focus:border-brand-gold focus:bg-white outline-none w-full" />
+      {/* Apply Modal */}
+      <AnimatePresence>
+        {selectedJob && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-brand-dark/95 backdrop-blur-xl" onClick={() => setSelectedJob(null)} />
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="bg-white w-full max-w-4xl rounded-[3rem] overflow-hidden relative z-10 shadow-2xl max-h-[90vh] overflow-y-auto">
+              <div className="p-16 space-y-12">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-5xl font-serif font-bold text-brand-dark">{selectedJob.title}</h3>
+                  <button onClick={() => setSelectedJob(null)} className="text-gray-300 hover:text-brand-dark"><X size={40}/></button>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Resume / CV</label>
-                  <input type="file" className="block w-full text-sm text-gray-500 file:mr-4 file:py-3 file:px-8 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-brand-light file:text-brand-dark hover:file:bg-brand-dark hover:file:text-white transition-all" />
+                <div className="bg-brand-light p-10 rounded-3xl border-l-8 border-brand-gold text-xl text-gray-700 font-serif italic whitespace-pre-wrap leading-relaxed">
+                  {selectedJob.description}
                 </div>
-                <button className="w-full bg-brand-dark text-white py-4 rounded-xl font-bold shadow-xl hover:bg-brand-accent transition">Submit Application</button>
+                <button 
+                  onClick={() => { alert('Application feature requires Atlas cluster write permissions.'); setSelectedJob(null); }}
+                  className="w-full bg-brand-dark text-white py-8 rounded-[2rem] font-serif font-black text-2xl flex items-center justify-center gap-4 hover:bg-brand-accent transition-all"
+                >
+                  Submit Executive Profile <Send size={24} />
+                </button>
               </div>
-            </div>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 };
