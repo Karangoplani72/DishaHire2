@@ -48,12 +48,13 @@ const JobSchema = new mongoose.Schema({
 }, { toJSON: { transform }, toObject: { transform } });
 
 const EnquirySchema = new mongoose.Schema({
-  type: { type: String, enum: ['CANDIDATE', 'EMPLOYER'] },
-  name: String,
-  email: String,
-  message: String,
+  type: { type: String, enum: ['CANDIDATE', 'EMPLOYER'], required: true },
+  subject: { type: String, default: 'General Inquiry' },
+  name: { type: String, required: true },
+  email: { type: String, required: true },
+  message: { type: String, required: true },
   company: String,
-  priority: { type: String, default: 'NORMAL' },
+  priority: { type: String, enum: ['NORMAL', 'HIGH'], default: 'NORMAL' },
   experience: String,
   resumeData: String,
   resumeName: String,
@@ -74,30 +75,24 @@ const authenticateAdmin = (req: any, res: any, next: any) => {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ error: 'Authentication required' });
   try {
-    const decoded = jwt.verify(authHeader.split(' ')[1], JWT_SECRET);
+    const decoded: any = jwt.verify(authHeader.split(' ')[1], JWT_SECRET);
+    if (decoded.role !== 'ADMIN') return res.status(403).json({ error: 'Admin privileges required' });
     req.user = decoded;
     next();
   } catch (err) {
-    return res.status(403).json({ error: 'Invalid token' });
+    return res.status(403).json({ error: 'Invalid or expired token' });
   }
 };
 
 app.post('/api/auth/login', (req, res) => {
   const { email, password } = req.body;
   const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'dishahire.0818@gmail.com';
-  
-  // Priority: 1. Environment Variable, 2. The specific password you provided
   const ADMIN_PASS = process.env.ADMIN_PASSWORD || 'DishaHire@Admin#2024';
-
-  console.log(`Login attempt for: ${email}`);
 
   if (email === ADMIN_EMAIL && password === ADMIN_PASS) {
     const token = jwt.sign({ email, role: 'ADMIN' }, JWT_SECRET, { expiresIn: '24h' });
-    console.log("✅ Admin login successful");
     return res.json({ token, user: { email, name: 'Admin', role: 'ADMIN' } });
   }
-  
-  console.log("❌ Admin login failed: Invalid credentials");
   res.status(401).json({ error: 'Invalid credentials' });
 });
 
@@ -113,7 +108,19 @@ app.post('/api/enquiries', async (req, res) => {
     const enq = new Enquiry(req.body);
     await enq.save();
     res.status(201).json({ message: 'Success' });
-  } catch(e) { res.status(400).json({ error: 'Failed' }); }
+  } catch(e) { 
+    console.error('Enquiry Error:', e);
+    res.status(400).json({ error: 'Failed to process inquiry. Ensure all fields are valid.' }); 
+  }
+});
+
+app.get('/api/my-applications', async (req, res) => {
+  const { email } = req.query;
+  if (!email) return res.status(400).json({ error: 'Email required' });
+  try {
+    const apps = await Enquiry.find({ email }).sort({ createdAt: -1 });
+    res.json(apps);
+  } catch(e) { res.status(500).json([]); }
 });
 
 app.post('/api/subscribers', async (req, res) => {
@@ -121,28 +128,44 @@ app.post('/api/subscribers', async (req, res) => {
     const sub = new Subscriber(req.body);
     await sub.save();
     res.status(201).json({ message: 'Subscribed' });
-  } catch(e) { res.status(400).json({ error: 'Failed' }); }
+  } catch(e) { res.status(400).json({ error: 'Already subscribed or invalid email.' }); }
 });
 
 app.get('/api/enquiries', authenticateAdmin, async (req, res) => {
-  const enquiries = await Enquiry.find().sort({ createdAt: -1 });
-  res.json(enquiries);
+  try {
+    const enquiries = await Enquiry.find().sort({ createdAt: -1 });
+    res.json(enquiries);
+  } catch(e) { res.status(500).json([]); }
+});
+
+app.patch('/api/enquiries/:id/status', authenticateAdmin, async (req, res) => {
+  try {
+    const { status } = req.body;
+    const enq = await Enquiry.findByIdAndUpdate(req.params.id, { status }, { new: true });
+    res.json(enq);
+  } catch(e) { res.status(400).json({ error: 'Update failed' }); }
 });
 
 app.get('/api/subscribers', authenticateAdmin, async (req, res) => {
-  const subs = await Subscriber.find().sort({ createdAt: -1 });
-  res.json(subs);
+  try {
+    const subs = await Subscriber.find().sort({ createdAt: -1 });
+    res.json(subs);
+  } catch(e) { res.status(500).json([]); }
 });
 
 app.post('/api/jobs', authenticateAdmin, async (req, res) => {
-  const job = new Job(req.body);
-  await job.save();
-  res.status(201).json(job);
+  try {
+    const job = new Job(req.body);
+    await job.save();
+    res.status(201).json(job);
+  } catch(e) { res.status(400).json({ error: 'Job creation failed' }); }
 });
 
 app.delete('/api/jobs/:id', authenticateAdmin, async (req, res) => {
-  await Job.findByIdAndDelete(req.params.id);
-  res.json({ message: 'Deleted' });
+  try {
+    await Job.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Deleted' });
+  } catch(e) { res.status(400).json({ error: 'Delete failed' }); }
 });
 
 app.listen(PORT, () => console.log(`🚀 API active on port ${PORT}`));

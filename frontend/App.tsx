@@ -1,13 +1,14 @@
 
 import React, { useState } from 'react';
 import { HashRouter as Router, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
-import { Menu, X, Mail, Phone, MapPin, Linkedin, LogOut, User as UserIcon, ShieldCheck, Instagram, MessageCircle } from 'lucide-react';
+import { Menu, X, Mail, Phone, MapPin, Linkedin, LogOut, User as UserIcon, ShieldCheck, Instagram, MessageCircle, Briefcase } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Home from './pages/Home.tsx';
 import About from './pages/About.tsx';
 import Services from './pages/Services.tsx';
 import Jobs from './pages/Jobs.tsx';
 import Terms from './pages/Terms.tsx';
+import MyApplications from './pages/MyApplications.tsx';
 import AdminDashboard from './pages/AdminDashboard.tsx';
 import AdminLogin from './pages/AdminLogin.tsx';
 import { NAV_LINKS, CONTACT_INFO } from './constants.tsx';
@@ -50,6 +51,12 @@ const Navbar = () => {
 
             {isAuthenticated ? (
               <div className="flex items-center space-x-5">
+                <Link 
+                  to="/my-applications" 
+                  className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-colors ${location.pathname === '/my-applications' ? 'text-brand-gold' : 'text-gray-400 hover:text-white'}`}
+                >
+                  <Briefcase size={14} /> Tracking
+                </Link>
                 <div className="flex items-center space-x-2 text-[10px] font-black uppercase tracking-widest text-brand-gold">
                    {user?.picture ? <img src={user.picture} className="w-7 h-7 rounded-full border border-brand-gold/30" /> : <UserIcon size={16}/>}
                    <span>{user?.name.split(' ')[0]}</span>
@@ -101,6 +108,15 @@ const Navbar = () => {
                   {link.name}
                 </Link>
               ))}
+              {isAuthenticated && (
+                <Link
+                  to="/my-applications"
+                  onClick={() => setIsOpen(false)}
+                  className="block text-xl font-serif font-bold text-brand-gold"
+                >
+                  My Applications
+                </Link>
+              )}
               <div className="h-px bg-white/5 w-full" />
               {!isAuthenticated ? (
                 <button onClick={() => { loginGoogle(); setIsOpen(false); }} className="w-full bg-brand-gold text-brand-dark py-4 rounded-2xl font-bold">Client Login</button>
@@ -241,6 +257,7 @@ const App: React.FC = () => {
             <Route path="/services" element={<Services />} />
             <Route path="/jobs" element={<Jobs />} />
             <Route path="/terms" element={<Terms />} />
+            <Route path="/my-applications" element={<MyApplications />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/*" element={
               <ProtectedAdmin>

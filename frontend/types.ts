@@ -4,6 +4,8 @@ export enum EnquiryType {
   EMPLOYER = 'EMPLOYER'
 }
 
+export type ApplicationStatus = 'PENDING' | 'REVIEWING' | 'INTERVIEWING' | 'SHORTLISTED' | 'OFFERED' | 'REJECTED' | 'ARCHIVED';
+
 export interface Job {
   id: string;
   title: string;
@@ -18,13 +20,13 @@ export interface Job {
 export interface Enquiry {
   id: string;
   type: EnquiryType;
+  subject?: string; // Explicitly track the job title or inquiry subject
   name: string;
   email: string;
   message: string;
-  status: string;
+  status: ApplicationStatus;
   company?: string;
   priority?: string;
-  // Added experience property used in AdminDashboard and EnquiryModal
   experience?: string;
   resumeData?: string;
   resumeName?: string;

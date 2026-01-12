@@ -33,7 +33,6 @@ const Jobs: React.FC = () => {
 
   return (
     <div className="bg-brand-light min-h-screen">
-      {/* Sub-Hero Header */}
       <section className="bg-brand-dark text-white py-32 text-center relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
         <div className="max-w-7xl mx-auto px-4 relative z-10 space-y-4">
@@ -42,7 +41,6 @@ const Jobs: React.FC = () => {
         </div>
       </section>
 
-      {/* Filter Bar */}
       <div className="max-w-5xl mx-auto px-4 -mt-10 relative z-20">
         <div className="bg-white p-6 rounded-[2.5rem] shadow-2xl border border-gray-100 flex items-center gap-4">
           <div className="relative flex-1">
@@ -61,7 +59,6 @@ const Jobs: React.FC = () => {
         </div>
       </div>
 
-      {/* Job Listings */}
       <div className="max-w-5xl mx-auto px-4 py-20">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4 opacity-50">
@@ -113,7 +110,8 @@ const Jobs: React.FC = () => {
           <EnquiryModal 
             type={EnquiryType.CANDIDATE} 
             onClose={() => setModalOpen(false)} 
-            initialMessage={`Strategic Application: I am expressing serious interest in the "${selectedJobTitle}" position as listed on DishaHire.`}
+            initialSubject={selectedJobTitle}
+            initialMessage={`Professional Application: I am officially expressing my interest in the "${selectedJobTitle}" position as listed on your platform.`}
           />
         )}
       </AnimatePresence>
