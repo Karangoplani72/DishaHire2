@@ -106,13 +106,13 @@ const AdminDashboard: React.FC = () => {
     e.preventDefault();
     setPublishing(true);
     try {
-      await db.addJob(newJob as any);
+      await db.addJob(newJob);
       setIsJobModalOpen(false);
       await refreshData();
-      alert('Role successfully published.');
+      alert('Role successfully published to Atlas Hub.');
       setNewJob({ title: '', company: '', location: '', type: 'Full-time', industry: 'IT & Technology', description: '' });
-    } catch (err) {
-      alert('Failed to save job. Check console.');
+    } catch (err: any) {
+      alert(`Sync Error: ${err.message || 'Check cluster connection'}`);
     } finally {
       setPublishing(false);
     }
@@ -127,7 +127,7 @@ const AdminDashboard: React.FC = () => {
 
   const handleEmailReply = (enquiry: Enquiry) => {
     const subject = encodeURIComponent(`RE: DishaHire - ${enquiry.subject || 'Inquiry'}`);
-    const body = encodeURIComponent(`Dear ${enquiry.name},\n\nThank you for reaching out to DishaHire. We have reviewed your message regarding "${enquiry.subject || 'your inquiry'}" and would like to discuss this further.\n\nBest regards,\nDishaHire Team`);
+    const body = encodeURIComponent(`Dear ${enquiry.name},\n\nThank you for reaching out to DishaHire. We have reviewed your message and would like to discuss this further.\n\nBest regards,\nDishaHire Team`);
     window.location.href = `mailto:${enquiry.email}?subject=${subject}&body=${body}`;
   };
 
@@ -329,7 +329,6 @@ const AdminDashboard: React.FC = () => {
             </div>
           )}
           
-          {/* Other tabs remain essentially the same */}
           {activeTab === 'jobs' && (
             <div className="space-y-8 animate-in fade-in duration-500">
                <div className="flex justify-between items-center">
@@ -343,7 +342,7 @@ const AdminDashboard: React.FC = () => {
                   <div key={job.id} className="bg-white p-8 rounded-3xl border border-gray-100 flex items-center justify-between shadow-sm hover:shadow-md transition-all">
                     <div>
                       <h4 className="font-bold text-lg text-brand-dark">{job.title}</h4>
-                      <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">{job.company} • {job.location} • {job.industry}</p>
+                      <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">{job.company} • {job.location} • {job.type}</p>
                     </div>
                     <button onClick={() => handleDeleteJob(job.id)} className="p-4 text-red-500 hover:bg-red-50 rounded-2xl transition-all">
                       <Trash2 size={20}/>
@@ -386,26 +385,50 @@ const AdminDashboard: React.FC = () => {
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-brand-dark/95 backdrop-blur-md" onClick={() => setIsJobModalOpen(false)} />
             <div className="bg-white w-full max-w-3xl rounded-[3rem] p-12 relative z-10 shadow-2xl">
-              <h3 className="text-3xl font-serif font-bold text-brand-dark mb-10">New Job Posting</h3>
-              <form onSubmit={handleAddJob} className="space-y-8">
+              <h3 className="text-3xl font-serif font-bold text-brand-dark mb-10">New Atlas Posting</h3>
+              <form onSubmit={handleAddJob} className="space-y-6">
                 <div className="grid grid-cols-2 gap-6">
-                  <input required value={newJob.title} onChange={e => setNewJob({...newJob, title: e.target.value})} className="w-full px-5 py-4 bg-gray-50 border rounded-2xl outline-none" placeholder="Job Title" />
-                  <input required value={newJob.company} onChange={e => setNewJob({...newJob, company: e.target.value})} className="w-full px-5 py-4 bg-gray-50 border rounded-2xl outline-none" placeholder="Company" />
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Job Title</label>
+                    <input required value={newJob.title} onChange={e => setNewJob({...newJob, title: e.target.value})} className="w-full px-5 py-4 bg-gray-50 border rounded-2xl outline-none focus:border-brand-gold/30" placeholder="e.g. Senior HR Manager" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Company</label>
+                    <input required value={newJob.company} onChange={e => setNewJob({...newJob, company: e.target.value})} className="w-full px-5 py-4 bg-gray-50 border rounded-2xl outline-none focus:border-brand-gold/30" placeholder="Organization Name" />
+                  </div>
                 </div>
-                <div className="grid grid-cols-2 gap-6">
-                  <input required value={newJob.location} onChange={e => setNewJob({...newJob, location: e.target.value})} className="w-full px-5 py-4 bg-gray-50 border rounded-2xl outline-none" placeholder="Location" />
-                  <select value={newJob.industry} onChange={e => setNewJob({...newJob, industry: e.target.value})} className="w-full px-5 py-4 bg-gray-50 border rounded-2xl outline-none">
-                    <option>IT & Technology</option>
-                    <option>Manufacturing</option>
-                    <option>Sales & Marketing</option>
-                    <option>Healthcare</option>
-                    <option>Finance</option>
-                    <option>BPO Support</option>
-                  </select>
+                <div className="grid grid-cols-3 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Location</label>
+                    <input required value={newJob.location} onChange={e => setNewJob({...newJob, location: e.target.value})} className="w-full px-5 py-4 bg-gray-50 border rounded-2xl outline-none focus:border-brand-gold/30" placeholder="City" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Industry</label>
+                    <select value={newJob.industry} onChange={e => setNewJob({...newJob, industry: e.target.value})} className="w-full px-5 py-4 bg-gray-50 border rounded-2xl outline-none cursor-pointer">
+                      <option>IT & Technology</option>
+                      <option>Manufacturing</option>
+                      <option>Sales & Marketing</option>
+                      <option>Healthcare</option>
+                      <option>Finance</option>
+                      <option>BPO Support</option>
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Job Type</label>
+                    <select value={newJob.type} onChange={e => setNewJob({...newJob, type: e.target.value})} className="w-full px-5 py-4 bg-gray-50 border rounded-2xl outline-none cursor-pointer">
+                      <option>Full-time</option>
+                      <option>Contract</option>
+                      <option>Part-time</option>
+                      <option>Freelance</option>
+                    </select>
+                  </div>
                 </div>
-                <textarea rows={6} required value={newJob.description} onChange={e => setNewJob({...newJob, description: e.target.value})} className="w-full px-5 py-4 bg-gray-50 border rounded-2xl outline-none resize-none leading-relaxed" placeholder="Detailed job description and requirements..."></textarea>
-                <button disabled={publishing} type="submit" className="w-full bg-brand-dark text-white py-5 rounded-2xl font-bold flex items-center justify-center gap-4 hover:bg-brand-accent transition-all">
-                  {publishing ? <Loader2 className="animate-spin"/> : 'Publish to Atlas Hub'}
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Job Description & Requirements</label>
+                  <textarea rows={6} required value={newJob.description} onChange={e => setNewJob({...newJob, description: e.target.value})} className="w-full px-5 py-4 bg-gray-50 border rounded-2xl outline-none resize-none leading-relaxed focus:border-brand-gold/30" placeholder="Elaborate on specific requirements and responsibilities..."></textarea>
+                </div>
+                <button disabled={publishing} type="submit" className="w-full bg-brand-dark text-white py-5 rounded-2xl font-bold flex items-center justify-center gap-4 hover:bg-brand-accent transition-all shadow-xl">
+                  {publishing ? <Loader2 className="animate-spin"/> : <><Database size={20}/> Publish to Atlas Hub</>}
                 </button>
               </form>
             </div>

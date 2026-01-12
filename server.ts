@@ -23,7 +23,7 @@ app.use(express.static(__dirname));
 const MONGO_URI = process.env.MONGO_URI;
 
 if (!MONGO_URI) {
-  console.error("❌ CRITICAL: MONGO_URI missing. Database features disabled.");
+  console.error("❌ CRITICAL: MONGO_URI missing.");
 } else {
   mongoose.connect(MONGO_URI)
     .then(() => console.log('✅ Connected to Secure MongoDB Atlas Cluster'))
@@ -52,18 +52,19 @@ const UserSchema = new mongoose.Schema({
 const JobSchema = new mongoose.Schema({
   title: { type: String, required: true },
   company: { type: String, required: true },
-  location: String,
-  type: String,
-  industry: String,
-  description: String,
+  location: { type: String, required: true },
+  type: { type: String, default: 'Full-time' },
+  industry: { type: String, required: true },
+  description: { type: String, required: true },
   postedDate: { type: Date, default: Date.now }
 }, { toJSON: { transform }, toObject: { transform } });
 
 const EnquirySchema = new mongoose.Schema({
   type: { type: String, enum: ['CANDIDATE', 'EMPLOYER'] },
   subject: String,
-  name: String,
-  email: String,
+  name: { type: String, required: true },
+  email: { type: String, required: true },
+  phone: String, // Restored missing field
   message: String,
   company: String,
   priority: { type: String, default: 'NORMAL' },
@@ -131,7 +132,6 @@ app.post('/api/auth/login', async (req, res) => {
   const ADMIN_PASS = process.env.ADMIN_PASSWORD;
 
   try {
-    // Admin Override
     if (email.toLowerCase() === ADMIN_EMAIL) {
       if (ADMIN_PASS && password !== ADMIN_PASS) return res.status(401).json({ error: 'Invalid admin key' });
       
@@ -167,10 +167,14 @@ app.get('/api/jobs', async (req, res) => {
 });
 
 app.post('/api/jobs', authenticate, async (req, res) => {
-  if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Admin only' });
-  const job = new Job(req.body);
-  await job.save();
-  res.status(201).json(job);
+  if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Admin authorization required' });
+  try {
+    const job = new Job(req.body);
+    await job.save();
+    res.status(201).json(job);
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
 });
 
 app.delete('/api/jobs/:id', authenticate, async (req, res) => {
