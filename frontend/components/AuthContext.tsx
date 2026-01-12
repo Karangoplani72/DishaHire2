@@ -8,6 +8,7 @@ export enum UserRole {
 }
 
 interface UserProfile {
+  id?: string;
   email?: string;
   phone?: string;
   name: string;
@@ -20,7 +21,7 @@ interface AuthContextType {
   loginEmail: (email: string, password: string) => Promise<boolean>;
   requestOTP: (identifier: string) => Promise<boolean>;
   verifyOTP: (identifier: string, code: string, name?: string) => Promise<boolean>;
-  loginGoogle: () => Promise<void>;
+  loginGoogle: () => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
   isAdmin: boolean;
@@ -50,7 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (response.ok) {
         const { token, user } = await response.json();
-        localStorage.setItem('dh_admin_token', token); // Using same key for now
+        localStorage.setItem('dh_admin_token', token);
         localStorage.setItem('dh_user_profile', JSON.stringify(user));
         setUser(user);
         return true;
@@ -95,15 +96,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const loginGoogle = async () => {
-    const mockUser: UserProfile = {
-      email: 'user@example.com',
-      name: 'Guest User',
-      role: UserRole.USER,
-      picture: 'https://ui-avatars.com/api/?name=Guest+User&background=b08d3e&color=fff'
-    };
-    setUser(mockUser);
-    localStorage.setItem('dh_user_profile', JSON.stringify(mockUser));
+  const loginGoogle = async (): Promise<boolean> => {
+    try {
+      // PRODUCTION SIMULATION: In a real environment, you'd use @react-oauth/google.
+      // Here we simulate the successful "Google Identity" response and sync it with our backend.
+      const name = prompt("Select Google Account (Simulation):", "Professional User");
+      if (!name) return false;
+      
+      const email = name.toLowerCase().replace(/\s/g, '.') + "@gmail.com";
+
+      const res = await fetch(`${API_BASE}/auth/social-login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          name,
+          picture: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=b08d3e&color=fff`,
+          provider: 'GOOGLE'
+        })
+      });
+
+      if (res.ok) {
+        const { token, user } = await res.json();
+        localStorage.setItem('dh_admin_token', token);
+        localStorage.setItem('dh_user_profile', JSON.stringify(user));
+        setUser(user);
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('External Login Sync Error:', err);
+      return false;
+    }
   };
 
   const logout = () => {

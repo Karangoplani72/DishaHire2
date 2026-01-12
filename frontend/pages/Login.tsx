@@ -13,22 +13,20 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otpCode, setOtpCode] = useState('');
-  const [name, setName] = useState(''); // For new phone users
-  const [step, setStep] = useState(1); // 1: Input, 2: OTP
+  const [name, setName] = useState('');
+  const [step, setStep] = useState(1);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
   const { loginEmail, requestOTP, verifyOTP, loginGoogle } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     
-    // Simulate a 2nd factor check for premium security
     const ok = await loginEmail(email, password);
     if (ok) {
       setSuccess(true);
@@ -69,9 +67,15 @@ const Login: React.FC = () => {
 
   const handleGoogleLogin = async () => {
     setLoading(true);
-    await loginGoogle();
-    setSuccess(true);
-    setTimeout(() => navigate('/'), 1500);
+    setError('');
+    const ok = await loginGoogle();
+    if (ok) {
+      setSuccess(true);
+      setTimeout(() => navigate('/'), 1500);
+    } else {
+      setError('Google identity sync cancelled or failed.');
+      setLoading(false);
+    }
   };
 
   return (
@@ -104,7 +108,6 @@ const Login: React.FC = () => {
               <p className="text-gray-400 font-serif italic">Securely access your professional hub.</p>
             </div>
 
-            {/* Method Tabs */}
             <div className="flex bg-gray-50 p-1 rounded-2xl mb-8">
               {(['EMAIL', 'PHONE', 'GOOGLE'] as LoginMethod[]).map(m => (
                 <button
@@ -243,7 +246,7 @@ const Login: React.FC = () => {
                     className="w-full flex items-center justify-center gap-4 py-5 bg-white border-2 border-gray-100 rounded-2xl hover:bg-gray-50 transition-all font-black uppercase text-xs tracking-widest"
                    >
                      <img src="https://www.google.com/favicon.ico" className="w-5 h-5" alt="G" />
-                     {loading ? 'Processing...' : 'Continue with Google'}
+                     {loading ? 'Processing Identity Sync...' : 'Continue with Google'}
                    </button>
                 </motion.div>
               )}

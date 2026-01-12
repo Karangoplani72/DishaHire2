@@ -149,7 +149,7 @@ const EnquiryModal: React.FC<Props> = ({ type, onClose, initialMessage = '', ini
 
           {type === EnquiryType.CANDIDATE && (
             <div className="space-y-3">
-              <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Resume Upload (PDF < 10MB)</label>
+              <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Resume Upload (PDF &lt; 10MB)</label>
               <div className={`relative border-2 border-dashed ${fileError ? 'border-red-300 bg-red-50' : 'border-gray-100 bg-gray-50'} rounded-[2rem] p-10 text-center hover:border-brand-gold/40 hover:bg-white transition-all cursor-pointer`}>
                 <input type="file" accept=".pdf" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                 {file ? (
