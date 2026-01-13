@@ -1,4 +1,6 @@
 
 {
-  "note": "Deprecated. Use root package.json."
+  "name": "deprecated-frontend",
+  "private": true,
+  "description": "Please use root package.json for builds."
 }
