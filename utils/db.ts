@@ -1,5 +1,5 @@
 
-import { Job, Enquiry, Testimonial, ApplicationStatus } from '../types.ts';
+import { Job, Enquiry, ApplicationStatus } from '../types.ts';
 
 const API_BASE = '/api';
 
@@ -42,10 +42,11 @@ export const db = {
   addEnquiry: (enquiry: any): Promise<any> => fetcher('/enquiries', { method: 'POST', body: JSON.stringify(enquiry) }),
   updateEnquiryStatus: (id: string, status: ApplicationStatus): Promise<Enquiry> => 
     fetcher(`/enquiries/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
-  getTestimonials: (): Promise<Testimonial[]> => fetcher('/testimonials', {}, []),
-  getAdminTestimonials: (): Promise<Testimonial[]> => fetcher('/admin/testimonials', {}, []),
-  moderateTestimonial: (id: string, update: any): Promise<any> => fetcher(`/testimonials/${id}`, { method: 'PATCH', body: JSON.stringify(update) }),
   // Added missing getBlogs method to resolve "Property 'getBlogs' does not exist" error in Career and AdminDashboard pages
   getBlogs: (): Promise<any[]> => fetcher('/blogs', {}, []),
   subscribeNewsletter: (email: string): Promise<void> => fetcher('/subscribers', { method: 'POST', body: JSON.stringify({ email }) }),
+  // Added testimonial-related methods to resolve missing property errors in Home.tsx and AdminDashboard.tsx
+  getTestimonials: (): Promise<any[]> => fetcher('/testimonials', {}, []),
+  getAdminTestimonials: (): Promise<any[]> => fetcher('/admin/testimonials', {}, []),
+  moderateTestimonial: (id: string, data: any): Promise<any> => fetcher(`/testimonials/${id}/moderate`, { method: 'PATCH', body: JSON.stringify(data) }),
 };

@@ -1,5 +1,5 @@
 
-import { Job, Enquiry, Testimonial, ApplicationStatus } from '../types';
+import { Job, Enquiry, ApplicationStatus } from '../types';
 
 // Use environment variable for production API, fallback to relative /api for local proxy
 const API_BASE = (import.meta as any).env?.VITE_API_URL || '/api';
@@ -62,8 +62,4 @@ export const db = {
 
   subscribeNewsletter: async (email: string): Promise<void> => fetcher('/subscribers', { method: 'POST', body: JSON.stringify({ email }) }),
   getSubscribers: async (): Promise<any[]> => fetcher('/subscribers', {}, []),
-  
-  getTestimonials: async (): Promise<Testimonial[]> => fetcher('/testimonials', {}, []),
-  getAdminTestimonials: async (): Promise<Testimonial[]> => fetcher('/admin/testimonials', {}, []),
-  moderateTestimonial: async (id: string, update: any): Promise<any> => fetcher(`/testimonials/${id}`, { method: 'PATCH', body: JSON.stringify(update) }),
 };

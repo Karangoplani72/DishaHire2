@@ -36,17 +36,6 @@ export interface Enquiry {
   createdAt: string;
 }
 
-export interface Testimonial {
-  id: string;
-  name: string;
-  role: string;
-  company: string;
-  content: string;
-  rating: number;
-  adminReply?: string;
-  isApproved: boolean;
-}
-
 export interface CareerTip {
   id: string;
   title: string;
@@ -54,4 +43,14 @@ export interface CareerTip {
   content: string;
   author: string;
   date: string;
+}
+
+// Added Testimonial interface to resolve missing exported member error in Home.tsx
+export interface Testimonial {
+  _id: string;
+  name: string;
+  company: string;
+  content: string;
+  isApproved: boolean;
+  createdAt: string;
 }
