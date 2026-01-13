@@ -2,5 +2,8 @@
 {
   "name": "deprecated-backend",
   "private": true,
-  "description": "Please use root package.json for start command."
+  "scripts": {
+    "build": "echo 'Redirecting build to root...' && cd .. && npm run build",
+    "start": "echo 'Redirecting start to root...' && cd .. && npm start"
+  }
 }

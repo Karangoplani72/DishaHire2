@@ -16,6 +16,7 @@ const app = express();
 const PORT = process.env.PORT || 10000;
 const JWT_SECRET = process.env.JWT_SECRET || 'dishahire-enterprise-secure-key-2025';
 
+// Security middleware
 app.use(helmet({ 
   contentSecurityPolicy: false,
   crossOriginEmbedderPolicy: false 
@@ -23,35 +24,35 @@ app.use(helmet({
 app.use(cors());
 app.use(express.json({ limit: '15mb' }));
 
-// MongoDB with retry
+// Database Connection
 const MONGO_URI = process.env.MONGO_URI;
 if (MONGO_URI) {
   mongoose.connect(MONGO_URI)
-    .then(() => console.log('✅ MongoDB Connected'))
-    .catch(err => console.error('❌ MongoDB Error:', err.message));
-} else {
-  console.warn('⚠️ No MONGO_URI provided.');
+    .then(() => console.log('✅ Connected to MongoDB Enterprise Cluster'))
+    .catch(err => console.error('❌ MongoDB Connection Failure:', err.message));
 }
 
-// Models
-const User = mongoose.models.User || mongoose.model('User', new mongoose.Schema({
+// Enterprise Data Models
+const UserSchema = new mongoose.Schema({
   email: { type: String, unique: true, required: true },
   name: { type: String, required: true },
   password: { type: String, required: true },
   role: { type: String, enum: ['USER', 'ADMIN'], default: 'USER' },
-  status: { type: String, default: 'ACTIVE' }
-}));
+  createdAt: { type: Date, default: Date.now }
+});
+const User = mongoose.models.User || mongoose.model('User', UserSchema);
 
-const Job = mongoose.models.Job || mongoose.model('Job', new mongoose.Schema({
+const JobSchema = new mongoose.Schema({
   title: String,
   company: String,
   location: String,
   industry: String,
   description: String,
   postedDate: { type: Date, default: Date.now }
-}));
+});
+const Job = mongoose.models.Job || mongoose.model('Job', JobSchema);
 
-const Enquiry = mongoose.models.Enquiry || mongoose.model('Enquiry', new mongoose.Schema({
+const EnquirySchema = new mongoose.Schema({
   type: String,
   name: String,
   email: String,
@@ -60,46 +61,64 @@ const Enquiry = mongoose.models.Enquiry || mongoose.model('Enquiry', new mongoos
   company: String,
   status: { type: String, default: 'PENDING' },
   createdAt: { type: Date, default: Date.now }
-}));
+});
+const Enquiry = mongoose.models.Enquiry || mongoose.model('Enquiry', EnquirySchema);
 
-// API Routes
+// Authentication API
 app.post('/api/auth/login', async (req, res) => {
-  const { email, password } = req.body;
-  const user = await User.findOne({ email: email.toLowerCase().trim() });
-  if (user && await bcrypt.compare(password, user.password)) {
-    const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET);
-    return res.json({ token, user });
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
+    if (user && await bcrypt.compare(password, user.password)) {
+      const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
+      return res.json({ token, user: { id: user._id, email: user.email, name: user.name, role: user.role } });
+    }
+    res.status(401).json({ error: 'Invalid credentials provided for secure login.' });
+  } catch (err) {
+    res.status(500).json({ error: 'Internal Server Error' });
   }
-  res.status(401).json({ error: 'Invalid credentials' });
 });
 
 app.post('/api/auth/signup', async (req, res) => {
-  const { name, email, password } = req.body;
-  const hashed = await bcrypt.hash(password, 12);
   try {
+    const { name, email, password } = req.body;
+    const existing = await User.findOne({ email: email.toLowerCase().trim() });
+    if (existing) return res.status(400).json({ error: 'Identity already registered.' });
+    
+    const hashed = await bcrypt.hash(password, 12);
     const user = new User({ name, email: email.toLowerCase().trim(), password: hashed });
     await user.save();
-    const token = jwt.sign({ id: user._id, role: 'USER' }, JWT_SECRET);
-    res.json({ token, user });
-  } catch (e) {
-    res.status(400).json({ error: 'Email already exists' });
+    
+    const token = jwt.sign({ id: user._id, role: 'USER' }, JWT_SECRET, { expiresIn: '7d' });
+    res.json({ token, user: { id: user._id, email: user.email, name: user.name, role: 'USER' } });
+  } catch (err) {
+    res.status(500).json({ error: 'Account creation failed.' });
   }
 });
 
-app.get('/api/jobs', async (req, res) => res.json(await Job.find().sort({ postedDate: -1 })));
-app.post('/api/enquiries', async (req, res) => {
-  const enq = new Enquiry(req.body);
-  await enq.save();
-  res.json({ success: true });
+// Resources API
+app.get('/api/jobs', async (req, res) => {
+  const jobs = await Job.find().sort({ postedDate: -1 });
+  res.json(jobs);
 });
 
-// Serving Static
+app.post('/api/enquiries', async (req, res) => {
+  try {
+    const enq = new Enquiry(req.body);
+    await enq.save();
+    res.json({ success: true, message: 'Inquiry successfully transmitted.' });
+  } catch (err) {
+    res.status(400).json({ error: 'Submission failed.' });
+  }
+});
+
+// Static Assets Serving
 app.use(express.static(__dirname));
 
-// Fallback for SPA
+// Single Page Application Fallback
 app.get('*', (req, res) => {
-  if (req.url.startsWith('/api/')) return res.status(404).json({ error: 'Not found' });
+  if (req.url.startsWith('/api/')) return res.status(404).json({ error: 'API route not found' });
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.listen(PORT, () => console.log(`🚀 Server on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 DishaHire Server actively listening on port ${PORT}`));
