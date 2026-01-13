@@ -1,41 +1,33 @@
 
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  LayoutDashboard, Users, Briefcase, MessageSquare, LogOut, 
-  Trash2, Plus, X, Loader2, Database, ShieldCheck, Check, Edit3, Newspaper
+  LayoutDashboard, Briefcase, MessageSquare, LogOut, 
+  Database, ShieldCheck, Newspaper
 } from 'lucide-react';
-import { Job, Enquiry } from '../types.ts';
 import { db } from '../utils/db.ts';
 import { useAuth } from '../components/AuthContext.tsx';
 
-// Removed React.FC typing to resolve "Property 'children' is missing" error when this component is rendered in App.tsx
 const AdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'enquiries' | 'jobs' | 'moderation' | 'blog'>('overview');
-  const [data, setData] = useState({ enquiries: [], jobs: [], testimonials: [], blogs: [] });
+  const [activeTab, setActiveTab] = useState<'overview' | 'enquiries' | 'jobs' | 'blog'>('overview');
+  const [data, setData] = useState({ enquiries: [], jobs: [], blogs: [] });
   const [loading, setLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const { logout } = useAuth();
   
   const refresh = async () => {
     setLoading(true);
-    const [e, j, t, b] = await Promise.all([
-      db.getEnquiries(), db.getJobs(), db.getAdminTestimonials(), db.getBlogs()
-    ]);
-    setData({ enquiries: e, jobs: j, testimonials: t, blogs: b });
-    setLoading(false);
+    try {
+      const [e, j, b] = await Promise.all([
+        db.getEnquiries(), db.getJobs(), db.getBlogs()
+      ]);
+      setData({ enquiries: e, jobs: j, blogs: b });
+    } catch (err) {
+      console.error("Dashboard refresh error:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { refresh(); }, []);
-
-  const handleApprove = async (id: string) => {
-    await db.moderateTestimonial(id, { isApproved: true });
-    refresh();
-  };
-
-  const handleDeleteJob = async (id: string) => {
-    if(confirm('Delete role?')) { await db.deleteJob(id); refresh(); }
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -46,7 +38,6 @@ const AdminDashboard = () => {
             { id: 'overview', icon: <LayoutDashboard size={20}/>, label: 'Dashboard' },
             { id: 'enquiries', icon: <MessageSquare size={20}/>, label: 'Inquiries' },
             { id: 'jobs', icon: <Briefcase size={20}/>, label: 'Atlas Jobs' },
-            { id: 'moderation', icon: <ShieldCheck size={20}/>, label: 'Moderation' },
             { id: 'blog', icon: <Newspaper size={20}/>, label: 'Editorial' },
           ].map(item => (
             <button key={item.id} onClick={() => setActiveTab(item.id as any)} className={`w-full flex items-center space-x-4 px-10 py-5 transition-all ${activeTab === item.id ? 'bg-brand-gold/10 text-brand-gold border-r-4 border-brand-gold' : 'text-gray-400 hover:text-white'}`}>
@@ -80,20 +71,17 @@ const AdminDashboard = () => {
           </div>
         )}
 
-        {activeTab === 'moderation' && (
-          <div className="space-y-6">
-            {data.testimonials.map((t: any) => (
-              <div key={t._id} className="bg-white p-8 rounded-[2.5rem] border border-gray-100 flex justify-between items-center">
-                <div>
-                  <h3 className="font-bold">{t.name} <span className="text-gray-400 font-normal">({t.company})</span></h3>
-                  <p className="text-sm text-gray-500 italic">"{t.content}"</p>
-                </div>
-                {!t.isApproved && (
-                  <button onClick={() => handleApprove(t._id)} className="p-4 bg-green-50 text-green-600 rounded-2xl hover:bg-green-600 hover:text-white transition-all"><Check size={20}/></button>
-                )}
+        {activeTab === 'overview' && (
+           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="bg-white p-10 rounded-[2.5rem] border border-gray-100 shadow-sm text-center space-y-4">
+                 <div className="text-4xl font-serif font-bold text-brand-gold">{data.enquiries.length}</div>
+                 <div className="text-[10px] font-black uppercase tracking-widest text-gray-400">Total Inquiries</div>
               </div>
-            ))}
-          </div>
+              <div className="bg-white p-10 rounded-[2.5rem] border border-gray-100 shadow-sm text-center space-y-4">
+                 <div className="text-4xl font-serif font-bold text-brand-gold">{data.jobs.length}</div>
+                 <div className="text-[10px] font-black uppercase tracking-widest text-gray-400">Active Roles</div>
+              </div>
+           </div>
         )}
       </main>
     </div>

@@ -44,13 +44,3 @@ export interface CareerTip {
   author: string;
   date: string;
 }
-
-// Added Testimonial interface to resolve missing exported member error in Home.tsx
-export interface Testimonial {
-  _id: string;
-  name: string;
-  company: string;
-  content: string;
-  isApproved: boolean;
-  createdAt: string;
-}

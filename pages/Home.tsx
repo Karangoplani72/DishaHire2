@@ -1,29 +1,14 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Briefcase, Building, Users, CheckCircle2, Star, Quote, ChevronRight, ShieldCheck } from 'lucide-react';
-// Removed missing PROCESS_STEPS member from import to resolve module error
+import { ArrowRight, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { INDUSTRIES } from '../constants.tsx';
 import EnquiryModal from '../components/EnquiryModal.tsx';
-import { EnquiryType, Testimonial } from '../types.ts';
-import { db } from '../utils/db.ts';
+import { EnquiryType } from '../types.ts';
 
 const Home: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [activeEnquiryType, setActiveEnquiryType] = useState<EnquiryType>(EnquiryType.CANDIDATE);
-  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
-
-  useEffect(() => {
-    const fetchTestimonials = async () => {
-      try {
-        const data = await db.getTestimonials();
-        setTestimonials(data.filter(t => t.isApproved));
-      } catch (e) {
-        console.error("Testimonial fetch error");
-      }
-    };
-    fetchTestimonials();
-  }, []);
 
   const openEnquiry = (type: EnquiryType) => {
     setActiveEnquiryType(type);
@@ -94,17 +79,13 @@ const Home: React.FC = () => {
                   className="w-full h-[850px] object-cover grayscale brightness-75 group-hover:grayscale-0 group-hover:brightness-100 transition-all duration-[2000ms]"
                  />
                  <div className="absolute inset-0 bg-gradient-to-t from-brand-dark via-transparent to-transparent opacity-80" />
-                 <div className="absolute bottom-16 left-16 right-16 p-12 bg-brand-dark/50 backdrop-blur-3xl rounded-[3rem] border border-white/10">
-                    <p className="text-2xl text-gray-200 font-serif italic">"DishaHire redefined our organizational hiring process. Exceptional focus on cultural fit."</p>
-                    <p className="text-xs font-black text-brand-gold uppercase tracking-[0.4em] mt-8">CTO — Global Tech Enterprise</p>
-                 </div>
               </motion.div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Industries Section - REQUESTED STYLE: Green Card, White Text, Gold Icon Circle */}
+      {/* Industries Section */}
       <section className="py-40 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-32 space-y-8">

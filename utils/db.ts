@@ -59,7 +59,4 @@ export const db = {
     fetcher(`/api/enquiries/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
   getBlogs: (): Promise<any[]> => fetcher('/api/blogs', {}, []),
   subscribeNewsletter: (email: string): Promise<void> => fetcher('/api/subscribers', { method: 'POST', body: JSON.stringify({ email }) }),
-  getTestimonials: (): Promise<any[]> => fetcher('/api/testimonials', {}, []),
-  getAdminTestimonials: (): Promise<any[]> => fetcher('/api/admin/testimonials', {}, []),
-  moderateTestimonial: (id: string, data: any): Promise<any> => fetcher(`/api/testimonials/${id}/moderate`, { method: 'PATCH', body: JSON.stringify(data) }),
 };

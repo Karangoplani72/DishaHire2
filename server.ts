@@ -24,7 +24,7 @@ app.use(helmet({
 
 // Robust CORS for production
 app.use(cors({
-  origin: '*', // Allow all for debugging; in production, replace with frontend domain
+  origin: '*', 
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
@@ -46,8 +46,6 @@ if (MONGO_URI) {
       console.error('❌ MongoDB Connection Failure:', err.message);
       dbConnected = false;
     });
-} else {
-  console.warn('⚠️ MONGO_URI is not defined in environment variables.');
 }
 
 // Enterprise Data Models
@@ -100,12 +98,10 @@ app.post('/api/auth/login', async (req, res) => {
     const { email, password } = req.body;
     const cleanEmail = email.toLowerCase().trim();
 
-    // Check for predefined admin login
     const ADMIN_EMAIL = 'dishahire.0818@gmail.com';
     const ADMIN_PASS = process.env.ADMIN_PASSWORD;
 
     if (cleanEmail === ADMIN_EMAIL && ADMIN_PASS && password === ADMIN_PASS) {
-      // Find or upsert admin user in DB
       let adminUser = await (User as any).findOne({ email: cleanEmail });
       if (!adminUser) {
         adminUser = new User({ 
@@ -120,7 +116,6 @@ app.post('/api/auth/login', async (req, res) => {
       return res.json({ token, user: { id: adminUser._id, email: adminUser.email, name: adminUser.name, role: 'ADMIN' } });
     }
 
-    // Standard user login
     const user = await (User as any).findOne({ email: cleanEmail });
     if (user && await bcrypt.compare(password, user.password)) {
       const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
@@ -132,26 +127,6 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
-app.post('/api/auth/signup', async (req, res) => {
-  if (!dbConnected) return res.status(503).json({ error: 'Registration service offline.' });
-  
-  try {
-    const { name, email, password } = req.body;
-    const existing = await (User as any).findOne({ email: email.toLowerCase().trim() });
-    if (existing) return res.status(400).json({ error: 'Identity already registered.' });
-    
-    const hashed = await bcrypt.hash(password, 12);
-    const user = new User({ name, email: email.toLowerCase().trim(), password: hashed });
-    await user.save();
-    
-    const token = jwt.sign({ id: user._id, role: 'USER' }, JWT_SECRET, { expiresIn: '7d' });
-    res.json({ token, user: { id: user._id, email: user.email, name: user.name, role: 'USER' } });
-  } catch (err) {
-    res.status(500).json({ error: 'Account creation failed.' });
-  }
-});
-
-// Resources API
 app.get('/api/jobs', async (req, res) => {
   try {
     const jobs = await (mongoose.models.Job || mongoose.model('Job', new mongoose.Schema({}))).find().sort({ postedDate: -1 });
