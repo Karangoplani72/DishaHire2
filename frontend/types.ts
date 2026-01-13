@@ -4,7 +4,8 @@ export enum EnquiryType {
   EMPLOYER = 'EMPLOYER'
 }
 
-export type ApplicationStatus = 'PENDING' | 'REVIEWING' | 'INTERVIEWING' | 'SHORTLISTED' | 'OFFERED' | 'REJECTED' | 'ARCHIVED';
+// Fix: Added 'REPLIED' to the ApplicationStatus type to match the expected statuses used in the application's UI mappings.
+export type ApplicationStatus = 'PENDING' | 'REPLIED' | 'REVIEWING' | 'INTERVIEWING' | 'SHORTLISTED' | 'OFFERED' | 'REJECTED' | 'ARCHIVED';
 
 export interface Job {
   id: string;
