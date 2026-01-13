@@ -1,4 +1,3 @@
-
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
@@ -17,12 +16,15 @@ const PORT = process.env.PORT || 10000;
 const JWT_SECRET = process.env.JWT_SECRET || 'dishahire-enterprise-secure-key-2025';
 
 // Security middleware
+// Fix: Cast helmet middleware to any to resolve PathParams type mismatch
 app.use(helmet({ 
   contentSecurityPolicy: false,
   crossOriginEmbedderPolicy: false 
-}));
-app.use(cors());
-app.use(express.json({ limit: '15mb' }));
+}) as any);
+// Fix: Cast cors middleware to any to resolve PathParams type mismatch
+app.use(cors() as any);
+// Fix: Cast express.json middleware to any to resolve PathParams type mismatch
+app.use(express.json({ limit: '15mb' }) as any);
 
 // Database Connection
 const MONGO_URI = process.env.MONGO_URI;
@@ -68,7 +70,8 @@ const Enquiry = mongoose.models.Enquiry || mongoose.model('Enquiry', EnquirySche
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email: email.toLowerCase().trim() });
+    // Fix: Cast User model to any to resolve query filter 'email' typing issues
+    const user = await (User as any).findOne({ email: email.toLowerCase().trim() });
     if (user && await bcrypt.compare(password, user.password)) {
       const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
       return res.json({ token, user: { id: user._id, email: user.email, name: user.name, role: user.role } });
@@ -82,7 +85,8 @@ app.post('/api/auth/login', async (req, res) => {
 app.post('/api/auth/signup', async (req, res) => {
   try {
     const { name, email, password } = req.body;
-    const existing = await User.findOne({ email: email.toLowerCase().trim() });
+    // Fix: Cast User model to any to resolve query filter 'email' typing issues
+    const existing = await (User as any).findOne({ email: email.toLowerCase().trim() });
     if (existing) return res.status(400).json({ error: 'Identity already registered.' });
     
     const hashed = await bcrypt.hash(password, 12);
@@ -113,7 +117,8 @@ app.post('/api/enquiries', async (req, res) => {
 });
 
 // Static Assets Serving
-app.use(express.static(__dirname));
+// Fix: Cast express.static middleware to any to resolve PathParams type mismatch
+app.use(express.static(__dirname) as any);
 
 // Single Page Application Fallback
 app.get('*', (req, res) => {

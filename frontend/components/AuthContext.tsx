@@ -11,7 +11,6 @@ interface UserProfile {
   email: string;
   name: string;
   role: UserRole;
-  // Added picture property to resolve missing property error in App.tsx
   picture?: string;
 }
 
@@ -27,6 +26,10 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Resolve API URL dynamically from Vite env
+const API_URL = (import.meta as any).env?.VITE_API_URL || '';
+const cleanApiBase = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isChecking, setIsChecking] = useState(true);
@@ -39,7 +42,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
       try {
-        const res = await fetch('/api/auth/me', {
+        const res = await fetch(`${cleanApiBase}/api/auth/me`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (res.ok) {
@@ -49,7 +52,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           localStorage.removeItem('dh_access_token');
         }
       } catch (e) {
-        console.error("Auth verify failed");
+        console.error("Auth verify failed: Remote service unreachable");
       } finally {
         setIsChecking(false);
       }
@@ -59,7 +62,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch(`${cleanApiBase}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -70,15 +73,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(data.user);
         return { success: true };
       }
-      return { success: false, error: data.error };
+      return { success: false, error: data.error || 'Invalid credentials' };
     } catch (e) {
-      return { success: false, error: 'Network failure' };
+      console.error('Login error:', e);
+      return { success: false, error: 'Network failure: Connection to authentication server failed.' };
     }
   };
 
   const signup = async (name: string, email: string, password: string) => {
     try {
-      const res = await fetch('/api/auth/signup', {
+      const res = await fetch(`${cleanApiBase}/api/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password })
@@ -89,9 +93,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(data.user);
         return { success: true };
       }
-      return { success: false, error: data.error };
+      return { success: false, error: data.error || 'Signup failed' };
     } catch (e) {
-      return { success: false, error: 'Network failure' };
+      console.error('Signup error:', e);
+      return { success: false, error: 'Network failure: Connection to registration server failed.' };
     }
   };
 
