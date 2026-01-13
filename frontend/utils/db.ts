@@ -4,7 +4,7 @@ import { Job, Enquiry } from '../types.ts';
 const getApiBase = () => {
   const envUrl = (import.meta as any).env?.VITE_API_URL;
   if (envUrl) return envUrl.endsWith('/') ? envUrl.slice(0, -1) : envUrl;
-  return 'https://dishahire-backend.onrender.com'; // Default production fallback
+  return 'https://dishahire-backend.onrender.com'; // Production default
 };
 
 const API_BASE = getApiBase();
@@ -20,11 +20,10 @@ const fetcher = async (url: string, options?: RequestInit, fallbackData?: any) =
   const fullUrl = url.startsWith('http') ? url : `${API_BASE}${url}`;
 
   try {
-    // CRITICAL FIX: Credentials 'include' is required for all data fetching to support cookies
     const res = await fetch(fullUrl, { 
       ...options, 
       headers,
-      credentials: 'include'
+      credentials: 'include' // CRITICAL for session persistence
     });
     
     const data = await res.json().catch(() => null);
@@ -39,11 +38,8 @@ const fetcher = async (url: string, options?: RequestInit, fallbackData?: any) =
 };
 
 export const db = {
-  // Public Data
   getJobs: (): Promise<Job[]> => fetcher('/api/jobs', {}, []),
   addEnquiry: (enquiry: any): Promise<any> => fetcher('/api/enquiries', { method: 'POST', body: JSON.stringify(enquiry) }),
-  
-  // Authenticated Data (Requires Cookies)
   getMyApplications: (email?: string): Promise<Enquiry[]> => fetcher(`/api/enquiries/me${email ? `?email=${email}` : ''}`, {}, []),
   getEnquiries: (): Promise<Enquiry[]> => fetcher('/api/admin/enquiries', {}, []),
   getBlogs: (): Promise<any[]> => fetcher('/api/admin/blogs', {}, []),

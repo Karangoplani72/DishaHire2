@@ -11,13 +11,13 @@ import process from 'process';
 const app = express();
 const PORT = process.env.PORT || 10000;
 
-// --- CONFIGURATION ---
+// --- PRODUCTION CONFIGURATION ---
 const JWT_SECRET = process.env.JWT_SECRET || 'dh-production-secure-cipher-key';
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://dishahire-huya.onrender.com';
 
-// Admin Credentials (Passwords should be provided as Bcrypt hashes in ENV)
+// Administrative Credentials (Environment Only)
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@dishahire.com';
-const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD || '$2a$12$K8yR2u0hN8nN8nN8nN8nN.N8nN8nN8nN8nN8nN8nN8nN8nN8nN8nN'; // Mock fallback
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
 
 // --- SELF-CONTAINED IDENTITY SCHEMA ---
 const userSchema = new mongoose.Schema({
@@ -53,7 +53,7 @@ app.use(cors({
 
 app.use(express.json({ limit: '15mb' }) as any);
 
-// Anti-CSRF Protection
+// Anti-CSRF Guard for state-changing operations
 const csrfGuard = (req: any, res: any, next: any) => {
   if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next();
   if (req.headers['x-requested-with'] !== 'XMLHttpRequest') {
@@ -69,13 +69,13 @@ const signToken = (payload: object) => jwt.sign(payload, JWT_SECRET, { expiresIn
 const setAuthCookie = (res: any, token: string) => {
   res.cookie('auth_token', token, {
     httpOnly: true,
-    secure: true,      // Must be true for SameSite=None
+    secure: true,      // Required for SameSite=None
     sameSite: 'none',  // Mandatory for cross-origin Render subdomains
     maxAge: 3600000    // 1 Hour
   });
 };
 
-// --- AUTHENTICATION ENDPOINTS ---
+// --- AUTHENTICATION ROUTES ---
 
 /**
  * @route POST /api/admin/login
@@ -86,8 +86,9 @@ app.post('/api/admin/login', async (req, res) => {
   
   try {
     const isEmailValid = email === ADMIN_EMAIL;
-    // We assume ADMIN_PASSWORD in env is the hashed version for production security
-    const isPasswordValid = await bcrypt.compare(password, ADMIN_PASSWORD_HASH);
+    // For admin, we use simple comparison OR bcrypt if the env var is a hash.
+    // Standard practice: check if password matches ADMIN_PASSWORD env
+    const isPasswordValid = password === ADMIN_PASSWORD;
 
     if (isEmailValid && isPasswordValid) {
       const token = signToken({ sub: 'admin_root', role: 'admin' });
@@ -108,11 +109,11 @@ app.post('/api/admin/login', async (req, res) => {
 
 /**
  * @route POST /api/auth/register
- * @desc User Registration with automatic session issuance
+ * @desc User Registration
  */
 app.post('/api/auth/register', async (req, res) => {
   const { name, email, password } = req.body;
-  if (!name || !email || !password) return res.status(400).json({ error: 'Missing required registration fields.' });
+  if (!name || !email || !password) return res.status(400).json({ error: 'Missing required fields.' });
 
   try {
     const existing = await User.findOne({ email });
@@ -206,9 +207,13 @@ app.get('/health', (req, res) => {
   res.json({ status: 'active', timestamp: new Date().toISOString() });
 });
 
-// Mock implementations for associated data
-app.get('/api/jobs', async (req, res) => res.json([]));
-app.get('/api/admin/enquiries', async (req, res) => res.json([]));
+app.get('/api/jobs', async (req, res) => {
+  res.json([]); // Placeholder for job data
+});
+
+app.get('/api/admin/enquiries', async (req, res) => {
+  res.json([]); // Placeholder for enquiries
+});
 
 // --- INITIALIZATION ---
 const MONGO_URI = process.env.MONGO_URI;

@@ -16,7 +16,7 @@ import ForgotPassword from './pages/ForgotPassword.tsx';
 import ResetPassword from './pages/ResetPassword.tsx';
 import { NAV_LINKS, CONTACT_INFO } from './constants.tsx';
 import { AuthProvider, useAuth } from './components/AuthContext.tsx';
-import { AdminGuard, UserGuard } from './components/RouteGuards.tsx';
+import { AdminGuard } from './components/RouteGuards.tsx';
 
 // Fixed: Using any casting for motion component to bypass property missing errors
 const MotionDiv = (motion as any).div;
@@ -66,16 +66,14 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile Menu Toggle */}
           <div className="md:hidden">
-            <button onClick={() => setIsOpen(!isOpen)} className="text-gray-200 p-2 focus:outline-none">
+            <button onClick={() => setIsOpen(!isOpen)} className="text-gray-200 p-2">
               {isOpen ? <X size={32} /> : <Menu size={32} />}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile Menu Drawer */}
       <AnimatePresence>
         {isOpen && (
           <MotionDiv
@@ -85,72 +83,17 @@ const Navbar = () => {
             className="md:hidden bg-brand-accent border-t border-white/5 overflow-hidden"
           >
             <div className="px-6 py-10 space-y-8">
-              <div className="flex flex-col space-y-4">
-                {NAV_LINKS.map((link: any) => (
-                  <Link
-                    key={link.name}
-                    to={link.href}
-                    onClick={() => setIsOpen(false)}
-                    className="flex items-center justify-between text-lg font-serif font-bold text-gray-200 group"
-                  >
-                    <span>{link.name}</span>
-                    <ChevronRight size={18} className="text-brand-gold opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </Link>
-                ))}
-              </div>
-
+              {NAV_LINKS.map((link: any) => (
+                <Link key={link.name} to={link.href} onClick={() => setIsOpen(false)} className="block text-lg font-serif font-bold text-gray-200">
+                  {link.name}
+                </Link>
+              ))}
               <div className="h-px bg-white/5 w-full" />
-
-              <div className="space-y-6">
-                {user ? (
-                  <div className="space-y-6">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-brand-gold/20 flex items-center justify-center text-brand-gold">
-                        <UserIcon size={20} />
-                      </div>
-                      <div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Welcome Back</p>
-                        <p className="text-white font-serif font-bold">{user.name}</p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => { logout(); setIsOpen(false); }}
-                      className="w-full bg-white/5 border border-white/10 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 hover:bg-red-500/10 hover:border-red-500/30 transition-all"
-                    >
-                      <LogOut size={16} /> Secure Logout
-                    </button>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 gap-4">
-                    <Link
-                      to="/login"
-                      onClick={() => setIsOpen(false)}
-                      className="bg-white/5 border border-white/10 text-white py-4 rounded-2xl text-center font-black uppercase tracking-widest text-[10px]"
-                    >
-                      Sign In
-                    </Link>
-                    <Link
-                      to="/admin/login"
-                      onClick={() => setIsOpen(false)}
-                      className="bg-brand-gold text-brand-dark py-4 rounded-2xl text-center font-black uppercase tracking-widest text-[10px]"
-                    >
-                      Admin Portal
-                    </Link>
-                  </div>
-                )}
-              </div>
-
-              <div className="pt-4 flex justify-center space-x-6">
-                <a href={CONTACT_INFO.linkedin} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-brand-gold">
-                  <Linkedin size={20} />
-                </a>
-                <a href={CONTACT_INFO.instagram} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-brand-gold">
-                  <Instagram size={20} />
-                </a>
-                <a href={CONTACT_INFO.whatsapp} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-brand-gold">
-                  <MessageCircle size={20} />
-                </a>
-              </div>
+              {user ? (
+                <button onClick={() => { logout(); setIsOpen(false); }} className="w-full text-left text-lg font-serif font-bold text-red-400">Logout</button>
+              ) : (
+                <Link to="/login" onClick={() => setIsOpen(false)} className="block text-lg font-serif font-bold text-brand-gold">Sign In</Link>
+              )}
             </div>
           </MotionDiv>
         )}

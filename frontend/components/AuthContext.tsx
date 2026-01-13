@@ -28,11 +28,10 @@ const safeFetch = async (url: string, options: RequestInit = {}) => {
     ...options.headers
   };
 
-  // CRITICAL PRODUCTION FIX: Explicitly include credentials for cross-origin JWT cookies
   const response = await fetch(url, { 
     ...options, 
     headers,
-    credentials: 'include' 
+    credentials: 'include' // MANDATORY for cross-origin JWT cookies
   });
   
   const contentType = response.headers.get('content-type');
@@ -61,11 +60,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const checkSession = async () => {
       try {
-        // Persist session across refreshes by sending cookie to /me
         const data = await safeFetch('/api/auth/me');
         if (data?.user) setUser(data.user);
       } catch (e) {
-        // No session is normal for public paths
+        // No session is expected on landing for unauthenticated users
       } finally {
         setLoading(false);
       }
@@ -107,7 +105,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await safeFetch('/api/auth/logout', { method: 'POST' });
     } catch (e) {}
     setUser(null);
-    window.location.href = '/#/login';
+    window.location.hash = '#/login';
   };
 
   return (
