@@ -19,8 +19,10 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// --- SECURE FETCH GATEWAY ---
+const API_BASE = 'https://dishahire-backend.onrender.com';
+
 const safeFetch = async (url: string, options: RequestInit = {}) => {
+  const fullUrl = url.startsWith('http') ? url : `${API_BASE}${url}`;
   const headers = {
     'Content-Type': 'application/json',
     'X-Requested-With': 'XMLHttpRequest',
@@ -28,25 +30,21 @@ const safeFetch = async (url: string, options: RequestInit = {}) => {
     ...options.headers
   };
 
-  const response = await fetch(url, { 
+  const response = await fetch(fullUrl, { 
     ...options, 
     headers,
-    credentials: 'include' // MANDATORY for cross-origin JWT cookies
+    credentials: 'include' 
   });
   
   const contentType = response.headers.get('content-type');
   let data = null;
 
   if (contentType && contentType.includes('application/json')) {
-    try {
-      data = await response.json();
-    } catch (e) {
-      console.error('API Response Parse Failure');
-    }
+    data = await response.json();
   }
 
   if (!response.ok) {
-    throw new Error(data?.error || `Gateway Error: ${response.status}`);
+    throw new Error(data?.error || `Error: ${response.status}`);
   }
 
   return data;
@@ -63,7 +61,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const data = await safeFetch('/api/auth/me');
         if (data?.user) setUser(data.user);
       } catch (e) {
-        // No session is expected on landing for unauthenticated users
+        setUser(null);
       } finally {
         setLoading(false);
       }
@@ -117,6 +115,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within AuthProvider');
+  if (!context) throw new Error('useAuth error');
   return context;
 };
