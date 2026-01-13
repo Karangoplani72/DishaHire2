@@ -26,6 +26,13 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Resolve API URL dynamically
+const getApiUrl = () => {
+  const envUrl = (import.meta as any).env?.VITE_API_URL;
+  return envUrl ? (envUrl.endsWith('/') ? envUrl.slice(0, -1) : envUrl) : '';
+};
+const API_URL = getApiUrl();
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isChecking, setIsChecking] = useState(true);
@@ -38,7 +45,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
       try {
-        const res = await fetch('/api/auth/me', {
+        const res = await fetch(`${API_URL}/api/auth/me`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (res.ok) {
@@ -48,7 +55,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           localStorage.removeItem('dh_access_token');
         }
       } catch (e) {
-        console.error("Auth verify failed: Server unreachable");
+        console.error("Auth verify failed: Service unreachable at " + API_URL);
       } finally {
         setIsChecking(false);
       }
@@ -58,7 +65,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -69,16 +76,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(data.user);
         return { success: true };
       }
-      return { success: false, error: data.error || 'Invalid credentials' };
+      return { success: false, error: data.error || 'Identity verification failed' };
     } catch (e) {
       console.error('Login error:', e);
-      return { success: false, error: 'Network failure: Unable to reach authentication server.' };
+      return { success: false, error: 'Network failure: The authentication server at ' + (API_URL || 'local host') + ' is unreachable.' };
     }
   };
 
   const signup = async (name: string, email: string, password: string) => {
     try {
-      const res = await fetch('/api/auth/signup', {
+      const res = await fetch(`${API_URL}/api/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password })
@@ -89,17 +96,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(data.user);
         return { success: true };
       }
-      return { success: false, error: data.error || 'Signup failed' };
+      return { success: false, error: data.error || 'Account creation failed' };
     } catch (e) {
       console.error('Signup error:', e);
-      return { success: false, error: 'Network failure: Connection to registry lost.' };
+      return { success: false, error: 'Network failure: Unable to connect to registration services.' };
     }
   };
 
   const logout = () => {
     localStorage.removeItem('dh_access_token');
     setUser(null);
-    window.location.hash = '/';
+    window.location.hash = '#/';
   };
 
   return (
