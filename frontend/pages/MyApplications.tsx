@@ -10,7 +10,9 @@ import { Link } from 'react-router-dom';
 const StatusBadge = ({ status }: { status: ApplicationStatus }) => {
   const configs: Record<ApplicationStatus, { label: string, color: string, icon: any }> = {
     PENDING: { label: 'In Review', color: 'bg-blue-50 text-blue-600 border-blue-100', icon: <Clock size={12}/> },
-    REVIEWING: { label: 'Interviewing', color: 'bg-indigo-50 text-indigo-600 border-indigo-100', icon: <AlertCircle size={12}/> },
+    // Added REPLIED status configuration to resolve exhaustive Record error
+    REPLIED: { label: 'Replied', color: 'bg-yellow-50 text-yellow-600 border-yellow-100', icon: <CheckCircle size={12}/> },
+    REVIEWING: { label: 'Reviewing', color: 'bg-indigo-50 text-indigo-600 border-indigo-100', icon: <AlertCircle size={12}/> },
     INTERVIEWING: { label: 'Interviewing', color: 'bg-indigo-50 text-indigo-600 border-indigo-100', icon: <AlertCircle size={12}/> },
     SHORTLISTED: { label: 'Shortlisted', color: 'bg-brand-gold/10 text-brand-gold border-brand-gold/20', icon: <CheckCircle size={12}/> },
     OFFERED: { label: 'Offered', color: 'bg-green-50 text-green-600 border-green-100', icon: <CheckCircle size={12}/> },
@@ -35,10 +37,13 @@ const MyApplications: React.FC = () => {
 
   useEffect(() => {
     if (user?.email) {
-      db.getMyApplications(user.email).then(data => {
+      // Fixed: Removed user.email argument to match db.getMyApplications() definition
+      db.getMyApplications().then(data => {
         setApps(data || []);
         setLoading(false);
       });
+    } else {
+      setLoading(false);
     }
   }, [user]);
 
@@ -109,6 +114,4 @@ const MyApplications: React.FC = () => {
       </main>
     </div>
   );
-};
-
-export default MyApplications;
+}; export default MyApplications;
