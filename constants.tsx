@@ -8,7 +8,6 @@ export const NAV_LINKS = [
   { name: 'Services', href: '/services' },
   { name: 'Jobs', href: '/jobs' },
   { name: 'Career', href: '/career' },
-  { name: 'Terms', href: '/terms' },
 ];
 
 export const CONTACT_INFO = {

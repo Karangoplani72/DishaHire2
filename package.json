@@ -1,7 +1,7 @@
 
 {
   "name": "dishahire-backend",
-  "version": "1.6.0",
+  "version": "2.0.0",
   "type": "module",
   "scripts": {
     "start": "tsx server.ts",
@@ -14,6 +14,8 @@
     "jsonwebtoken": "^9.0.2",
     "bcryptjs": "^2.4.3",
     "helmet": "^7.1.0",
+    "cookie-parser": "^1.4.6",
+    "express-rate-limit": "^7.2.0",
     "tsx": "^4.11.0",
     "typescript": "^5.4.5"
   }

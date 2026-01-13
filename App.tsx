@@ -10,7 +10,6 @@ import About from './pages/About.tsx';
 import Services from './pages/Services.tsx';
 import Jobs from './pages/Jobs.tsx';
 import Career from './pages/Career.tsx';
-import Terms from './pages/Terms.tsx';
 import AdminDashboard from './pages/AdminDashboard.tsx';
 import { NAV_LINKS, CONTACT_INFO } from './constants.tsx';
 
@@ -184,7 +183,6 @@ const App = () => {
             <Route path="/services" element={<Services />} />
             <Route path="/jobs" element={<Jobs />} />
             <Route path="/career" element={<Career />} />
-            <Route path="/terms" element={<Terms />} />
             <Route path="/admin/*" element={<AdminDashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

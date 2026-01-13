@@ -35,14 +35,15 @@ const StatusBadge = ({ status }: { status: ApplicationStatus }) => {
 };
 
 const MyApplications: React.FC = () => {
+  // Fixed: Using 'user' instead of 'auth' as defined in AuthContextType
   const { user } = useAuth();
   const [apps, setApps] = useState<Enquiry[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Fixed: Using user?.email instead of auth?.email
     if (user?.email) {
-      // Fixed: Removed user.email argument to match db.getMyApplications() definition
-      db.getMyApplications().then(data => {
+      db.getMyApplications(user.email).then(data => {
         setApps(data || []);
         setLoading(false);
       });
@@ -118,4 +119,6 @@ const MyApplications: React.FC = () => {
       </main>
     </div>
   );
-}; export default MyApplications;
+};
+
+export default MyApplications;

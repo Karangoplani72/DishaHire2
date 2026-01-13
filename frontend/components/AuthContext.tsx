@@ -1,185 +1,109 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-interface AdminProfile {
+interface User {
+  id?: string;
   email: string;
   name: string;
-}
-
-// Added UserProfile to match expectations in Candidate Portal
-interface UserProfile {
-  id: string;
-  email: string;
-  name: string;
+  role: 'user' | 'admin';
 }
 
 interface AuthContextType {
-  admin: AdminProfile | null;
-  user: UserProfile | null; // Added user property
-  loginAdmin: (password: string) => Promise<{ success: boolean; error?: string }>;
-  loginUser: (email: string, password: string) => Promise<{ success: boolean; error?: string }>; // Added loginUser
-  register: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>; // Added register
+  user: User | null;
+  loading: boolean;
+  error: string | null;
+  login: (creds: any, isAdmin: boolean) => Promise<void>;
+  register: (data: any) => Promise<void>;
   logout: () => void;
-  isAuthenticated: boolean;
-  isChecking: boolean;
-  adminEmail: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const getApiUrl = () => {
-  const envUrl = (import.meta as any).env?.VITE_API_URL;
-  return envUrl ? (envUrl.endsWith('/') ? envUrl.slice(0, -1) : envUrl) : '';
-};
-const API_URL = getApiUrl();
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [admin, setAdmin] = useState<AdminProfile | null>(null);
-  const [user, setUser] = useState<UserProfile | null>(null); // Added user state
-  const [adminEmail, setAdminEmail] = useState<string | null>(null);
-  const [isChecking, setIsChecking] = useState(true);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  // Verification happens on mount via the secure cookie
   useEffect(() => {
-    const initializeAuth = async () => {
-      // 1. Fetch public admin identity for login field pre-fill
+    const checkSession = async () => {
       try {
-        const idRes = await fetch(`${API_URL}/api/admin/identity`);
-        const idData = await idRes.json().catch(() => ({}));
-        if (idData.email) setAdminEmail(idData.email);
-      } catch (e) {
-        console.warn("System identity fetch failed");
-      }
-
-      // 2. Verify existing sessions
-      const adminToken = localStorage.getItem('dh_admin_token');
-      const userToken = localStorage.getItem('dh_access_token');
-      
-      try {
-        const promises = [];
-        if (adminToken) {
-          promises.push(fetch(`${API_URL}/api/admin/me`, {
-            headers: { 'Authorization': `Bearer ${adminToken}` }
-          }).then(res => res.ok ? res.json() : null).catch(() => null));
-        } else {
-          promises.push(Promise.resolve(null));
-        }
-
-        if (userToken) {
-          promises.push(fetch(`${API_URL}/api/auth/me`, {
-            headers: { 'Authorization': `Bearer ${userToken}` }
-          }).then(res => res.ok ? res.json() : null).catch(() => null));
-        } else {
-          promises.push(Promise.resolve(null));
-        }
-
-        const [adminData, userData] = await Promise.all(promises);
-        
-        if (adminData) {
-          setAdmin(adminData);
-        } else if (adminToken) {
-          localStorage.removeItem('dh_admin_token');
-        }
-        
-        if (userData?.user) {
-          setUser(userData.user);
-        } else if (userToken) {
-          localStorage.removeItem('dh_access_token');
+        const res = await fetch('/api/auth/me', {
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setUser(data.user);
         }
       } catch (e) {
         console.error("Session verification failed");
       } finally {
-        setIsChecking(false);
+        setLoading(false);
       }
     };
-
-    initializeAuth();
+    checkSession();
   }, []);
 
-  const loginAdmin = async (password: string) => {
-    if (!adminEmail) {
-      return { success: false, error: 'System identity not established. Please refresh.' };
-    }
-
+  const login = async (creds: any, isAdmin: boolean) => {
+    setError(null);
+    const endpoint = isAdmin ? '/api/admin/login' : '/api/auth/login';
     try {
-      const res = await fetch(`${API_URL}/api/admin/login`, {
+      const res = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: adminEmail, password })
-      });
-      
-      const data = await res.json();
-      
-      if (res.ok && data.success) {
-        localStorage.setItem('dh_admin_token', data.token);
-        setAdmin(data.admin);
-        return { success: true };
-      }
-      return { success: false, error: data.error || 'Identity verification failed' };
-    } catch (e) {
-      return { success: false, error: 'Network failure: Admin gateway unreachable' };
-    }
-  };
-
-  // Added loginUser implementation to handle candidate logins
-  const loginUser = async (email: string, password: string) => {
-    try {
-      const res = await fetch(`${API_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify(creds)
       });
       const data = await res.json();
       if (res.ok) {
-        localStorage.setItem('dh_access_token', data.token);
         setUser(data.user);
-        return { success: true };
+      } else {
+        throw new Error(data.error || 'Authentication failed');
       }
-      return { success: false, error: data.error || 'Identity verification failed' };
-    } catch (e) {
-      return { success: false, error: 'Network failure' };
+    } catch (e: any) {
+      setError(e.message);
+      throw e;
     }
   };
 
-  // Added register implementation to handle candidate signups
-  const register = async (name: string, email: string, password: string) => {
+  const register = async (userData: any) => {
+    setError(null);
     try {
-      const res = await fetch(`${API_URL}/api/auth/signup`, {
+      const res = await fetch('/api/auth/register', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password })
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify(userData)
       });
       const data = await res.json();
       if (res.ok) {
-        localStorage.setItem('dh_access_token', data.token);
         setUser(data.user);
-        return { success: true };
+      } else {
+        throw new Error(data.error || 'Registration failed');
       }
-      return { success: false, error: data.error || 'Account creation failed' };
-    } catch (e) {
-      return { success: false, error: 'Network failure' };
+    } catch (e: any) {
+      setError(e.message);
+      throw e;
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('dh_admin_token');
-    localStorage.removeItem('dh_access_token');
-    setAdmin(null);
+  const logout = async () => {
+    try {
+      await fetch('/api/auth/logout', { 
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      });
+    } catch (e) {}
     setUser(null);
-    window.location.hash = '#/admin/login';
+    window.location.href = '/';
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      admin, 
-      user, // Provided user in context
-      loginAdmin, 
-      loginUser, // Provided loginUser in context
-      register, // Provided register in context
-      logout, 
-      isAuthenticated: !!admin || !!user,
-      isChecking,
-      adminEmail
-    }}>
+    <AuthContext.Provider value={{ user, loading, error, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
