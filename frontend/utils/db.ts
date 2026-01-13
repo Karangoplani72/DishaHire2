@@ -1,7 +1,8 @@
 
 import { Job, Enquiry, Testimonial, ApplicationStatus } from '../types';
 
-const API_BASE = '/api';
+// Use environment variable for production API, fallback to relative /api for local proxy
+const API_BASE = (import.meta as any).env?.VITE_API_URL || '/api';
 
 const fetcher = async (url: string, options?: RequestInit, fallbackData?: any) => {
   const token = localStorage.getItem('dh_access_token');
@@ -19,8 +20,9 @@ const fetcher = async (url: string, options?: RequestInit, fallbackData?: any) =
     
     if (res.status === 401) {
       localStorage.removeItem('dh_access_token');
-      if (!window.location.hash.includes('login')) {
-         window.location.hash = '/login';
+      // Using direct window location check to stay compatible with HashRouter or BrowserRouter
+      if (!window.location.href.includes('login')) {
+         window.location.href = '#/login';
       }
       throw new Error('Unauthorized');
     }
@@ -45,7 +47,6 @@ export const db = {
   addJob: async (job: any): Promise<Job> => fetcher('/jobs', { method: 'POST', body: JSON.stringify(job) }),
   deleteJob: async (id: string): Promise<void> => fetcher(`/jobs/${id}`, { method: 'DELETE' }),
   getEnquiries: async (): Promise<Enquiry[]> => fetcher('/enquiries', {}, []),
-  // Added getMyApplications to resolve missing property error in MyApplications.tsx
   getMyApplications: async (email: string): Promise<Enquiry[]> => fetcher(`/enquiries?email=${email}`, {}, []),
   addEnquiry: async (enquiry: any): Promise<any> => fetcher('/enquiries', { method: 'POST', body: JSON.stringify(enquiry) }),
   updateEnquiryStatus: async (id: string, status: ApplicationStatus): Promise<Enquiry> => {
@@ -55,7 +56,6 @@ export const db = {
     });
   },
   
-  // Added blog methods to resolve AdminDashboard errors
   getBlogs: async (): Promise<any[]> => fetcher('/blogs', {}, []),
   addBlog: async (blog: any): Promise<any> => fetcher('/blogs', { method: 'POST', body: JSON.stringify(blog) }),
   deleteBlog: async (id: string): Promise<void> => fetcher(`/blogs/${id}`, { method: 'DELETE' }),
@@ -63,22 +63,7 @@ export const db = {
   subscribeNewsletter: async (email: string): Promise<void> => fetcher('/subscribers', { method: 'POST', body: JSON.stringify({ email }) }),
   getSubscribers: async (): Promise<any[]> => fetcher('/subscribers', {}, []),
   
-  // Testimonials and Moderation
-  getTestimonials: async (): Promise<Testimonial[]> => {
-    // Initial static data; in production this would call fetcher('/testimonials', {}, [])
-    return [
-      { 
-        id: '1', 
-        name: 'Rajesh Kumar', 
-        role: 'HR Director', 
-        company: 'FinCorp', 
-        content: 'DishaHire consistently provides candidates who are technically sound and culturally aligned.', 
-        rating: 5, 
-        isApproved: true 
-      }
-    ];
-  },
-  // Added admin testimonial methods to resolve AdminDashboard errors
+  getTestimonials: async (): Promise<Testimonial[]> => fetcher('/testimonials', {}, []),
   getAdminTestimonials: async (): Promise<Testimonial[]> => fetcher('/admin/testimonials', {}, []),
   moderateTestimonial: async (id: string, update: any): Promise<any> => fetcher(`/testimonials/${id}`, { method: 'PATCH', body: JSON.stringify(update) }),
 };

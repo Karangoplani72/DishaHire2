@@ -1,0 +1,17 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand-dark: #0d3d3b;
+  --brand-gold: #b08d3e;
+  --brand-light: #f8f9fa;
+  --brand-accent: #164e4b;
+}
+
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

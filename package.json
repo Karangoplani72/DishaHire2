@@ -1,10 +1,9 @@
 
 {
-  "name": "dishahire-enterprise",
-  "version": "1.4.0",
+  "name": "dishahire-backend",
+  "version": "1.6.0",
   "type": "module",
   "scripts": {
-    "build": "esbuild index.tsx --bundle --outfile=index.bundle.js --format=esm --platform=browser --minify --external:react --external:react-dom --external:react-router-dom --external:lucide-react --external:framer-motion",
     "start": "tsx server.ts",
     "dev": "tsx watch server.ts"
   },
@@ -16,12 +15,6 @@
     "bcryptjs": "^2.4.3",
     "helmet": "^7.1.0",
     "tsx": "^4.11.0",
-    "esbuild": "^0.21.4",
-    "typescript": "^5.4.5",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.23.1",
-    "lucide-react": "^0.378.0",
-    "framer-motion": "^11.2.10"
+    "typescript": "^5.4.5"
   }
 }
