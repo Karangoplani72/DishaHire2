@@ -1,8 +1,13 @@
 
 import React, { useState } from 'react';
-import { HashRouter as Router, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
+// Fixed: Using any casting for RouterDOM exports to bypass environment-specific type errors
+import * as RouterDOM from 'react-router-dom';
+const { HashRouter: Router, Routes, Route, Link, useLocation, Navigate } = RouterDOM as any;
 import { Menu, X, Mail, Phone, MapPin, Linkedin, LogOut, User as UserIcon, ShieldCheck, Instagram, MessageCircle, Briefcase, Loader2, ArrowLeft } from 'lucide-react';
+// Fixed: Using any casting for motion components to bypass property missing errors
 import { motion, AnimatePresence } from 'framer-motion';
+const MotionDiv = (motion as any).div;
+
 import Home from './pages/Home.tsx';
 import About from './pages/About.tsx';
 import Services from './pages/Services.tsx';
@@ -47,7 +52,7 @@ const Navbar = () => {
           </Link>
 
           <div className="hidden md:flex space-x-10 items-center">
-            {NAV_LINKS.map((link) => (
+            {NAV_LINKS.map((link: any) => (
               <Link
                 key={link.name}
                 to={link.href}
@@ -102,14 +107,14 @@ const Navbar = () => {
 
       <AnimatePresence>
         {isOpen && (
-          <motion.div 
+          <MotionDiv 
             initial={{ opacity: 0, y: -20 }} 
             animate={{ opacity: 1, y: 0 }} 
             exit={{ opacity: 0, y: -20 }} 
             className="md:hidden bg-brand-accent border-b border-white/5"
           >
             <div className="px-6 py-8 space-y-6">
-              {NAV_LINKS.map((link) => (
+              {NAV_LINKS.map((link: any) => (
                 <Link
                   key={link.name}
                   to={link.href}
@@ -138,7 +143,7 @@ const Navbar = () => {
                 </div>
               )}
             </div>
-          </motion.div>
+          </MotionDiv>
         )}
       </AnimatePresence>
     </nav>

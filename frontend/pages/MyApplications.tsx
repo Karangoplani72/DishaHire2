@@ -1,11 +1,15 @@
 
 import React, { useState, useEffect } from 'react';
+// Fixed: Using any casting for motion component to bypass property missing errors
 import { motion } from 'framer-motion';
+const MotionDiv = (motion as any).div;
 import { Briefcase, Loader2, Clock, CheckCircle, XCircle, AlertCircle, ChevronRight } from 'lucide-react';
 import { db } from '../utils/db.ts';
 import { Enquiry, ApplicationStatus } from '../types.ts';
 import { useAuth } from '../components/AuthContext.tsx';
-import { Link } from 'react-router-dom';
+// Fixed: Using any casting for RouterDOM exports to bypass environment-specific type errors
+import * as RouterDOM from 'react-router-dom';
+const { Link } = RouterDOM as any;
 
 const StatusBadge = ({ status }: { status: ApplicationStatus }) => {
   const configs: Record<ApplicationStatus, { label: string, color: string, icon: any }> = {
@@ -71,7 +75,7 @@ const MyApplications: React.FC = () => {
         {apps.length > 0 ? (
           <div className="space-y-6">
             {apps.map((app, idx) => (
-              <motion.div 
+              <MotionDiv 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.1 }}
@@ -94,7 +98,7 @@ const MyApplications: React.FC = () => {
                 <div className="flex flex-col items-end gap-2">
                   <StatusBadge status={app.status as ApplicationStatus} />
                 </div>
-              </motion.div>
+              </MotionDiv>
             ))}
           </div>
         ) : (

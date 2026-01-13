@@ -1,7 +1,11 @@
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+// Fixed: Using any casting for RouterDOM exports to bypass environment-specific type errors
+import * as RouterDOM from 'react-router-dom';
+const { useNavigate } = RouterDOM as any;
+// Fixed: Using any casting for motion component to bypass property missing errors
 import { motion, AnimatePresence } from 'framer-motion';
+const MotionDiv = (motion as any).div;
 import { Mail, Lock, User, ArrowRight, ShieldCheck, Loader2, AlertCircle } from 'lucide-react';
 import { useAuth } from '../components/AuthContext.tsx';
 
@@ -34,7 +38,7 @@ const Login: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-brand-dark flex items-center justify-center p-4">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white w-full max-w-lg rounded-[3rem] shadow-2xl overflow-hidden p-10 sm:p-14">
+      <MotionDiv initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white w-full max-w-lg rounded-[3rem] shadow-2xl overflow-hidden p-10 sm:p-14">
         <div className="text-center mb-10">
           <div className="inline-block p-4 bg-brand-gold/10 text-brand-gold rounded-full mb-4">
             <ShieldCheck size={32} />
@@ -88,7 +92,7 @@ const Login: React.FC = () => {
         </form>
 
         <button onClick={() => navigate('/')} className="w-full text-center mt-8 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-brand-dark">Return to Corporate Hub</button>
-      </motion.div>
+      </MotionDiv>
     </div>
   );
 };

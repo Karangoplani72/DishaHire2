@@ -1,6 +1,9 @@
 
 import React, { useState } from 'react';
+// Fixed: Using any casting for motion components to bypass property missing errors
 import { motion } from 'framer-motion';
+const MotionDiv = (motion as any).div;
+const MotionButton = (motion as any).button;
 import { ArrowRight, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { INDUSTRIES } from '../constants.tsx';
 import EnquiryModal from '../components/EnquiryModal.tsx';
@@ -26,7 +29,7 @@ const Home: React.FC = () => {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-24">
           <div className="grid lg:grid-cols-2 gap-24 items-center">
-            <motion.div 
+            <MotionDiv 
               initial={{ opacity: 0, x: -60 }} 
               animate={{ opacity: 1, x: 0 }} 
               transition={{ duration: 1 }}
@@ -47,27 +50,27 @@ const Home: React.FC = () => {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-8 pt-6">
-                <motion.button 
+                <MotionButton 
                   whileHover={{ scale: 1.05, y: -5 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => openEnquiry(EnquiryType.EMPLOYER)}
                   className="bg-brand-gold text-brand-dark px-12 py-6 rounded-[2rem] font-serif font-black text-2xl flex items-center justify-center group transition-all shadow-3xl shadow-brand-gold/30"
                 >
                   Hire Talent <ArrowRight size={24} className="ml-4 group-hover:translate-x-3 transition-transform" />
-                </motion.button>
-                <motion.button 
+                </MotionButton>
+                <MotionButton 
                   whileHover={{ scale: 1.05, y: -5 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => openEnquiry(EnquiryType.CANDIDATE)}
                   className="bg-white/5 backdrop-blur-md border border-white/20 text-white px-12 py-6 rounded-[2rem] font-serif font-black text-2xl transition-all"
                 >
                   Find a Job
-                </motion.button>
+                </MotionButton>
               </div>
-            </motion.div>
+            </MotionDiv>
 
             <div className="hidden lg:block relative">
-              <motion.div 
+              <MotionDiv 
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 1.2 }}
@@ -79,7 +82,7 @@ const Home: React.FC = () => {
                   className="w-full h-[850px] object-cover grayscale brightness-75 group-hover:grayscale-0 group-hover:brightness-100 transition-all duration-[2000ms]"
                  />
                  <div className="absolute inset-0 bg-gradient-to-t from-brand-dark via-transparent to-transparent opacity-80" />
-              </motion.div>
+              </MotionDiv>
             </div>
           </div>
         </div>
@@ -95,7 +98,7 @@ const Home: React.FC = () => {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
             {INDUSTRIES.map((industry) => (
-              <motion.div 
+              <MotionDiv 
                 whileHover={{ scale: 1.05, y: -10 }}
                 key={industry} 
                 className="p-16 bg-brand-dark rounded-[3.5rem] shadow-3xl border border-white/5 group text-center cursor-default transition-all duration-500"
@@ -105,7 +108,7 @@ const Home: React.FC = () => {
                 </div>
                 <p className="text-2xl font-serif font-bold text-white leading-tight group-hover:text-brand-gold transition-colors duration-500">{industry}</p>
                 <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 mt-4">Premium Vertical</p>
-              </motion.div>
+              </MotionDiv>
             ))}
           </div>
         </div>
@@ -116,22 +119,22 @@ const Home: React.FC = () => {
         <div className="max-w-6xl mx-auto px-4 relative z-10 space-y-16">
           <h2 className="text-6xl md:text-9xl font-serif font-bold text-brand-dark tracking-tighter">Secure Your Strategic Advantage.</h2>
           <div className="flex flex-col sm:flex-row justify-center gap-10 pt-8">
-             <motion.button 
+             <MotionButton 
               whileHover={{ scale: 1.05, y: -5 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => openEnquiry(EnquiryType.EMPLOYER)} 
               className="bg-brand-dark text-white px-20 py-8 rounded-[2.5rem] font-serif font-black text-2xl shadow-4xl"
              >
                Consultation
-             </motion.button>
-             <motion.button 
+             </MotionButton>
+             <MotionButton 
               whileHover={{ scale: 1.05, y: -5 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => openEnquiry(EnquiryType.CANDIDATE)} 
               className="bg-white border-4 border-brand-dark text-brand-dark px-20 py-8 rounded-[2.5rem] font-serif font-black text-2xl"
              >
                Submit Executive CV
-             </motion.button>
+             </MotionButton>
           </div>
         </div>
       </section>

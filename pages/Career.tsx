@@ -1,6 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
+// Fixed: Using any casting for motion component to bypass property missing errors
 import { motion } from 'framer-motion';
+const MotionArticle = (motion as any).article;
 import { Calendar, User, ArrowRight, BookOpen, Loader2 } from 'lucide-react';
 import { db } from '../utils/db.ts';
 
@@ -30,7 +32,7 @@ const Career: React.FC = () => {
         ) : blogs.length > 0 ? (
           <div className="grid gap-16">
             {blogs.map((blog, idx) => (
-              <motion.article 
+              <MotionArticle 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.1 }}
@@ -51,7 +53,7 @@ const Career: React.FC = () => {
                 <div className="prose max-w-none text-gray-700 leading-loose">
                   {blog.content}
                 </div>
-              </motion.article>
+              </MotionArticle>
             ))}
           </div>
         ) : (

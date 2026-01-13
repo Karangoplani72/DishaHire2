@@ -53,7 +53,8 @@ export const db = {
   addJob: (job: any): Promise<Job> => fetcher('/api/jobs', { method: 'POST', body: JSON.stringify(job) }),
   deleteJob: (id: string): Promise<void> => fetcher(`/api/jobs/${id}`, { method: 'DELETE' }),
   getEnquiries: (): Promise<Enquiry[]> => fetcher('/api/enquiries', {}, []),
-  getMyApplications: (email: string): Promise<Enquiry[]> => fetcher(`/api/enquiries?email=${email}`, {}, []),
+  // Fixed: Made email parameter optional to support both direct email lookup and token-based /me endpoint
+  getMyApplications: (email?: string): Promise<Enquiry[]> => fetcher(email ? `/api/enquiries?email=${email}` : '/api/enquiries', {}, []),
   addEnquiry: (enquiry: any): Promise<any> => fetcher('/api/enquiries', { method: 'POST', body: JSON.stringify(enquiry) }),
   updateEnquiryStatus: (id: string, status: ApplicationStatus): Promise<Enquiry> => 
     fetcher(`/api/enquiries/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),

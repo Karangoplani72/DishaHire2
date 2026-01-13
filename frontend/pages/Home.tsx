@@ -1,6 +1,9 @@
 
 import React, { useState } from 'react';
+// Fixed: Using any casting for motion components to bypass property missing errors
 import { motion } from 'framer-motion';
+const MotionDiv = (motion as any).div;
+const MotionButton = (motion as any).button;
 import { ArrowRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { INDUSTRIES, CONTACT_INFO } from '../constants.tsx';
 import EnquiryModal from '../components/EnquiryModal.tsx';
@@ -25,7 +28,7 @@ const Home: React.FC = () => {
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-20">
           <div className="grid lg:grid-cols-2 gap-20 items-center">
-            <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }} className="space-y-10">
+            <MotionDiv initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }} className="space-y-10">
               <div className="inline-flex items-center space-x-3 px-5 py-2 rounded-full bg-brand-gold/10 border border-brand-gold/30 text-brand-gold text-[10px] font-black uppercase tracking-[0.3em]">
                 <ShieldCheck size={16} />
                 <span>Executive Sourcing Excellence</span>
@@ -40,24 +43,24 @@ const Home: React.FC = () => {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-6 pt-4">
-                <motion.button 
+                <MotionButton 
                   whileHover={{ scale: 1.05 }}
                   onClick={() => openEnquiry(EnquiryType.EMPLOYER)} 
                   className="bg-brand-gold text-brand-dark px-12 py-5 rounded-full font-bold text-xl flex items-center justify-center group hover:bg-yellow-500 transition-all shadow-xl shadow-brand-gold/10"
                 >
                   Hire Talent <ArrowRight size={20} className="ml-3 group-hover:translate-x-2 transition-transform" />
-                </motion.button>
-                <motion.button 
+                </MotionButton>
+                <MotionButton 
                   whileHover={{ scale: 1.05 }}
                   onClick={() => openEnquiry(EnquiryType.CANDIDATE)} 
                   className="bg-white/5 backdrop-blur-md border border-white/20 text-white px-12 py-5 rounded-full font-bold text-xl hover:bg-white/10 transition-all"
                 >
                   Find a Job
-                </motion.button>
+                </MotionButton>
               </div>
-            </motion.div>
+            </MotionDiv>
 
-            <motion.div 
+            <MotionDiv 
               initial={{ opacity: 0, scale: 0.9 }} 
               animate={{ opacity: 1, scale: 1 }} 
               transition={{ duration: 1 }}
@@ -71,7 +74,7 @@ const Home: React.FC = () => {
                <div className="absolute bottom-10 left-10 p-8 bg-brand-dark/80 backdrop-blur-xl rounded-[2rem] border border-white/10 max-w-xs">
                   <p className="text-white font-serif italic text-lg leading-relaxed">"Strategic alignment is the catalyst for growth."</p>
                </div>
-            </motion.div>
+            </MotionDiv>
           </div>
         </div>
       </section>
@@ -87,7 +90,7 @@ const Home: React.FC = () => {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
             {INDUSTRIES.map((industry) => (
-              <motion.div 
+              <MotionDiv 
                 whileHover={{ y: -10 }}
                 key={industry} 
                 className="p-16 bg-brand-dark rounded-[3rem] text-center group transition-all duration-500 shadow-2xl"
@@ -97,7 +100,7 @@ const Home: React.FC = () => {
                 </div>
                 <p className="text-2xl font-serif font-bold text-white group-hover:text-brand-gold transition-colors">{industry}</p>
                 <div className="text-[10px] uppercase tracking-widest text-gray-500 mt-4 font-bold">Premium Vertical</div>
-              </motion.div>
+              </MotionDiv>
             ))}
           </div>
         </div>

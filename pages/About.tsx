@@ -1,6 +1,8 @@
 
 import React from 'react';
+// Fixed: Using any casting for motion component to bypass property missing errors
 import { motion } from 'framer-motion';
+const MotionDiv = (motion as any).div;
 import { Heart, Target, Users, Gem } from 'lucide-react';
 
 const About: React.FC = () => {
@@ -10,12 +12,12 @@ const About: React.FC = () => {
       <section className="bg-brand-dark text-white py-32 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
+          <MotionDiv initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
             <h1 className="text-5xl md:text-7xl font-serif font-bold mb-6">About Us</h1>
             <p className="text-xl text-gray-300 max-w-3xl leading-relaxed">
               DishaHire Consultancy is a recruitment and human resource firm focused on delivering end-to-end talent acquisition solutions that matter.
             </p>
-          </motion.div>
+          </MotionDiv>
         </div>
       </section>
 

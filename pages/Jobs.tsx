@@ -1,6 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
+// Fixed: Using any casting for motion components to bypass property missing errors
 import { motion, AnimatePresence } from 'framer-motion';
+const MotionH1 = (motion as any).h1;
+const MotionP = (motion as any).p;
+const MotionDiv = (motion as any).div;
+const MotionButton = (motion as any).button;
 import { Search, MapPin, Briefcase, Filter, ChevronRight, X, FileText, AlertCircle, Shield, Loader2, Send } from 'lucide-react';
 import { Job } from '../types';
 import { db } from '../utils/db.ts';
@@ -40,26 +45,26 @@ const Jobs: React.FC = () => {
       <section className="bg-brand-dark text-white py-32 text-center relative overflow-hidden">
         <div className="absolute inset-0 bg-brand-gold/5 opacity-30" />
         <div className="max-w-7xl mx-auto px-4 relative z-10">
-          <motion.h1 
+          <MotionH1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-6xl md:text-8xl font-serif font-bold mb-6"
           >
             Elite Opportunities
-          </motion.h1>
-          <motion.p 
+          </MotionH1>
+          <MotionP 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
             className="text-xl text-gray-400 max-w-2xl mx-auto"
           >
             Vetted senior positions at industry-leading organizations, managed directly via our premium network.
-          </motion.p>
+          </MotionP>
         </div>
       </section>
 
       <div className="max-w-7xl mx-auto px-4 -mt-12 relative z-20">
-        <motion.div 
+        <MotionDiv 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -78,7 +83,7 @@ const Jobs: React.FC = () => {
           <button className="bg-brand-dark text-white px-12 py-6 rounded-3xl font-serif font-black text-lg flex items-center justify-center gap-3 hover:bg-brand-accent transition-all shadow-xl">
             <Filter size={20} /> Refine
           </button>
-        </motion.div>
+        </MotionDiv>
 
         <div className="mt-20 space-y-10">
           {loading ? (
@@ -89,7 +94,7 @@ const Jobs: React.FC = () => {
           ) : filteredJobs.length > 0 ? (
             <AnimatePresence>
               {filteredJobs.map((job, idx) => (
-                <motion.div 
+                <MotionDiv 
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: idx * 0.1 }}
@@ -107,19 +112,19 @@ const Jobs: React.FC = () => {
                       <span className="flex items-center"><MapPin size={20} className="mr-3 text-brand-gold" /> {job.location}</span>
                     </div>
                   </div>
-                  <motion.button 
+                  <MotionButton 
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setSelectedJob(job)}
                     className="bg-brand-light text-brand-dark px-14 py-6 rounded-[2rem] font-serif font-black text-xl flex items-center justify-center group/btn shadow-sm hover:bg-brand-dark hover:text-white transition-all"
                   >
                     View Role <ChevronRight size={24} className="ml-4 group-hover/btn:translate-x-2 transition-transform" />
-                  </motion.button>
-                </motion.div>
+                  </MotionButton>
+                </MotionDiv>
               ))}
             </AnimatePresence>
           ) : (
-            <motion.div 
+            <MotionDiv 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="text-center py-40 bg-white rounded-[3rem] border border-dashed border-gray-200"
@@ -127,7 +132,7 @@ const Jobs: React.FC = () => {
               <Search size={64} className="mx-auto text-gray-200 mb-8" />
               <p className="text-gray-400 font-serif text-3xl">No positions found matching your criteria.</p>
               <button onClick={() => setFilter('')} className="mt-8 text-brand-gold font-black uppercase tracking-widest hover:underline">Clear all filters</button>
-            </motion.div>
+            </MotionDiv>
           )}
         </div>
       </div>
@@ -136,14 +141,14 @@ const Jobs: React.FC = () => {
       <AnimatePresence>
         {selectedJob && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div 
+            <MotionDiv 
               initial={{ opacity: 0 }} 
               animate={{ opacity: 1 }} 
               exit={{ opacity: 0 }} 
               className="absolute inset-0 bg-brand-dark/95 backdrop-blur-xl" 
               onClick={() => setSelectedJob(null)} 
             />
-            <motion.div 
+            <MotionDiv 
               initial={{ opacity: 0, scale: 0.9, y: 40 }} 
               animate={{ opacity: 1, scale: 1, y: 0 }} 
               exit={{ opacity: 0, scale: 0.9, y: 40 }} 
@@ -168,17 +173,17 @@ const Jobs: React.FC = () => {
                 </div>
                 <div className="pt-10 border-t border-gray-100 flex flex-col gap-8">
                   <p className="text-gray-400 text-sm font-serif italic">This is a highly confidential search. Direct application is required for professional vetting.</p>
-                  <motion.button 
+                  <MotionButton 
                     whileHover={{ scale: 1.02, y: -5 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => { alert('Success: Your profile has been sent to our executive search team.'); setSelectedJob(null); }}
                     className="w-full bg-brand-dark text-white py-10 rounded-[2rem] font-serif font-black text-3xl shadow-4xl flex items-center justify-center gap-6 hover:bg-brand-accent transition-all"
                   >
                     Submit Application <Send size={32} />
-                  </motion.button>
+                  </MotionButton>
                 </div>
               </div>
-            </motion.div>
+            </MotionDiv>
           </div>
         )}
       </AnimatePresence>

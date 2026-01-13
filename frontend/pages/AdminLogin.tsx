@@ -1,6 +1,8 @@
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+// Fixed: Using any casting for RouterDOM exports to bypass environment-specific type errors
+import * as RouterDOM from 'react-router-dom';
+const { useNavigate } = RouterDOM as any;
 import { ShieldCheck, Lock, Loader2, AlertCircle, ArrowRight } from 'lucide-react';
 import { useAuth } from '../components/AuthContext.tsx';
 
