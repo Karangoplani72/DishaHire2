@@ -19,24 +19,47 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// --- SAFE FETCH UTILITY ---
+const safeFetch = async (url: string, options: RequestInit = {}) => {
+  const headers = {
+    ...options.headers,
+    'X-Requested-With': 'XMLHttpRequest',
+    'Accept': 'application/json'
+  };
+
+  const response = await fetch(url, { ...options, headers });
+  
+  // Defensive check for Content-Type
+  const contentType = response.headers.get('content-type');
+  let data = null;
+
+  if (contentType && contentType.includes('application/json')) {
+    try {
+      data = await response.json();
+    } catch (e) {
+      console.error('JSON Parsing failed even with header present');
+    }
+  }
+
+  if (!response.ok) {
+    throw new Error(data?.error || `Server responded with status ${response.status}`);
+  }
+
+  return data;
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Verification happens on mount via the secure cookie
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const res = await fetch('/api/auth/me', {
-          headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setUser(data.user);
-        }
+        const data = await safeFetch('/api/auth/me');
+        if (data?.user) setUser(data.user);
       } catch (e) {
-        console.error("Session verification failed");
+        // Suppress session check errors for unauthenticated users
       } finally {
         setLoading(false);
       }
@@ -48,20 +71,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null);
     const endpoint = isAdmin ? '/api/admin/login' : '/api/auth/login';
     try {
-      const res = await fetch(endpoint, {
+      const data = await safeFetch(endpoint, {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(creds)
       });
-      const data = await res.json();
-      if (res.ok) {
-        setUser(data.user);
-      } else {
-        throw new Error(data.error || 'Authentication failed');
-      }
+      if (data?.user) setUser(data.user);
     } catch (e: any) {
       setError(e.message);
       throw e;
@@ -71,20 +86,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (userData: any) => {
     setError(null);
     try {
-      const res = await fetch('/api/auth/register', {
+      const data = await safeFetch('/api/auth/register', {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData)
       });
-      const data = await res.json();
-      if (res.ok) {
-        setUser(data.user);
-      } else {
-        throw new Error(data.error || 'Registration failed');
-      }
+      if (data?.user) setUser(data.user);
     } catch (e: any) {
       setError(e.message);
       throw e;
@@ -93,10 +100,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
-      await fetch('/api/auth/logout', { 
-        method: 'POST',
-        headers: { 'X-Requested-With': 'XMLHttpRequest' }
-      });
+      await safeFetch('/api/auth/logout', { method: 'POST' });
     } catch (e) {}
     setUser(null);
     window.location.href = '/';

@@ -36,12 +36,15 @@ app.use(cors({
 }) as any);
 app.use(express.json({ limit: '10kb' }) as any);
 
-// Anti-CSRF Middleware: Require custom header for all state-changing requests
+// Anti-CSRF Middleware: Guaranteed JSON error
 const csrfProtect = (req: any, res: any, next: any) => {
   if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next();
   const customHeader = req.headers['x-requested-with'];
   if (customHeader !== 'XMLHttpRequest') {
-    return res.status(403).json({ error: 'Security violation: Invalid origin request' });
+    return res.status(403).json({ 
+      error: 'Security violation: Request must originate from an authorized client.',
+      code: 'CSRF_REJECTION'
+    });
   }
   next();
 };
@@ -50,10 +53,14 @@ app.use(csrfProtect as any);
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 5,
-  message: { error: 'Access restricted. Too many attempts.' },
+  max: 10, // Slightly relaxed for production usability while still blocking bots
+  message: { error: 'Too many authentication attempts. Please wait 15 minutes.', code: 'RATE_LIMIT_EXCEEDED' },
   standardHeaders: true,
   legacyHeaders: false,
+  // Ensure the rate limiter always sends JSON
+  handler: (req, res, next, options) => {
+    res.status(options.statusCode).json(options.message);
+  }
 });
 
 // --- JWT HELPERS ---
@@ -102,6 +109,8 @@ const authorize = (role: string) => (req: any, res: any, next: any) => {
 
 app.post('/api/admin/login', authLimiter, async (req, res) => {
   const { email, password } = req.body;
+  if (!email || !password) return res.status(400).json({ error: 'Credentials required' });
+  
   if (email !== ADMIN_EMAIL) return res.status(401).json({ error: 'Invalid credentials' });
   
   const isMatch = await bcrypt.compare(password, ADMIN_PWD_HASH);
@@ -115,12 +124,13 @@ app.post('/api/admin/login', authLimiter, async (req, res) => {
 app.post('/api/auth/register', authLimiter, async (req, res) => {
   try {
     const { name, email, password, confirmPassword, phoneNumber, city, state } = req.body;
+    if (!name || !email || !password) return res.status(400).json({ error: 'Required fields missing' });
     if (password !== confirmPassword) return res.status(400).json({ error: 'Passwords mismatch' });
 
     const exists = await User.findOne({ email });
     if (exists) return res.status(400).json({ error: 'Identity already exists' });
 
-    const salt = await bcrypt.getSalt(12);
+    const salt = await bcrypt.genSalt(12);
     const passwordHash = await bcrypt.hash(password, salt);
 
     const user = new User({ name, email, passwordHash, phoneNumber, city, state });
@@ -136,6 +146,8 @@ app.post('/api/auth/register', authLimiter, async (req, res) => {
 
 app.post('/api/auth/login', authLimiter, async (req, res) => {
   const { email, password } = req.body;
+  if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
+  
   try {
     const user = await User.findOne({ email });
     if (!user || !(await user.comparePassword(password))) {
@@ -152,6 +164,8 @@ app.post('/api/auth/login', authLimiter, async (req, res) => {
 // PASSWORD RESET FLOW
 app.post('/api/auth/forgot-password', authLimiter, async (req, res) => {
   const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email required' });
+  
   try {
     const user = await User.findOne({ email });
     if (!user) return res.status(200).json({ message: 'If an account exists, a reset link has been sent.' });
@@ -163,7 +177,6 @@ app.post('/api/auth/forgot-password', authLimiter, async (req, res) => {
     user.resetPasswordExpires = Date.now() + 15 * 60 * 1000; // 15 mins
     await user.save();
 
-    // In production, send email here. Logging for system visibility:
     console.log(`[AUTH] Reset Token for ${email}: ${resetToken}`);
     res.json({ message: 'If an account exists, a reset link has been sent.' });
   } catch (err) {
@@ -173,6 +186,8 @@ app.post('/api/auth/forgot-password', authLimiter, async (req, res) => {
 
 app.post('/api/auth/reset-password', authLimiter, async (req, res) => {
   const { token, password } = req.body;
+  if (!token || !password) return res.status(400).json({ error: 'Token and password required' });
+
   try {
     const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
     const user = await User.findOne({
@@ -195,11 +210,16 @@ app.post('/api/auth/reset-password', authLimiter, async (req, res) => {
 });
 
 app.get('/api/auth/me', authenticate, async (req: any, res) => {
-  if (req.user.role === 'admin') {
-    return res.json({ user: { email: ADMIN_EMAIL, role: 'admin', name: 'Admin' } });
+  try {
+    if (req.user.role === 'admin') {
+      return res.json({ user: { email: ADMIN_EMAIL, role: 'admin', name: 'Admin' } });
+    }
+    const user = await User.findById(req.user.sub).select('-passwordHash');
+    if (!user) return res.status(404).json({ error: 'User no longer exists' });
+    res.json({ user: { ...user.toObject(), role: 'user' } });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error retrieving profile' });
   }
-  const user = await User.findById(req.user.sub).select('-passwordHash');
-  res.json({ user: { ...user.toObject(), role: 'user' } });
 });
 
 app.post('/api/auth/logout', (req, res) => {
@@ -207,10 +227,20 @@ app.post('/api/auth/logout', (req, res) => {
   res.json({ success: true });
 });
 
-// --- PROTECTED RESOURCES ---
-app.get('/api/admin/enquiries', authenticate, authorize('admin'), async (req, res) => {
-  const Enquiry = mongoose.model('Enquiry', new mongoose.Schema({}, { strict: false }));
-  res.json(await Enquiry.find().sort({ createdAt: -1 }));
+// --- FINAL ERROR HANDLERS ---
+
+// 404 Handler: Guaranteed JSON
+app.use((req, res) => {
+  res.status(404).json({ error: `Resource not found: ${req.originalUrl}` });
+});
+
+// Global Error Handler: Prevents HTML stack traces
+app.use((err: any, req: any, res: any, next: any) => {
+  console.error('[FATAL SERVER ERROR]', err);
+  res.status(500).json({ 
+    error: 'An internal server error occurred. Please try again later.',
+    code: 'INTERNAL_SERVER_ERROR'
+  });
 });
 
 if (process.env.MONGO_URI) {

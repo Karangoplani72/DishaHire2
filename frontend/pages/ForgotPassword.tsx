@@ -17,18 +17,29 @@ const ForgotPassword = () => {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/auth/forgot-password', {
+      const response = await fetch('/api/auth/forgot-password', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest'
+          'X-Requested-With': 'XMLHttpRequest',
+          'Accept': 'application/json'
         },
         body: JSON.stringify({ email })
       });
-      if (res.ok) setDone(true);
-      else throw new Error('Request failed');
-    } catch (err) {
-      setError('System unavailable. Please try later.');
+
+      const contentType = response.headers.get('content-type');
+      let data = null;
+      if (contentType && contentType.includes('application/json')) {
+        data = await response.json();
+      }
+
+      if (response.ok) {
+        setDone(true);
+      } else {
+        throw new Error(data?.error || 'System unavailable. Please try later.');
+      }
+    } catch (err: any) {
+      setError(err.message);
     } finally {
       setLoading(false);
     }
