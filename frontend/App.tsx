@@ -1,12 +1,9 @@
 
 import React, { useState } from 'react';
-// Fixed: Using any casting for RouterDOM exports to bypass environment-specific type errors
 import * as RouterDOM from 'react-router-dom';
 const { HashRouter: Router, Routes, Route, Link, useLocation } = RouterDOM as any;
-import { Menu, X, Mail, Phone, MapPin, Linkedin, Instagram, MessageCircle, ShieldCheck, ArrowLeft } from 'lucide-react';
-// Fixed: Using any casting for motion component to bypass property missing errors
+import { Menu, X, Mail, MapPin, Linkedin, ShieldCheck, Instagram, MessageCircle, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-const MotionDiv = (motion as any).div;
 
 import Home from './pages/Home.tsx';
 import About from './pages/About.tsx';
@@ -15,12 +12,11 @@ import Jobs from './pages/Jobs.tsx';
 import Terms from './pages/Terms.tsx';
 import AdminDashboard from './pages/AdminDashboard.tsx';
 import { NAV_LINKS, CONTACT_INFO } from './constants.tsx';
-import { db } from './utils/db.ts';
 
 const NotFound = () => (
-  <div className="min-h-screen bg-brand-dark text-white flex flex-col items-center justify-center p-4">
+  <div className="min-h-screen bg-brand-dark text-white flex flex-col items-center justify-center p-4 text-center">
     <h1 className="text-9xl font-serif font-bold text-brand-gold mb-4">404</h1>
-    <h2 className="text-3xl font-serif mb-8">Page Not Found</h2>
+    <h2 className="text-3xl font-serif mb-8 tracking-wide">PAGE NOT FOUND</h2>
     <Link to="/" className="flex items-center gap-4 bg-white text-brand-dark px-10 py-5 rounded-full font-bold">
       <ArrowLeft size={20}/> Return to Corporate Hub
     </Link>
@@ -57,6 +53,13 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
+            <div className="h-6 w-px bg-white/10 mx-2" />
+            <Link 
+              to="/admin" 
+              className="text-[10px] font-black uppercase tracking-widest text-brand-gold hover:text-white transition-colors flex items-center gap-2"
+            >
+              <ShieldCheck size={14} /> Admin
+            </Link>
           </div>
 
           <div className="md:hidden">
@@ -69,7 +72,7 @@ const Navbar = () => {
 
       <AnimatePresence>
         {isOpen && (
-          <MotionDiv 
+          <motion.div 
             initial={{ opacity: 0, y: -20 }} 
             animate={{ opacity: 1, y: 0 }} 
             exit={{ opacity: 0, y: -20 }} 
@@ -86,8 +89,10 @@ const Navbar = () => {
                   {link.name}
                 </Link>
               ))}
+              <div className="h-px bg-white/5 w-full" />
+              <Link to="/admin" onClick={() => setIsOpen(false)} className="block text-xl font-serif font-bold text-brand-gold">Admin</Link>
             </div>
-          </MotionDiv>
+          </motion.div>
         )}
       </AnimatePresence>
     </nav>
@@ -95,21 +100,8 @@ const Navbar = () => {
 };
 
 const Footer = () => {
-  const [email, setEmail] = useState('');
   const location = useLocation();
   const isAdminPath = location.pathname.startsWith('/admin');
-
-  const handleSubscribe = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
-    try {
-      await db.subscribeNewsletter(email);
-      alert('Subscription confirmed.');
-      setEmail('');
-    } catch (err) {
-      alert('Network update successful.');
-    }
-  };
 
   if (isAdminPath) return null;
 
@@ -122,7 +114,7 @@ const Footer = () => {
             <span className="text-[9px] uppercase tracking-[0.4em] text-gray-500 font-black mt-1">Right Talent, Right Direction</span>
           </div>
           <p className="text-gray-400 text-sm leading-relaxed font-serif italic">
-            Leading end-to-end recruitment consultancy firm focused on deliverable technical excellence.
+            Architecting the bridge between world-class organizational ambitions and high-tier professional mastery.
           </p>
           <div className="flex space-x-5">
             <a href={CONTACT_INFO.linkedin} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-brand-gold hover:text-brand-dark transition-all">
@@ -141,7 +133,7 @@ const Footer = () => {
           <h4 className="font-black text-[10px] mb-8 uppercase tracking-[0.4em] text-brand-gold">Direct Verticals</h4>
           <ul className="space-y-4 text-xs text-gray-400 font-bold uppercase tracking-widest">
             {['IT & Technology', 'Manufacturing', 'Healthcare', 'BPO Support'].map(v => (
-              <li key={v} className="hover:text-white transition-colors cursor-default">{v}</li>
+              <li key={v}>{v}</li>
             ))}
           </ul>
         </div>
@@ -155,40 +147,25 @@ const Footer = () => {
             </li>
             <li className="flex items-center space-x-3">
               <Mail size={16} className="text-brand-gold flex-shrink-0" />
-              <a href={`mailto:${CONTACT_INFO.email}`} className="hover:text-white transition-colors truncate">{CONTACT_INFO.email}</a>
-            </li>
-            <li className="flex items-center space-x-3">
-              <Phone size={16} className="text-brand-gold flex-shrink-0" />
-              <a href={`tel:${CONTACT_INFO.phone.replace(/\s/g, '')}`} className="hover:text-white transition-colors">{CONTACT_INFO.phone}</a>
+              <span>{CONTACT_INFO.email}</span>
             </li>
           </ul>
         </div>
 
         <div>
-          <h4 className="font-black text-[10px] mb-8 uppercase tracking-[0.4em] text-brand-gold">Newsletter</h4>
-          <p className="text-xs text-gray-500 mb-6 font-serif italic">Access quarterly hiring insights.</p>
-          <form onSubmit={handleSubscribe} className="flex">
-            <input 
-              type="email" 
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Professional email" 
-              className="bg-white/5 border border-white/10 px-5 py-3 text-sm rounded-l-xl focus:outline-none focus:border-brand-gold w-full" 
-            />
-            <button 
-              className="bg-brand-gold text-brand-dark font-black uppercase text-[10px] tracking-widest px-6 py-3 rounded-r-xl hover:bg-white transition-all"
-            >
-              Join
-            </button>
-          </form>
+          <h4 className="font-black text-[10px] mb-8 uppercase tracking-[0.4em] text-brand-gold">Corporate</h4>
+          <Link 
+            to="/admin" 
+            className="inline-block bg-white/5 border border-white/10 px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-brand-dark transition-all"
+          >
+            Management
+          </Link>
         </div>
       </div>
-      <div className="max-w-7xl mx-auto px-4 mt-24 pt-8 border-t border-white/5 text-center flex flex-col items-center gap-4">
+      <div className="max-w-7xl mx-auto px-4 mt-24 pt-8 border-t border-white/5 text-center">
         <p className="text-[10px] font-black uppercase tracking-[0.5em] text-gray-600">
-          © {new Date().getFullYear()} DishaHire Consultancy | Excellence Guaranteed
+          © {new Date().getFullYear()} DishaHire Consultancy
         </p>
-        <ShieldCheck className="text-brand-gold/20" size={32} />
       </div>
     </footer>
   );
@@ -206,7 +183,7 @@ const App = () => {
             <Route path="/services" element={<Services />} />
             <Route path="/jobs" element={<Jobs />} />
             <Route path="/terms" element={<Terms />} />
-            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/*" element={<AdminDashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>

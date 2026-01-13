@@ -1,12 +1,9 @@
 
 import React, { useState } from 'react';
-// Fixed: Using any casting for RouterDOM exports to bypass environment-specific type errors
 import * as RouterDOM from 'react-router-dom';
-const { HashRouter: Router, Routes, Route, Link, useLocation, Navigate } = RouterDOM as any;
-import { Menu, X, Mail, Phone, MapPin, Linkedin, LogOut, User as UserIcon, ShieldCheck, Instagram, MessageCircle, Briefcase, Loader2, ArrowLeft } from 'lucide-react';
-// Fixed: Using any casting for motion components to bypass property missing errors
+const { HashRouter: Router, Routes, Route, Link, useLocation } = RouterDOM as any;
+import { Menu, X, Mail, MapPin, Linkedin, ShieldCheck, Instagram, MessageCircle, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-const MotionDiv = (motion as any).div;
 
 import Home from './pages/Home.tsx';
 import About from './pages/About.tsx';
@@ -14,18 +11,13 @@ import Services from './pages/Services.tsx';
 import Jobs from './pages/Jobs.tsx';
 import Career from './pages/Career.tsx';
 import Terms from './pages/Terms.tsx';
-import MyApplications from './pages/MyApplications.tsx';
 import AdminDashboard from './pages/AdminDashboard.tsx';
-import AdminLogin from './pages/AdminLogin.tsx';
-import Login from './pages/Login.tsx';
 import { NAV_LINKS, CONTACT_INFO } from './constants.tsx';
-import { useAuth } from './components/AuthContext.tsx';
 
 const NotFound = () => (
-  <div className="min-h-screen bg-brand-dark text-white flex flex-col items-center justify-center p-4">
+  <div className="min-h-screen bg-brand-dark text-white flex flex-col items-center justify-center p-4 text-center">
     <h1 className="text-9xl font-serif font-bold text-brand-gold mb-4">404</h1>
-    <h2 className="text-3xl font-serif mb-8">Page Not Found</h2>
-    <p className="text-gray-400 mb-12 text-center max-w-md italic">The requested professional resource is either unavailable or has been relocated within our enterprise network.</p>
+    <h2 className="text-3xl font-serif mb-8 tracking-wide">NOT FOUND</h2>
     <Link to="/" className="flex items-center gap-4 bg-white text-brand-dark px-10 py-5 rounded-full font-bold">
       <ArrowLeft size={20}/> Return to Corporate Hub
     </Link>
@@ -34,7 +26,6 @@ const NotFound = () => (
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { user, logout, isAdmin, isAuthenticated } = useAuth();
   const location = useLocation();
   const isAdminPath = location.pathname.startsWith('/admin');
 
@@ -63,38 +54,13 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
-            
             <div className="h-6 w-px bg-white/10 mx-2" />
-
-            {isAuthenticated ? (
-              <div className="flex items-center space-x-5">
-                <Link 
-                  to="/my-applications" 
-                  className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-colors ${location.pathname === '/my-applications' ? 'text-brand-gold' : 'text-gray-400 hover:text-white'}`}
-                >
-                  <Briefcase size={14} /> Tracking
-                </Link>
-                <div className="flex items-center space-x-2 text-[10px] font-black uppercase tracking-widest text-brand-gold">
-                   <UserIcon size={16}/>
-                   <span>{user?.name.split(' ')[0]}</span>
-                </div>
-                {isAdmin && (
-                  <Link to="/admin" className="text-[9px] bg-brand-gold text-brand-dark px-3 py-1 rounded-full font-black uppercase tracking-widest hover:bg-white transition-all">Portal</Link>
-                )}
-                <button onClick={logout} className="text-gray-500 hover:text-white transition">
-                  <LogOut size={18} />
-                </button>
-              </div>
-            ) : (
-              <div className="flex items-center space-x-6">
-                <Link 
-                  to="/login"
-                  className="text-[10px] font-black uppercase tracking-widest border border-white/20 px-5 py-2 rounded-full hover:bg-white/5 transition flex items-center gap-2"
-                >
-                  <ShieldCheck size={14} /> Secure Access
-                </Link>
-              </div>
-            )}
+            <Link 
+              to="/admin" 
+              className="text-[10px] font-black uppercase tracking-widest text-brand-gold hover:text-white transition-colors flex items-center gap-2"
+            >
+              <ShieldCheck size={14} /> Admin Terminal
+            </Link>
           </div>
 
           <div className="md:hidden">
@@ -107,7 +73,7 @@ const Navbar = () => {
 
       <AnimatePresence>
         {isOpen && (
-          <MotionDiv 
+          <motion.div 
             initial={{ opacity: 0, y: -20 }} 
             animate={{ opacity: 1, y: 0 }} 
             exit={{ opacity: 0, y: -20 }} 
@@ -124,26 +90,10 @@ const Navbar = () => {
                   {link.name}
                 </Link>
               ))}
-              {isAuthenticated && (
-                <Link
-                  to="/my-applications"
-                  onClick={() => setIsOpen(false)}
-                  className="block text-xl font-serif font-bold text-brand-gold"
-                >
-                  My Applications
-                </Link>
-              )}
               <div className="h-px bg-white/5 w-full" />
-              {!isAuthenticated ? (
-                <Link to="/login" onClick={() => setIsOpen(false)} className="block w-full text-center bg-brand-gold text-brand-dark py-4 rounded-2xl font-bold">Client Login</Link>
-              ) : (
-                <div className="flex items-center justify-between">
-                   <span className="text-brand-gold font-bold">{user?.name}</span>
-                   <button onClick={logout} className="text-red-400 font-bold uppercase text-[10px] tracking-widest">Logout</button>
-                </div>
-              )}
+              <Link to="/admin" onClick={() => setIsOpen(false)} className="block text-xl font-serif font-bold text-brand-gold">Admin Portal</Link>
             </div>
-          </MotionDiv>
+          </motion.div>
         )}
       </AnimatePresence>
     </nav>
@@ -152,7 +102,7 @@ const Navbar = () => {
 
 const Footer = () => {
   const location = useLocation();
-  const isAdminPath = location.pathname.startsWith('/admin') || location.pathname === '/login';
+  const isAdminPath = location.pathname.startsWith('/admin');
 
   if (isAdminPath) return null;
 
@@ -165,7 +115,7 @@ const Footer = () => {
             <span className="text-[9px] uppercase tracking-[0.4em] text-gray-500 font-black mt-1">Right Talent, Right Direction</span>
           </div>
           <p className="text-gray-400 text-sm leading-relaxed font-serif italic">
-            Leading end-to-end recruitment consultancy firm focused on deliverable technical excellence.
+            Architecting the bridge between world-class organizational ambitions and high-tier professional mastery.
           </p>
           <div className="flex space-x-5">
             <a href={CONTACT_INFO.linkedin} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-brand-gold hover:text-brand-dark transition-all">
@@ -184,13 +134,13 @@ const Footer = () => {
           <h4 className="font-black text-[10px] mb-8 uppercase tracking-[0.4em] text-brand-gold">Direct Verticals</h4>
           <ul className="space-y-4 text-xs text-gray-400 font-bold uppercase tracking-widest">
             {['IT & Technology', 'Manufacturing', 'Healthcare', 'BPO Support'].map(v => (
-              <li key={v} className="hover:text-white transition-colors cursor-default">{v}</li>
+              <li key={v}>{v}</li>
             ))}
           </ul>
         </div>
 
         <div>
-          <h4 className="font-black text-[10px] mb-8 uppercase tracking-[0.4em] text-brand-gold">Connect</h4>
+          <h4 className="font-black text-[10px] mb-8 uppercase tracking-[0.4em] text-brand-gold">Enterprise Hub</h4>
           <ul className="space-y-4 text-sm text-gray-400">
             <li className="flex items-start space-x-3">
               <MapPin size={16} className="text-brand-gold mt-1 flex-shrink-0" />
@@ -198,61 +148,31 @@ const Footer = () => {
             </li>
             <li className="flex items-center space-x-3">
               <Mail size={16} className="text-brand-gold flex-shrink-0" />
-              <a href={`mailto:${CONTACT_INFO.email}`} className="hover:text-white transition-colors truncate">{CONTACT_INFO.email}</a>
-            </li>
-            <li className="flex items-center space-x-3">
-              <Phone size={16} className="text-brand-gold flex-shrink-0" />
-              <a href={`tel:${CONTACT_INFO.phone.replace(/\s/g, '')}`} className="hover:text-white transition-colors">{CONTACT_INFO.phone}</a>
+              <span>{CONTACT_INFO.email}</span>
             </li>
           </ul>
         </div>
 
         <div>
-          <h4 className="font-black text-[10px] mb-8 uppercase tracking-[0.4em] text-brand-gold">Compliance</h4>
-          <p className="text-xs text-gray-500 mb-6 font-serif italic">Dedicated to ethical recruitment and long-term partnerships.</p>
-          <div className="flex flex-col gap-2">
-             <Link to="/terms" className="text-[10px] font-black uppercase tracking-widest text-brand-gold hover:text-white transition-colors">Commercial Terms</Link>
-             <Link to="/about" className="text-[10px] font-black uppercase tracking-widest text-brand-gold hover:text-white transition-colors">Corporate Philosophy</Link>
-          </div>
+          <h4 className="font-black text-[10px] mb-8 uppercase tracking-[0.4em] text-brand-gold">Enterprise</h4>
+          <Link 
+            to="/admin" 
+            className="inline-block bg-white/5 border border-white/10 px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-brand-dark transition-all"
+          >
+            Dashboard
+          </Link>
         </div>
       </div>
-      <div className="max-w-7xl mx-auto px-4 mt-24 pt-8 border-t border-white/5 text-center flex flex-col items-center gap-4">
+      <div className="max-w-7xl mx-auto px-4 mt-24 pt-8 border-t border-white/5 text-center">
         <p className="text-[10px] font-black uppercase tracking-[0.5em] text-gray-600">
-          © {new Date().getFullYear()} DishaHire Consultancy | Excellence Guaranteed
+          © {new Date().getFullYear()} DishaHire Consultancy
         </p>
-        <ShieldCheck className="text-brand-gold/20" size={32} />
       </div>
     </footer>
   );
 };
 
-// Fixed: Made children optional to resolve Property 'children' is missing in type '{}' error
-const ProtectedAdmin = ({ children }: { children?: React.ReactNode }) => {
-  const { isAdmin, isAuthenticated, isChecking } = useAuth();
-  if (isChecking) return null; 
-  if (!isAuthenticated || !isAdmin) return <Navigate to="/admin/login" replace />;
-  return <>{children}</>;
-};
-
-// Removed React.FC to fix "Property 'children' is missing" error when App is used in root.render
 const App = () => {
-  const { isChecking } = useAuth();
-
-  if (isChecking) {
-    return (
-      <div className="min-h-screen bg-brand-dark flex flex-col items-center justify-center space-y-8">
-        <div className="flex flex-col items-center">
-          <span className="text-4xl font-serif font-bold tracking-widest leading-none text-white">DISHA<span className="text-brand-gold">HIRE</span></span>
-          <span className="text-[10px] uppercase tracking-[0.5em] text-gray-500 font-black mt-2">Security Hub</span>
-        </div>
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="text-brand-gold animate-spin" size={32} />
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-600">Verifying Secure Link...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <Router>
       <div className="min-h-screen flex flex-col">
@@ -265,14 +185,7 @@ const App = () => {
             <Route path="/jobs" element={<Jobs />} />
             <Route path="/career" element={<Career />} />
             <Route path="/terms" element={<Terms />} />
-            <Route path="/my-applications" element={<MyApplications />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin/*" element={
-              <ProtectedAdmin>
-                <AdminDashboard />
-              </ProtectedAdmin>
-            } />
+            <Route path="/admin/*" element={<AdminDashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>

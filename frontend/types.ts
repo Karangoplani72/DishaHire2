@@ -18,6 +18,7 @@ export interface Job {
 }
 
 export interface Enquiry {
+  _id?: string;
   id: string;
   type: EnquiryType;
   subject?: string;
