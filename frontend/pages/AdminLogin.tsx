@@ -9,19 +9,29 @@ const AdminLogin: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login, error } = useAuth();
+  const [localError, setLocalError] = useState('');
+  
+  const { login, error: authError } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
+
     setLoading(true);
+    setLocalError('');
+    
     try {
+      // Use the correct credentials object and isAdmin=true flag
       await login({ email, password }, true);
       navigate('/admin');
-    } catch (err) {
+    } catch (err: any) {
+      setLocalError(err.message || 'Unauthorized access attempt detected.');
       setLoading(false);
     }
   };
+
+  const displayError = localError || authError;
 
   return (
     <div className="min-h-screen bg-brand-dark flex items-center justify-center p-4">
@@ -54,21 +64,42 @@ const AdminLogin: React.FC = () => {
             <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Access Key</label>
             <div className="relative">
               <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300" size={18} />
-              <input required type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full pl-14 pr-4 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-brand-gold/30 outline-none transition-all font-medium text-brand-dark" placeholder="••••••••••••" />
+              <input 
+                required 
+                type="password" 
+                value={password} 
+                onChange={e => setPassword(e.target.value)} 
+                className="w-full pl-14 pr-4 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-brand-gold/30 outline-none transition-all font-medium text-brand-dark" 
+                placeholder="••••••••••••" 
+              />
             </div>
           </div>
 
-          {error && (
-            <div className="flex items-center gap-3 p-4 bg-red-50 text-red-600 rounded-2xl border border-red-100 text-xs font-bold">
+          {displayError && (
+            <div className="flex items-center gap-3 p-4 bg-red-50 text-red-600 rounded-2xl border border-red-100 text-xs font-bold animate-pulse">
               <AlertCircle size={18} />
-              <span>{error}</span>
+              <span>{displayError}</span>
             </div>
           )}
 
-          <button disabled={loading} className="w-full bg-brand-dark text-white py-5 rounded-2xl font-bold flex items-center justify-center gap-4 hover:bg-brand-accent transition-all shadow-xl disabled:opacity-50">
+          <button 
+            type="submit"
+            disabled={loading} 
+            className="w-full bg-brand-dark text-white py-5 rounded-2xl font-bold flex items-center justify-center gap-4 hover:bg-brand-accent transition-all shadow-xl disabled:opacity-50"
+          >
             {loading ? <Loader2 className="animate-spin" /> : 'Authenticate'}
           </button>
         </form>
+
+        <div className="mt-8 text-center">
+          <button 
+            type="button"
+            onClick={() => navigate('/')} 
+            className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-brand-gold transition-colors"
+          >
+            Back to Public Portal
+          </button>
+        </div>
       </div>
     </div>
   );
