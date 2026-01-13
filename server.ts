@@ -22,21 +22,28 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false 
 }) as any);
 
-// Robust CORS for production
+// Enhanced CORS for production environments (Render/Vercel)
 app.use(cors({
-  origin: '*', 
+  origin: true, // Dynamically allow the origin of the request
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  credentials: true,
+  maxAge: 86400 // Cache preflight response for 24 hours
 }) as any);
 
 app.use(express.json({ limit: '15mb' }) as any);
 
-// Database Connection
+// Database Connection with retry logic
 const MONGO_URI = process.env.MONGO_URI;
 let dbConnected = false;
 
-if (MONGO_URI) {
+const connectWithRetry = () => {
+  if (!MONGO_URI) {
+    console.error('❌ MONGO_URI is missing from environment variables.');
+    return;
+  }
+  
+  console.log('📡 Attempting MongoDB connection...');
   mongoose.connect(MONGO_URI)
     .then(() => {
       console.log('✅ Connected to MongoDB Enterprise Cluster');
@@ -45,12 +52,15 @@ if (MONGO_URI) {
     .catch(err => {
       console.error('❌ MongoDB Connection Failure:', err.message);
       dbConnected = false;
+      setTimeout(connectWithRetry, 5000);
     });
-}
+};
+
+connectWithRetry();
 
 // Enterprise Data Models
 const UserSchema = new mongoose.Schema({
-  email: { type: String, unique: true, required: true },
+  email: { type: String, unique: true, required: true, lowercase: true, trim: true },
   name: { type: String, required: true },
   password: { type: String, required: true },
   role: { type: String, enum: ['USER', 'ADMIN'], default: 'USER' },
@@ -62,48 +72,53 @@ const User = mongoose.models.User || mongoose.model('User', UserSchema);
 const authenticateToken = (req: any, res: any, next: any) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
-  if (!token) return res.sendStatus(401);
+  if (!token) return res.status(401).json({ error: 'Session required' });
 
   jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
-    if (err) return res.sendStatus(403);
+    if (err) return res.status(403).json({ error: 'Session expired' });
     req.user = user;
     next();
   });
 };
 
-// Health Check API
+// --- API ENDPOINTS ---
+
+// Health Check (Crucial for connectivity debugging)
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'online',
     database: dbConnected ? 'connected' : 'disconnected',
-    time: new Date().toISOString()
+    time: new Date().toISOString(),
+    env: process.env.NODE_ENV || 'production'
   });
 });
 
 app.get('/api/auth/me', authenticateToken, async (req: any, res) => {
   try {
     const user = await (User as any).findById(req.user.id).select('-password');
-    if (!user) return res.status(404).json({ error: 'User not found' });
+    if (!user) return res.status(404).json({ error: 'Identity not found' });
     res.json({ user: { id: user._id, email: user.email, name: user.name, role: user.role } });
   } catch (err) {
     res.status(500).json({ error: 'Identity check failed' });
   }
 });
 
-// Authentication API
 app.post('/api/auth/login', async (req, res) => {
-  if (!dbConnected) return res.status(503).json({ error: 'Database service is currently unavailable.' });
+  if (!dbConnected) return res.status(503).json({ error: 'The secure database is currently offline. Please retry in 30 seconds.' });
 
   try {
     const { email, password } = req.body;
+    if (!email || !password) return res.status(400).json({ error: 'Credentials required' });
+    
     const cleanEmail = email.toLowerCase().trim();
-
     const ADMIN_EMAIL = 'dishahire.0818@gmail.com';
     const ADMIN_PASS = process.env.ADMIN_PASSWORD;
 
+    // Admin Override Logic
     if (cleanEmail === ADMIN_EMAIL && ADMIN_PASS && password === ADMIN_PASS) {
       let adminUser = await (User as any).findOne({ email: cleanEmail });
       if (!adminUser) {
+        console.log('🔨 Bootstrapping Admin account...');
         adminUser = new User({ 
           name: 'DishaHire Admin', 
           email: cleanEmail, 
@@ -116,20 +131,44 @@ app.post('/api/auth/login', async (req, res) => {
       return res.json({ token, user: { id: adminUser._id, email: adminUser.email, name: adminUser.name, role: 'ADMIN' } });
     }
 
+    // Standard User Path
     const user = await (User as any).findOne({ email: cleanEmail });
     if (user && await bcrypt.compare(password, user.password)) {
       const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
       return res.json({ token, user: { id: user._id, email: user.email, name: user.name, role: user.role } });
     }
-    res.status(401).json({ error: 'Invalid credentials provided for secure login.' });
+    
+    res.status(401).json({ error: 'The credentials provided do not match our secure records.' });
   } catch (err) {
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error('Login error details:', err);
+    res.status(500).json({ error: 'Internal security service failure.' });
+  }
+});
+
+app.post('/api/auth/signup', async (req, res) => {
+  if (!dbConnected) return res.status(503).json({ error: 'Registration service is temporarily offline.' });
+  
+  try {
+    const { name, email, password } = req.body;
+    const cleanEmail = email.toLowerCase().trim();
+    const existing = await (User as any).findOne({ email: cleanEmail });
+    if (existing) return res.status(400).json({ error: 'This identity is already registered in our network.' });
+    
+    const hashed = await bcrypt.hash(password, 12);
+    const user = new User({ name, email: cleanEmail, password: hashed });
+    await user.save();
+    
+    const token = jwt.sign({ id: user._id, role: 'USER' }, JWT_SECRET, { expiresIn: '7d' });
+    res.json({ token, user: { id: user._id, email: user.email, name: user.name, role: 'USER' } });
+  } catch (err) {
+    res.status(500).json({ error: 'Account creation protocols failed.' });
   }
 });
 
 app.get('/api/jobs', async (req, res) => {
   try {
-    const jobs = await (mongoose.models.Job || mongoose.model('Job', new mongoose.Schema({}))).find().sort({ postedDate: -1 });
+    const JobModel = mongoose.models.Job || mongoose.model('Job', new mongoose.Schema({}, { strict: false }));
+    const jobs = await JobModel.find().sort({ postedDate: -1 });
     res.json(jobs);
   } catch (e) {
     res.json([]);
@@ -143,15 +182,24 @@ app.post('/api/enquiries', async (req, res) => {
     await enq.save();
     res.json({ success: true, message: 'Inquiry successfully transmitted.' });
   } catch (err) {
-    res.status(400).json({ error: 'Submission failed.' });
+    res.status(400).json({ error: 'Data transmission failed.' });
   }
 });
 
-// SPA Fallback
+// Serve Static Assets (Production)
 app.use(express.static(__dirname) as any);
+
+// SPA Fallback - Important for Routing
 app.get('*', (req, res) => {
-  if (req.url.startsWith('/api/')) return res.status(404).json({ error: 'Endpoint not found' });
+  if (req.url.startsWith('/api/')) return res.status(404).json({ error: 'Endpoint not discovered' });
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.listen(PORT, () => console.log(`🚀 DishaHire Server actively listening on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`
+  🚀 DISHAHIRE SERVER ONLINE
+  📡 Port: ${PORT}
+  🔑 Admin Password: ${process.env.ADMIN_PASSWORD ? 'SET' : 'MISSING'}
+  🔐 JWT Secret: ${process.env.JWT_SECRET ? 'SET' : 'DEFAULT'}
+  `);
+});

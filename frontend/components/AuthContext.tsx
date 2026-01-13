@@ -26,9 +26,19 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Resolve API URL dynamically from Vite env
-const API_URL = (import.meta as any).env?.VITE_API_URL || '';
-const cleanApiBase = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
+// Robust API URL Discovery
+const getApiUrl = () => {
+  // Priority 1: Vite Environment Variable (Required for Render static frontend calling Render web backend)
+  const envUrl = (import.meta as any).env?.VITE_API_URL;
+  if (envUrl) {
+    return envUrl.endsWith('/') ? envUrl.slice(0, -1) : envUrl;
+  }
+  
+  // Priority 2: Relative path for co-located server (local dev or monolithic deploy)
+  return ''; 
+};
+
+const API_URL = getApiUrl();
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -42,8 +52,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
       try {
-        const res = await fetch(`${cleanApiBase}/api/auth/me`, {
-          headers: { 'Authorization': `Bearer ${token}` }
+        const res = await fetch(`${API_URL}/api/auth/me`, {
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'X-Requested-With': 'XMLHttpRequest'
+          }
         });
         if (res.ok) {
           const data = await res.json();
@@ -52,7 +65,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           localStorage.removeItem('dh_access_token');
         }
       } catch (e) {
-        console.error("Auth verify failed: Remote service unreachable");
+        console.warn("Secure link failed. API unreachable at: " + (API_URL || 'relative path'));
       } finally {
         setIsChecking(false);
       }
@@ -62,48 +75,58 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     try {
-      const res = await fetch(`${cleanApiBase}/api/auth/login`, {
+      const res = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
         body: JSON.stringify({ email, password })
       });
-      const data = await res.json();
+      
+      const data = await res.json().catch(() => ({ error: 'Communication breakdown with security server.' }));
+      
       if (res.ok) {
         localStorage.setItem('dh_access_token', data.token);
         setUser(data.user);
         return { success: true };
       }
-      return { success: false, error: data.error || 'Invalid credentials' };
+      return { success: false, error: data.error || 'Verification refused by security gateway.' };
     } catch (e) {
-      console.error('Login error:', e);
-      return { success: false, error: 'Network failure: Connection to authentication server failed.' };
+      console.error('Network Error:', e);
+      return { 
+        success: false, 
+        error: `Connectivity Lost: The server at ${API_URL || window.location.origin} refused the connection. Please check if the backend service is awake.` 
+      };
     }
   };
 
   const signup = async (name: string, email: string, password: string) => {
     try {
-      const res = await fetch(`${cleanApiBase}/api/auth/signup`, {
+      const res = await fetch(`${API_URL}/api/signup`, { // Fixed typo to use root api
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
         body: JSON.stringify({ name, email, password })
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({ error: 'Gateway timeout.' }));
       if (res.ok) {
         localStorage.setItem('dh_access_token', data.token);
         setUser(data.user);
         return { success: true };
       }
-      return { success: false, error: data.error || 'Signup failed' };
+      return { success: false, error: data.error || 'Identity creation failed.' };
     } catch (e) {
-      console.error('Signup error:', e);
-      return { success: false, error: 'Network failure: Connection to registration server failed.' };
+      return { success: false, error: 'Network failure: Registration services are currently unreachable.' };
     }
   };
 
   const logout = () => {
     localStorage.removeItem('dh_access_token');
     setUser(null);
-    window.location.hash = '/';
+    window.location.hash = '#/';
   };
 
   return (
