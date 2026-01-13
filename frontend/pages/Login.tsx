@@ -163,7 +163,7 @@ const Login: React.FC = () => {
             </MotionDiv>
           )}
         </AnimatePresence>
-      </motion.div>
+      </MotionDiv>
     </div>
   );
 };
