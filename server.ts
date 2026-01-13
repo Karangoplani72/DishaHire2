@@ -20,7 +20,6 @@ const JWT_SECRET = process.env.JWT_SECRET || 'dishahire-enterprise-secret-key-20
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors());
 app.use(express.json({ limit: '15mb' }));
-app.use(express.static(__dirname));
 
 // DB Connection
 const MONGO_URI = process.env.MONGO_URI;
@@ -33,7 +32,7 @@ if (!MONGO_URI) {
 }
 
 // --- SCHEMAS ---
-const User = mongoose.model('User', new mongoose.Schema({
+const User = mongoose.models.User || mongoose.model('User', new mongoose.Schema({
   email: { type: String, unique: true, required: true, lowercase: true, trim: true },
   name: { type: String, required: true },
   password: { type: String, required: true },
@@ -42,7 +41,7 @@ const User = mongoose.model('User', new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 }));
 
-const Job = mongoose.model('Job', new mongoose.Schema({
+const Job = mongoose.models.Job || mongoose.model('Job', new mongoose.Schema({
   title: String,
   company: String,
   location: String,
@@ -51,7 +50,7 @@ const Job = mongoose.model('Job', new mongoose.Schema({
   postedDate: { type: Date, default: Date.now }
 }));
 
-const Enquiry = mongoose.model('Enquiry', new mongoose.Schema({
+const Enquiry = mongoose.models.Enquiry || mongoose.model('Enquiry', new mongoose.Schema({
   type: { type: String, enum: ['CANDIDATE', 'EMPLOYER'] },
   name: String,
   email: { type: String, lowercase: true, trim: true },
@@ -66,16 +65,17 @@ const Enquiry = mongoose.model('Enquiry', new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 }));
 
-const Testimonial = mongoose.model('Testimonial', new mongoose.Schema({
+const Testimonial = mongoose.models.Testimonial || mongoose.model('Testimonial', new mongoose.Schema({
   name: String,
   role: String,
   company: String,
   content: String,
+  rating: { type: Number, default: 5 },
   isApproved: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now }
 }));
 
-const Blog = mongoose.model('Blog', new mongoose.Schema({
+const Blog = mongoose.models.Blog || mongoose.model('Blog', new mongoose.Schema({
   title: String,
   excerpt: String,
   content: String,
@@ -101,9 +101,9 @@ const adminOnly = (req: any, res: any, next: any) => {
   next();
 };
 
-// --- ROUTES ---
+// --- API ROUTES ---
 
-// Unified Auth Endpoint
+// Public Auth Endpoints
 app.post('/api/auth/login', async (req, res) => {
   const { email, password } = req.body;
   const inputEmail = email?.toLowerCase().trim();
@@ -111,7 +111,6 @@ app.post('/api/auth/login', async (req, res) => {
   const ENV_ADMIN_PASS = process.env.ADMIN_PASSWORD;
 
   try {
-    // 1. Check for Admin Login via Environment Variable
     if (inputEmail === ADMIN_EMAIL && ENV_ADMIN_PASS && password === ENV_ADMIN_PASS) {
       let admin = await User.findOne({ email: ADMIN_EMAIL, role: 'ADMIN' });
       if (!admin) {
@@ -128,7 +127,6 @@ app.post('/api/auth/login', async (req, res) => {
       return res.json({ token, user: admin });
     }
 
-    // 2. Regular User Login
     const user = await User.findOne({ email: inputEmail });
     if (user && await bcrypt.compare(password, user.password)) {
       const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
@@ -154,10 +152,17 @@ app.post('/api/auth/signup', async (req, res) => {
 
 app.get('/api/auth/me', authenticate, (req, res) => res.json({ user: req.user }));
 
-// Content Endpoints
+// Public Content Endpoints
 app.get('/api/jobs', async (req, res) => res.json(await Job.find().sort({ postedDate: -1 })));
 app.get('/api/blogs', async (req, res) => res.json(await Blog.find().sort({ date: -1 })));
-app.get('/api/testimonials', async (req, res) => res.json(await Testimonial.find({ isApproved: true })));
+app.get('/api/testimonials', async (req, res) => {
+  try {
+    const approvedTestimonials = await Testimonial.find({ isApproved: true }).sort({ createdAt: -1 });
+    res.json(approvedTestimonials);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch testimonials' });
+  }
+});
 
 // Enquiry Submission
 app.post('/api/enquiries', async (req, res) => {
@@ -186,7 +191,15 @@ app.post('/api/blogs', authenticate, adminOnly, async (req, res) => res.json(awa
 app.get('/api/admin/testimonials', authenticate, adminOnly, async (req, res) => res.json(await Testimonial.find().sort({ createdAt: -1 })));
 app.patch('/api/testimonials/:id', authenticate, adminOnly, async (req, res) => res.json(await Testimonial.findByIdAndUpdate(req.params.id, req.body, { new: true })));
 
-// Application Routing
-app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+// --- STATIC FILES & SPA ROUTING ---
+app.use(express.static(__dirname));
+
+app.get('*', (req, res) => {
+  // Prevent catching API routes that were not handled
+  if (req.url.startsWith('/api/')) {
+    return res.status(404).json({ error: 'API endpoint not found' });
+  }
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 app.listen(PORT, () => console.log(`🚀 DishaHire Enterprise Server running on port ${PORT}`));

@@ -246,7 +246,8 @@ const ProtectedAdmin = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-const App: React.FC = () => {
+// Removed React.FC to fix "Property 'children' is missing" error when App is used in root.render
+const App = () => {
   const { isChecking } = useAuth();
 
   // Industry Standard: Professional splash loader during security verification
