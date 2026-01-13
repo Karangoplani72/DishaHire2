@@ -239,7 +239,8 @@ const Footer = () => {
   );
 };
 
-const ProtectedAdmin = ({ children }: { children: React.ReactNode }) => {
+// Fixed: Made children optional to resolve Property 'children' is missing in type '{}' error
+const ProtectedAdmin = ({ children }: { children?: React.ReactNode }) => {
   const { isAdmin, isAuthenticated, isChecking } = useAuth();
   if (isChecking) return null; // Wait for security verification
   if (!isAuthenticated || !isAdmin) return <Navigate to="/admin/login" replace />;

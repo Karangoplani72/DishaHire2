@@ -1,7 +1,7 @@
 
 {
   "name": "dishahire-enterprise",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "type": "module",
   "scripts": {
     "build": "esbuild index.tsx --bundle --outfile=index.bundle.js --format=esm --platform=browser --minify --external:react --external:react-dom --external:react-router-dom --external:lucide-react --external:framer-motion",

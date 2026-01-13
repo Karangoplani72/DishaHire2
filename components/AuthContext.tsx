@@ -48,7 +48,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           localStorage.removeItem('dh_access_token');
         }
       } catch (e) {
-        console.error("Auth verify failed");
+        console.error("Auth verify failed: Server unreachable");
       } finally {
         setIsChecking(false);
       }
@@ -69,9 +69,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(data.user);
         return { success: true };
       }
-      return { success: false, error: data.error };
+      return { success: false, error: data.error || 'Invalid credentials' };
     } catch (e) {
-      return { success: false, error: 'Network failure' };
+      console.error('Login error:', e);
+      return { success: false, error: 'Network failure: Unable to reach authentication server.' };
     }
   };
 
@@ -88,9 +89,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(data.user);
         return { success: true };
       }
-      return { success: false, error: data.error };
+      return { success: false, error: data.error || 'Signup failed' };
     } catch (e) {
-      return { success: false, error: 'Network failure' };
+      console.error('Signup error:', e);
+      return { success: false, error: 'Network failure: Connection to registry lost.' };
     }
   };
 

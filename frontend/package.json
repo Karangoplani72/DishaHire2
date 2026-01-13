@@ -1,6 +1,4 @@
 
 {
-  "name": "dishahire-frontend-deprecated",
-  "private": true,
-  "note": "Use root package.json instead"
+  "note": "Deprecated. Use root package.json."
 }
