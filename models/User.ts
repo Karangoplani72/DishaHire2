@@ -13,17 +13,16 @@ const userSchema = new mongoose.Schema({
     trim: true 
   },
   passwordHash: { type: String, required: true },
-  phoneNumber: { type: String, required: true },
-  city: { type: String, required: true },
-  state: { type: String, required: true },
+  phoneNumber: { type: String, default: '' },
+  city: { type: String, default: '' },
+  state: { type: String, default: '' },
   role: { type: String, enum: ['user', 'admin'], default: 'user' },
-  // Hashed version of the reset token
   resetPasswordToken: { type: String, select: false },
   resetPasswordExpires: { type: Date, select: false },
   lastLogin: Date
 }, { timestamps: true });
 
-// Verify password
+// Password verification instance method
 userSchema.methods.comparePassword = async function(password: string) {
   return bcrypt.compare(password, this.passwordHash);
 };

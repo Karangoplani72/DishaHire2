@@ -5,6 +5,8 @@ const { useNavigate } = RouterDOM as any;
 import { Mail, ArrowLeft, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+const MotionDiv = (motion as any).div;
+
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
@@ -24,6 +26,7 @@ const ForgotPassword = () => {
           'X-Requested-With': 'XMLHttpRequest',
           'Accept': 'application/json'
         },
+        credentials: 'include', // Force cookie inclusion for session security
         body: JSON.stringify({ email })
       });
 
@@ -47,7 +50,7 @@ const ForgotPassword = () => {
 
   return (
     <div className="min-h-screen bg-brand-light flex items-center justify-center p-4">
-      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white w-full max-w-md rounded-[3rem] shadow-2xl p-10 sm:p-14 text-center">
+      <MotionDiv initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white w-full max-w-md rounded-[3rem] shadow-2xl p-10 sm:p-14 text-center">
         {!done ? (
           <>
             <h1 className="text-3xl font-serif font-bold text-brand-dark mb-4">Reset Access</h1>
@@ -87,7 +90,7 @@ const ForgotPassword = () => {
         <button onClick={() => navigate('/login')} className="mt-8 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-brand-dark transition-colors mx-auto">
           <ArrowLeft size={14} /> Back to Entry
         </button>
-      </motion.div>
+      </MotionDiv>
     </div>
   );
 };

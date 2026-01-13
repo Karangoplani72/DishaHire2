@@ -13,34 +13,38 @@ const fetcher = async (url: string, options?: RequestInit, fallbackData?: any) =
   const headers = {
     'Content-Type': 'application/json',
     'X-Requested-With': 'XMLHttpRequest',
+    'Accept': 'application/json',
     ...options?.headers,
   };
 
   const fullUrl = url.startsWith('http') ? url : `${API_BASE}${url}`;
 
   try {
-    const res = await fetch(fullUrl, { ...options, headers });
+    // CRITICAL: Must include credentials for session-based administrative access
+    const res = await fetch(fullUrl, { 
+      ...options, 
+      headers,
+      credentials: 'include'
+    });
     
     const data = await res.json().catch(() => null);
     if (!res.ok) throw new Error(data?.error || `Request failed with status ${res.status}`);
     
     return data || fallbackData;
   } catch (err: any) {
-    console.error(`📡 Secure Gateway Error [${fullUrl}]:`, err.message);
+    console.error(`📡 Data Sync Exception [${fullUrl}]:`, err.message);
     if (fallbackData !== undefined) return fallbackData;
     throw err;
   }
 };
 
 export const db = {
-  // Public
+  // Public Data
   getJobs: (): Promise<Job[]> => fetcher('/api/jobs', {}, []),
   addEnquiry: (enquiry: any): Promise<any> => fetcher('/api/enquiries', { method: 'POST', body: JSON.stringify(enquiry) }),
   
-  // Added getMyApplications to fetch specific user inquiries
+  // Authenticated Data (Requires Cookies)
   getMyApplications: (email?: string): Promise<Enquiry[]> => fetcher(`/api/enquiries/me${email ? `?email=${email}` : ''}`, {}, []),
-
-  // Unprotected Management
   getEnquiries: (): Promise<Enquiry[]> => fetcher('/api/admin/enquiries', {}, []),
   getBlogs: (): Promise<any[]> => fetcher('/api/admin/blogs', {}, []),
   deleteJob: (id: string): Promise<void> => fetcher(`/api/jobs/${id}`, { method: 'DELETE' }),

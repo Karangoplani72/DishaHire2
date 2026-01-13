@@ -19,17 +19,22 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// --- SAFE FETCH UTILITY ---
+// --- SECURE FETCH GATEWAY ---
 const safeFetch = async (url: string, options: RequestInit = {}) => {
   const headers = {
-    ...options.headers,
+    'Content-Type': 'application/json',
     'X-Requested-With': 'XMLHttpRequest',
-    'Accept': 'application/json'
+    'Accept': 'application/json',
+    ...options.headers
   };
 
-  const response = await fetch(url, { ...options, headers });
+  // CRITICAL SECURITY FIX: credentials 'include' is mandatory for cross-origin JWT cookies
+  const response = await fetch(url, { 
+    ...options, 
+    headers,
+    credentials: 'include' 
+  });
   
-  // Defensive check for Content-Type
   const contentType = response.headers.get('content-type');
   let data = null;
 
@@ -37,12 +42,12 @@ const safeFetch = async (url: string, options: RequestInit = {}) => {
     try {
       data = await response.json();
     } catch (e) {
-      console.error('JSON Parsing failed even with header present');
+      console.error('API Response Parse Failure');
     }
   }
 
   if (!response.ok) {
-    throw new Error(data?.error || `Server responded with status ${response.status}`);
+    throw new Error(data?.error || `Gateway Error: ${response.status}`);
   }
 
   return data;
@@ -56,10 +61,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const checkSession = async () => {
       try {
+        // Must use credentials: 'include' via safeFetch to verify existing cookie session
         const data = await safeFetch('/api/auth/me');
         if (data?.user) setUser(data.user);
       } catch (e) {
-        // Suppress session check errors for unauthenticated users
+        // No active session is a valid state for public users
       } finally {
         setLoading(false);
       }
@@ -73,7 +79,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const data = await safeFetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(creds)
       });
       if (data?.user) setUser(data.user);
@@ -88,7 +93,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const data = await safeFetch('/api/auth/register', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData)
       });
       if (data?.user) setUser(data.user);

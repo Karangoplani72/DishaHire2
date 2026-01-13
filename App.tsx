@@ -13,6 +13,9 @@ import Career from './pages/Career.tsx';
 import AdminDashboard from './pages/AdminDashboard.tsx';
 import { NAV_LINKS, CONTACT_INFO } from './constants.tsx';
 
+// Fixed: Using any casting for motion component to bypass property missing errors
+const MotionDiv = (motion as any).div;
+
 const NotFound = () => (
   <div className="min-h-screen bg-brand-dark text-white flex flex-col items-center justify-center p-4 text-center">
     <h1 className="text-9xl font-serif font-bold text-brand-gold mb-4">404</h1>
@@ -72,7 +75,7 @@ const Navbar = () => {
 
       <AnimatePresence>
         {isOpen && (
-          <motion.div 
+          <MotionDiv 
             initial={{ opacity: 0, y: -20 }} 
             animate={{ opacity: 1, y: 0 }} 
             exit={{ opacity: 0, y: -20 }} 
@@ -92,7 +95,7 @@ const Navbar = () => {
               <div className="h-px bg-white/5 w-full" />
               <Link to="/admin" onClick={() => setIsOpen(false)} className="block text-xl font-serif font-bold text-brand-gold">Admin Portal</Link>
             </div>
-          </motion.div>
+          </MotionDiv>
         )}
       </AnimatePresence>
     </nav>

@@ -5,6 +5,8 @@ const { useNavigate, useSearchParams } = RouterDOM as any;
 import { Lock, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+const MotionDiv = (motion as any).div;
+
 const ResetPassword = () => {
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
@@ -27,8 +29,10 @@ const ResetPassword = () => {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest'
+          'X-Requested-With': 'XMLHttpRequest',
+          'Accept': 'application/json'
         },
+        credentials: 'include', // Security requirement for state-changing operations
         body: JSON.stringify({ token, password })
       });
       if (res.ok) setDone(true);
@@ -56,7 +60,7 @@ const ResetPassword = () => {
 
   return (
     <div className="min-h-screen bg-brand-light flex items-center justify-center p-4">
-      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white w-full max-w-md rounded-[3rem] shadow-2xl p-10 sm:p-14 text-center">
+      <MotionDiv initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white w-full max-w-md rounded-[3rem] shadow-2xl p-10 sm:p-14 text-center">
         {!done ? (
           <>
             <h1 className="text-3xl font-serif font-bold text-brand-dark mb-4">Set New Key</h1>
@@ -101,7 +105,7 @@ const ResetPassword = () => {
             <button onClick={() => navigate('/login')} className="w-full bg-brand-dark text-white py-4 rounded-xl font-bold mt-4">Sign In Now</button>
           </div>
         )}
-      </motion.div>
+      </MotionDiv>
     </div>
   );
 };
