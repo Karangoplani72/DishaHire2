@@ -8,7 +8,8 @@ import {
 import { db } from '../utils/db.ts';
 import { useAuth } from '../components/AuthContext.tsx';
 
-const AdminDashboard: React.FC = () => {
+// Removed React.FC typing to resolve "Property 'children' is missing" error when this component is rendered in frontend/App.tsx
+const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'enquiries' | 'jobs' | 'moderation' | 'blog'>('overview');
   const [data, setData] = useState({ enquiries: [], jobs: [], testimonials: [], blogs: [] });
   const [loading, setLoading] = useState(true);
