@@ -13,13 +13,7 @@ const userSchema = new mongoose.Schema({
     trim: true 
   },
   passwordHash: { type: String, required: true },
-  phoneNumber: { type: String, default: '' },
-  city: { type: String, default: '' },
-  state: { type: String, default: '' },
-  role: { type: String, enum: ['user', 'admin'], default: 'user' },
-  resetPasswordToken: { type: String, select: false },
-  resetPasswordExpires: { type: Date, select: false },
-  lastLogin: Date
+  role: { type: String, enum: ['user', 'admin'], default: 'user' }
 }, { timestamps: true });
 
 // Password verification instance method

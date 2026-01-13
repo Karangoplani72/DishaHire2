@@ -4,7 +4,7 @@ import { Job, Enquiry } from '../types.ts';
 const getApiBase = () => {
   const envUrl = (import.meta as any).env?.VITE_API_URL;
   if (envUrl) return envUrl.endsWith('/') ? envUrl.slice(0, -1) : envUrl;
-  return ''; 
+  return 'https://dishahire-backend.onrender.com'; // Default production fallback
 };
 
 const API_BASE = getApiBase();
@@ -20,7 +20,7 @@ const fetcher = async (url: string, options?: RequestInit, fallbackData?: any) =
   const fullUrl = url.startsWith('http') ? url : `${API_BASE}${url}`;
 
   try {
-    // CRITICAL: Must include credentials for session-based administrative access
+    // CRITICAL FIX: Credentials 'include' is required for all data fetching to support cookies
     const res = await fetch(fullUrl, { 
       ...options, 
       headers,
@@ -32,7 +32,7 @@ const fetcher = async (url: string, options?: RequestInit, fallbackData?: any) =
     
     return data || fallbackData;
   } catch (err: any) {
-    console.error(`📡 Data Sync Exception [${fullUrl}]:`, err.message);
+    console.error(`📡 Service Access Exception [${fullUrl}]:`, err.message);
     if (fallbackData !== undefined) return fallbackData;
     throw err;
   }
