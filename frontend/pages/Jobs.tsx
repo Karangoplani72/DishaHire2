@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Briefcase, GraduationCap, Users, Banknote, Search, ArrowUpRight, Filter, Sparkles } from 'lucide-react';
+import { Briefcase, GraduationCap, Users, Banknote, Search, ArrowUpRight, Filter, Sparkles, MapPin } from 'lucide-react';
 import { CONTACT_INFO, API_BASE_URL } from '../constants.tsx';
 
 const MotionDiv = (motion as any).div;
@@ -18,7 +18,7 @@ const Jobs: React.FC = () => {
 
   const fetchJobs = () => {
     setLoading(true);
-    fetch(`${API_BASE_URL}/api/jobs`)
+    fetch(`${API_BASE_URL}/api/jobs`) // Backend only returns non-archived by default
       .then(res => res.json())
       .then(data => {
         setJobs(Array.isArray(data) ? data : []);
@@ -36,7 +36,8 @@ const Jobs: React.FC = () => {
     const matchesSearch = 
       job.title.toLowerCase().includes(search.toLowerCase()) ||
       job.education.toLowerCase().includes(search.toLowerCase()) ||
-      job.industry.toLowerCase().includes(search.toLowerCase());
+      job.industry.toLowerCase().includes(search.toLowerCase()) ||
+      job.location.toLowerCase().includes(search.toLowerCase());
     
     const matchesFilter = activeFilter === 'All' || job.industry === activeFilter;
     
@@ -44,7 +45,7 @@ const Jobs: React.FC = () => {
   });
 
   const handleWhatsAppApply = (job: any) => {
-    const message = `Hi DishaHire Team!%0A%0AI saw this job posting on your website and would like to apply:%0A%0A🚀 *Role:* ${job.title}%0A🎓 *Education:* ${job.education}%0A👫 *Gender:* ${job.gender}%0A💰 *Salary:* ${job.salary}%0A💼 *Industry:* ${job.industry}%0A%0AI have my profile ready. Could you please share the next steps?`;
+    const message = `Hi DishaHire Team!%0A%0AI saw this job posting on your website and would like to apply:%0A%0A🚀 *Role:* ${job.title}%0A📍 *Location:* ${job.location}%0A🎓 *Education:* ${job.education}%0A👫 *Gender:* ${job.gender}%0A💰 *Salary:* ${job.salary}%0A💼 *Industry:* ${job.industry}%0A%0AI have my profile ready. Could you please share the next steps?`;
     window.open(`${CONTACT_INFO.whatsapp}?text=${message}`, '_blank');
   };
 
@@ -75,7 +76,7 @@ const Jobs: React.FC = () => {
               <Search className="text-brand-gold mr-3 sm:mr-4 flex-shrink-0" size={20} />
               <input 
                 type="text" 
-                placeholder="Search roles or education..." 
+                placeholder="Search roles, location or industry..." 
                 className="w-full bg-transparent outline-none text-brand-dark font-medium placeholder:text-gray-300 text-sm sm:text-base"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -121,6 +122,10 @@ const Jobs: React.FC = () => {
                       </div>
                       
                       <div>
+                        <div className="flex items-center text-brand-gold mb-2 space-x-1">
+                          <MapPin size={14} />
+                          <span className="text-[10px] font-black uppercase tracking-widest">{job.location}</span>
+                        </div>
                         <h3 className="text-2xl sm:text-3xl font-serif font-bold mb-6 group-hover:text-brand-gold transition-colors leading-tight">
                           {job.title}
                         </h3>
