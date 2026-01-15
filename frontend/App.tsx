@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import * as RouterDOM from 'react-router-dom';
 const { HashRouter: Router, Routes, Route, Link, useLocation } = RouterDOM as any;
 import { Menu, X, Mail, MapPin, Linkedin, Instagram, MessageCircle, Phone, ArrowRight, Lock } from 'lucide-react';
@@ -9,11 +9,24 @@ import Home from './pages/Home.tsx';
 import About from './pages/About.tsx';
 import Services from './pages/Services.tsx';
 import Jobs from './pages/Jobs.tsx';
+import Terms from './pages/Terms.tsx';
 import AdminLogin from './pages/AdminLogin.tsx';
 import AdminDashboard from './pages/AdminDashboard.tsx';
 import { NAV_LINKS, CONTACT_INFO, INDUSTRIES } from './constants.tsx';
 
 const MotionDiv = (motion as any).div;
+
+/**
+ * ScrollToTop component ensures that every navigation reset the scroll position
+ * to the top of the viewport, providing a standard SPA experience.
+ */
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+};
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -122,6 +135,12 @@ const Footer = () => {
                   </Link>
                 </li>
               ))}
+              <li>
+                <Link to="/terms" className="text-gray-400 hover:text-brand-gold text-sm font-medium flex items-center group transition-colors">
+                  <ArrowRight size={14} className="mr-3 opacity-0 group-hover:opacity-100 transition-all" />
+                  Commercial Terms
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -177,6 +196,7 @@ const Footer = () => {
 const App = () => {
   return (
     <Router>
+      <ScrollToTop />
       <div className="min-h-screen flex flex-col bg-brand-light">
         <Navbar />
         <main className="flex-grow">
@@ -185,6 +205,7 @@ const App = () => {
             <Route path="/about" element={<About />} />
             <Route path="/services" element={<Services />} />
             <Route path="/jobs" element={<Jobs />} />
+            <Route path="/terms" element={<Terms />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
           </Routes>
