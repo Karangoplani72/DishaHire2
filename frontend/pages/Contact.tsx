@@ -351,7 +351,7 @@ const Contact: React.FC = () => {
                </div>
                <p className="text-gray-500 text-xs sm:text-sm leading-relaxed">Prefer a faster response? Our consultants are available on WhatsApp for immediate support.</p>
                <a href={CONTACT_INFO.whatsapp} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 sm:gap-3 w-full py-4 sm:py-5 rounded-full bg-green-50 text-green-600 font-bold hover:bg-green-600 hover:text-white transition-all text-xs sm:text-sm border border-green-100">
-                  <MessageSquare size={18} className="sm:size-[20px]" /> Instant Concierge
+                  <MessageSquare size={18} className="sm:size-[20px]" /> Instant Contact
                </a>
             </div>
           </div>
