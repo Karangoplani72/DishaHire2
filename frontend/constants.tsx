@@ -17,12 +17,21 @@ export const CONTACT_INFO = {
 };
 
 export const INDUSTRIES = [
-  'IT & Technology',
-  'BPO & Customer Support',
-  'Manufacturing',
+  'Information Technology (IT & Tech)',
+  'Healthcare & Life Sciences',
+  'Banking, Finance & Insurance (BFSI)',
+  'Manufacturing & Engineering',
   'Sales & Marketing',
-  'Healthcare',
-  'Finance & Accounts'
+  'Human Resources & Administration',
+  'Retail & E-commerce',
+  'Hospitality & Travel',
+  'Education & Training',
+  'Construction & Real Estate',
+  'Telecom & Networking',
+  'Media, Advertising & Creative',
+  'Logistics & Supply Chain',
+  'Energy & Utilities',
+  'Startups & MSME’s'
 ];
 
 export const COMPANY_TYPES = [

@@ -10,11 +10,20 @@ import {
   ShieldCheck, 
   X, 
   Laptop, 
-  Headset, 
-  Factory, 
-  BarChart3, 
   Stethoscope, 
-  Building2,
+  Landmark, 
+  Factory, 
+  TrendingUp, 
+  UserCheck, 
+  ShoppingBag, 
+  Plane, 
+  GraduationCap, 
+  Building, 
+  Radio, 
+  Megaphone, 
+  Truck, 
+  Zap, 
+  Rocket,
   HelpCircle,
   UserCircle2,
   Briefcase
@@ -23,12 +32,21 @@ import { INDUSTRIES } from '../constants.tsx';
 
 // Industry to Icon Mapping System
 const INDUSTRY_ICONS: Record<string, React.ElementType> = {
-  'IT & Technology': Laptop,
-  'BPO & Customer Support': Headset,
-  'Manufacturing': Factory,
-  'Sales & Marketing': BarChart3,
-  'Healthcare': Stethoscope,
-  'Finance & Accounts': Building2,
+  'Information Technology (IT & Tech)': Laptop,
+  'Healthcare & Life Sciences': Stethoscope,
+  'Banking, Finance & Insurance (BFSI)': Landmark,
+  'Manufacturing & Engineering': Factory,
+  'Sales & Marketing': TrendingUp,
+  'Human Resources & Administration': UserCheck,
+  'Retail & E-commerce': ShoppingBag,
+  'Hospitality & Travel': Plane,
+  'Education & Training': GraduationCap,
+  'Construction & Real Estate': Building,
+  'Telecom & Networking': Radio,
+  'Media, Advertising & Creative': Megaphone,
+  'Logistics & Supply Chain': Truck,
+  'Energy & Utilities': Zap,
+  'Startups & MSME’s': Rocket,
 };
 
 const SelectionModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
@@ -101,7 +119,7 @@ const Home: React.FC = () => {
                 <span>Executive Sourcing Excellence</span>
               </div>
               
-              <h1 className="text-4xl sm:text-6xl lg:text-9xl font-serif font-bold text-white leading-[1.1] sm:leading-[0.9] tracking-tight">
+              <h1 className="text-4xl sm:text-6xl lg:text-8xl font-serif font-bold text-white leading-[1.1] sm:leading-[0.9] tracking-tight">
                 Right Talent, <br className="hidden sm:block"/><span className="text-brand-gold italic">Right Direction.</span>
               </h1>
               
@@ -154,12 +172,12 @@ const Home: React.FC = () => {
                 <MotionDiv 
                   whileHover={{ y: -10 }}
                   key={industry} 
-                  className="p-10 sm:p-16 bg-brand-dark rounded-[2.5rem] sm:rounded-[3rem] text-center group transition-all duration-500 shadow-2xl"
+                  className="p-10 sm:p-12 bg-brand-dark rounded-[2.5rem] sm:rounded-[3rem] text-center group transition-all duration-500 shadow-2xl border border-white/5"
                 >
-                  <div className="w-16 h-16 sm:w-24 sm:h-24 border-2 sm:border-4 border-brand-gold rounded-full flex items-center justify-center mx-auto mb-8 sm:mb-10 text-brand-gold group-hover:bg-brand-gold group-hover:text-brand-dark transition-all duration-500">
-                    <IconComponent size={32} className="sm:size-[40px]" />
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 border-2 sm:border-4 border-brand-gold rounded-full flex items-center justify-center mx-auto mb-8 sm:mb-10 text-brand-gold group-hover:bg-brand-gold group-hover:text-brand-dark transition-all duration-500">
+                    <IconComponent size={32} className="sm:size-[36px]" />
                   </div>
-                  <p className="text-xl sm:text-2xl font-serif font-bold text-white group-hover:text-brand-gold transition-colors">{industry}</p>
+                  <p className="text-lg sm:text-xl font-serif font-bold text-white group-hover:text-brand-gold transition-colors leading-snug">{industry}</p>
                 </MotionDiv>
               );
             })}
