@@ -3,9 +3,31 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 const MotionDiv = (motion as any).div;
 const MotionButton = (motion as any).button;
-import { ArrowRight, ShieldCheck, CheckCircle2, X } from 'lucide-react';
+import { 
+  ArrowRight, 
+  ShieldCheck, 
+  CheckCircle2, 
+  X, 
+  Laptop, 
+  Headset, 
+  Factory, 
+  BarChart3, 
+  Stethoscope, 
+  Building2,
+  HelpCircle 
+} from 'lucide-react';
 import { INDUSTRIES, API_BASE_URL } from '../constants.tsx';
 import { EnquiryType } from '../types.ts';
+
+// Industry to Icon Mapping System
+const INDUSTRY_ICONS: Record<string, React.ElementType> = {
+  'IT & Technology': Laptop,
+  'BPO & Customer Support': Headset,
+  'Manufacturing': Factory,
+  'Sales & Marketing': BarChart3,
+  'Healthcare': Stethoscope,
+  'Finance & Accounts': Building2,
+};
 
 const EnquiryModal: React.FC<{ type: EnquiryType; onClose: () => void }> = ({ type, onClose }) => {
   const [formData, setFormData] = useState({ name: '', email: '', company: '', message: '' });
@@ -183,19 +205,22 @@ const Home: React.FC = () => {
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-10">
-            {INDUSTRIES.map((industry) => (
-              <MotionDiv 
-                whileHover={{ y: -10 }}
-                key={industry} 
-                className="p-10 sm:p-16 bg-brand-dark rounded-[2.5rem] sm:rounded-[3rem] text-center group transition-all duration-500 shadow-2xl"
-              >
-                <div className="w-16 h-16 sm:w-24 sm:h-24 border-2 sm:border-4 border-brand-gold rounded-full flex items-center justify-center mx-auto mb-8 sm:mb-10 text-brand-gold group-hover:bg-brand-gold group-hover:text-brand-dark transition-all duration-500">
-                  <CheckCircle2 size={32} className="sm:size-[40px]" />
-                </div>
-                <p className="text-xl sm:text-2xl font-serif font-bold text-white group-hover:text-brand-gold transition-colors">{industry}</p>
-                <div className="text-[9px] uppercase tracking-widest text-gray-500 mt-4 font-bold">Premium Vertical</div>
-              </MotionDiv>
-            ))}
+            {INDUSTRIES.map((industry) => {
+              const IconComponent = INDUSTRY_ICONS[industry] || HelpCircle;
+              return (
+                <MotionDiv 
+                  whileHover={{ y: -10 }}
+                  key={industry} 
+                  className="p-10 sm:p-16 bg-brand-dark rounded-[2.5rem] sm:rounded-[3rem] text-center group transition-all duration-500 shadow-2xl"
+                >
+                  <div className="w-16 h-16 sm:w-24 sm:h-24 border-2 sm:border-4 border-brand-gold rounded-full flex items-center justify-center mx-auto mb-8 sm:mb-10 text-brand-gold group-hover:bg-brand-gold group-hover:text-brand-dark transition-all duration-500">
+                    <IconComponent size={32} className="sm:size-[40px]" />
+                  </div>
+                  <p className="text-xl sm:text-2xl font-serif font-bold text-white group-hover:text-brand-gold transition-colors">{industry}</p>
+                  <div className="text-[9px] uppercase tracking-widest text-gray-500 mt-4 font-bold">Premium Vertical</div>
+                </MotionDiv>
+              );
+            })}
           </div>
         </div>
       </section>
