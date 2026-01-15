@@ -4,8 +4,8 @@ const MotionDiv = (motion as any).div;
 const MotionButton = (motion as any).button;
 import { ArrowRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { INDUSTRIES } from '../constants.tsx';
-import EnquiryModal from '../components/EnquiryModal.tsx';
-import { EnquiryType } from '../types.ts';
+
+
 
 const Home: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
