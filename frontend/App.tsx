@@ -174,13 +174,35 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0">
-          <p className="text-[10px] font-black uppercase tracking-[0.5em] text-gray-500">
-            © {new Date().getFullYear()} DishaHire Consultancy. All Professional Rights Reserved.
-          </p>
-          <div className="flex space-x-8 text-[9px] font-black uppercase tracking-[0.3em] text-gray-500">
-            <Link to="/services" className="hover:text-brand-gold transition-colors">Privacy Charter</Link>
-            <Link to="/services" className="hover:text-brand-gold transition-colors">Engagement Terms</Link>
+        <div className="pt-12 border-t border-white/5 flex flex-col space-y-8">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0">
+            <p className="text-[10px] font-black uppercase tracking-[0.5em] text-gray-500">
+              © {new Date().getFullYear()} DishaHire Consultancy. All Professional Rights Reserved.
+            </p>
+            <div className="flex space-x-8 text-[9px] font-black uppercase tracking-[0.3em] text-gray-500">
+              <Link to="/services" className="hover:text-brand-gold transition-colors">Privacy Charter</Link>
+              <Link to="/services" className="hover:text-brand-gold transition-colors">Engagement Terms</Link>
+            </div>
+          </div>
+          
+          {/* Developer Credit */}
+          <div className="flex justify-center items-center py-4 group">
+            <div className="h-[1px] flex-grow bg-white/5" />
+            <div className="px-6 text-center">
+              <p className="text-[9px] font-bold uppercase tracking-[0.4em] text-gray-600 mb-1">
+                Engineered for Excellence
+              </p>
+              <a 
+                href="https://karan-portfolio-self.vercel.app/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-[11px] font-serif italic text-gray-400 hover:text-brand-gold transition-all duration-300 flex items-center justify-center gap-2 group"
+              >
+                Website Handcrafted by <span className="font-bold text-gray-300 group-hover:text-brand-gold transition-colors not-italic">Karan Goplani</span>
+                <ArrowRight size={10} className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+              </a>
+            </div>
+            <div className="h-[1px] flex-grow bg-white/5" />
           </div>
         </div>
       </div>

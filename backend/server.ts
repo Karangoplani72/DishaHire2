@@ -20,13 +20,14 @@ const enquirySchema = new mongoose.Schema({
 const Enquiry = mongoose.models.Enquiry || mongoose.model('Enquiry', enquirySchema);
 
 // --- MIDDLEWARE ---
-app.use(helmet());
+// Use casting to any to bypass strict type check issues with Express middleware versions
+app.use(helmet() as any);
 app.use(cors({
   origin: FRONTEND_URL,
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'X-Requested-With']
-}));
-app.use(express.json());
+}) as any);
+app.use(express.json() as any);
 
 // --- PUBLIC ROUTES ---
 app.get('/health', (req, res) => res.json({ status: 'active', timestamp: new Date().toISOString() }));

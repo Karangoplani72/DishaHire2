@@ -2,10 +2,121 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 const MotionDiv = (motion as any).div;
 const MotionButton = (motion as any).button;
-import { ArrowRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, ShieldCheck, CheckCircle2, X } from 'lucide-react';
 import { INDUSTRIES } from '../constants.tsx';
+import { EnquiryType } from '../types.ts';
 
+// Added missing EnquiryModal component to handle employer inquiries
+const EnquiryModal: React.FC<{ type: EnquiryType; onClose: () => void }> = ({ type, onClose }) => {
+  const [formData, setFormData] = useState({ name: '', email: '', company: '', message: '' });
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await fetch('/api/enquiries', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      if (res.ok) setSuccess(true);
+    } catch (err) {
+      console.error('Submission error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (success) {
+    return (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-brand-dark/95 backdrop-blur-md">
+        <MotionDiv 
+          initial={{ scale: 0.9, opacity: 0 }} 
+          animate={{ scale: 1, opacity: 1 }} 
+          className="bg-white p-12 rounded-[3rem] text-center max-w-md w-full shadow-2xl"
+        >
+          <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+            <CheckCircle2 size={40} />
+          </div>
+          <h3 className="text-3xl font-serif font-bold text-brand-dark mb-4">Request Sent</h3>
+          <p className="text-gray-600 mb-8">Our executive staffing partners will contact you shortly to discuss your organizational needs.</p>
+          <button onClick={onClose} className="w-full bg-brand-gold text-brand-dark py-4 rounded-full font-bold hover:bg-yellow-500 transition-colors">Return to Dashboard</button>
+        </MotionDiv>
+      </div>
+    );
+  }
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-brand-dark/95 backdrop-blur-md">
+      <MotionDiv 
+        initial={{ y: 50, opacity: 0 }} 
+        animate={{ y: 0, opacity: 1 }} 
+        className="bg-white rounded-[3rem] overflow-hidden max-w-2xl w-full shadow-2xl relative"
+      >
+        <div className="p-8 sm:p-12">
+          <div className="flex justify-between items-start mb-10">
+            <div>
+              <h3 className="text-4xl font-serif font-bold text-brand-dark">Executive Sourcing</h3>
+              <p className="text-brand-gold font-bold uppercase tracking-widest text-[10px] mt-2">Strategic Talent Acquisition Request</p>
+            </div>
+            <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors"><X size={24} /></button>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid sm:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Full Name</label>
+                <input 
+                  required 
+                  value={formData.name} 
+                  onChange={e => setFormData({...formData, name: e.target.value})} 
+                  className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-brand-gold outline-none text-brand-dark" 
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Corporate Email</label>
+                <input 
+                  required 
+                  type="email" 
+                  value={formData.email} 
+                  onChange={e => setFormData({...formData, email: e.target.value})} 
+                  className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-brand-gold outline-none text-brand-dark" 
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Organization / Department</label>
+              <input 
+                value={formData.company} 
+                onChange={e => setFormData({...formData, company: e.target.value})} 
+                className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-brand-gold outline-none text-brand-dark" 
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Requirement Brief</label>
+              <textarea 
+                required 
+                rows={4} 
+                value={formData.message} 
+                onChange={e => setFormData({...formData, message: e.target.value})} 
+                className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-brand-gold outline-none resize-none text-brand-dark" 
+              />
+            </div>
+            <button 
+              disabled={loading} 
+              type="submit" 
+              className="w-full bg-brand-gold text-brand-dark py-6 rounded-full font-bold text-lg hover:bg-yellow-500 transition-all shadow-lg shadow-brand-gold/20 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? 'Processing...' : 'Submit Engagement Request'} <ArrowRight size={20} className="ml-2" />
+            </button>
+          </form>
+        </div>
+      </MotionDiv>
+    </div>
+  );
+};
 
 const Home: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
