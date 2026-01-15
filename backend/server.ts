@@ -1,4 +1,3 @@
-
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
@@ -21,16 +20,17 @@ const enquirySchema = new mongoose.Schema({
 const Enquiry = mongoose.models.Enquiry || mongoose.model('Enquiry', enquirySchema);
 
 // --- MIDDLEWARE ---
-app.use(helmet());
+// Use casting to any to bypass strict type check issues with Express middleware versions
+app.use(helmet() as any);
 app.use(cors({
   origin: FRONTEND_URL,
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'X-Requested-With']
-}));
-app.use(express.json());
+}) as any);
+app.use(express.json() as any);
 
-// --- ROUTES ---
-app.get('/health', (req, res) => res.json({ status: 'active' }));
+// --- PUBLIC ROUTES ---
+app.get('/health', (req, res) => res.json({ status: 'active', timestamp: new Date().toISOString() }));
 
 app.post('/api/enquiries', async (req, res) => {
   try {
@@ -38,7 +38,7 @@ app.post('/api/enquiries', async (req, res) => {
     await newEnquiry.save();
     res.status(201).json({ success: true });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to process enquiry' });
+    res.status(500).json({ error: 'Internal service failure' });
   }
 });
 
@@ -46,9 +46,9 @@ app.post('/api/enquiries', async (req, res) => {
 const MONGO_URI = process.env.MONGO_URI;
 if (MONGO_URI) {
   mongoose.connect(MONGO_URI).then(() => {
-    app.listen(PORT, () => console.log(`🚀 Production API operational on port ${PORT}`));
+    app.listen(PORT, () => console.log(`🚀 Public API operational on port ${PORT}`));
   });
 } else {
-  console.error('❌ MONGO_URI missing');
+  console.error('❌ FATAL: MONGO_URI missing');
   process.exit(1);
 }
