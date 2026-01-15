@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Briefcase, MapPin, Building2, Search, ArrowUpRight, Clock, Filter, Sparkles } from 'lucide-react';
+import { Briefcase, GraduationCap, Users, Banknote, Search, ArrowUpRight, Filter, Sparkles } from 'lucide-react';
 import { CONTACT_INFO, API_BASE_URL } from '../constants.tsx';
 
 const MotionDiv = (motion as any).div;
@@ -35,8 +35,8 @@ const Jobs: React.FC = () => {
   const filteredJobs = jobs.filter(job => {
     const matchesSearch = 
       job.title.toLowerCase().includes(search.toLowerCase()) ||
-      job.company.toLowerCase().includes(search.toLowerCase()) ||
-      job.location.toLowerCase().includes(search.toLowerCase());
+      job.education.toLowerCase().includes(search.toLowerCase()) ||
+      job.industry.toLowerCase().includes(search.toLowerCase());
     
     const matchesFilter = activeFilter === 'All' || job.industry === activeFilter;
     
@@ -44,7 +44,7 @@ const Jobs: React.FC = () => {
   });
 
   const handleWhatsAppApply = (job: any) => {
-    const message = `Hi DishaHire Team!%0A%0AI saw this job posting on your website and would like to apply:%0A%0A🚀 *Role:* ${job.title}%0A🏢 *Company:* ${job.company}%0A📍 *Location:* ${job.location}%0A💼 *Industry:* ${job.industry}%0A%0AI have my profile ready. Could you please share the next steps?`;
+    const message = `Hi DishaHire Team!%0A%0AI saw this job posting on your website and would like to apply:%0A%0A🚀 *Role:* ${job.title}%0A🎓 *Education:* ${job.education}%0A👫 *Gender:* ${job.gender}%0A💰 *Salary:* ${job.salary}%0A💼 *Industry:* ${job.industry}%0A%0AI have my profile ready. Could you please share the next steps?`;
     window.open(`${CONTACT_INFO.whatsapp}?text=${message}`, '_blank');
   };
 
@@ -62,7 +62,7 @@ const Jobs: React.FC = () => {
             </div>
             <h1 className="text-4xl sm:text-6xl md:text-8xl font-serif font-bold mb-6 sm:mb-8 tracking-tight">Elite <span className="text-brand-gold italic">Opportunities</span></h1>
             <p className="text-base sm:text-xl text-gray-400 max-w-2xl mx-auto font-serif italic leading-relaxed">
-              Discover high-impact roles at leading organizations, curated exclusively for the top 1% of talent.
+              Curated mandates for professional excellence across diverse industries.
             </p>
           </MotionDiv>
         </div>
@@ -75,7 +75,7 @@ const Jobs: React.FC = () => {
               <Search className="text-brand-gold mr-3 sm:mr-4 flex-shrink-0" size={20} />
               <input 
                 type="text" 
-                placeholder="Search roles or locations..." 
+                placeholder="Search roles or education..." 
                 className="w-full bg-transparent outline-none text-brand-dark font-medium placeholder:text-gray-300 text-sm sm:text-base"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -97,12 +97,12 @@ const Jobs: React.FC = () => {
           </div>
 
           {loading ? (
-            <div className="text-center py-20 sm:py-32">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 border-4 border-brand-gold border-t-transparent rounded-full animate-spin mx-auto mb-8" />
-              <p className="text-gray-500 font-serif italic text-lg sm:text-xl">Accessing secure career database...</p>
+            <div className="text-center py-20">
+              <div className="w-16 h-16 border-4 border-brand-gold border-t-transparent rounded-full animate-spin mx-auto mb-8" />
+              <p className="text-gray-500 font-serif italic text-lg">Accessing mandates...</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredJobs.length > 0 ? (
                 filteredJobs.map((job) => (
                   <MotionDiv 
@@ -110,84 +110,65 @@ const Jobs: React.FC = () => {
                     whileHover={{ y: -10 }}
                     className="bg-brand-dark p-8 sm:p-10 rounded-[2.5rem] sm:rounded-[4rem] text-white border border-white/5 flex flex-col justify-between group h-full shadow-4xl relative overflow-hidden"
                   >
-                    <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity hidden sm:block">
-                      <Briefcase size={120} />
-                    </div>
-
                     <div className="space-y-6 sm:space-y-8 relative z-10">
                       <div className="flex justify-between items-start">
                         <div className="p-3 sm:p-4 bg-brand-gold/10 rounded-[1.5rem] text-brand-gold border border-brand-gold/20">
                           <Briefcase size={24} className="sm:size-[28px]" />
                         </div>
-                        <div className="flex flex-col items-end">
-                          <span className="text-[9px] font-black uppercase tracking-widest text-brand-gold bg-brand-gold/5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-brand-gold/10">
-                            {job.industry}
-                          </span>
-                        </div>
+                        <span className="text-[9px] font-black uppercase tracking-widest text-brand-gold bg-brand-gold/5 px-3 py-1.5 rounded-full border border-brand-gold/10">
+                          {job.industry}
+                        </span>
                       </div>
                       
                       <div>
-                        <h3 className="text-2xl sm:text-3xl font-serif font-bold mb-3 sm:mb-4 group-hover:text-brand-gold transition-colors leading-tight">
+                        <h3 className="text-2xl sm:text-3xl font-serif font-bold mb-6 group-hover:text-brand-gold transition-colors leading-tight">
                           {job.title}
                         </h3>
-                        <div className="space-y-2">
-                          <div className="flex items-center text-gray-300 font-medium">
-                            <Building2 size={14} className="mr-3 text-brand-gold flex-shrink-0" /> 
-                            <span className="tracking-wide uppercase text-[11px] font-bold">{job.company}</span>
+                        
+                        <div className="space-y-4">
+                          <div className="flex items-start">
+                            <GraduationCap size={18} className="mr-4 text-brand-gold flex-shrink-0 mt-0.5" />
+                            <div>
+                              <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Education Required</p>
+                              <p className="text-gray-200 text-sm font-medium">{job.education}</p>
+                            </div>
                           </div>
-                          <div className="flex items-center text-gray-400">
-                            <MapPin size={14} className="mr-3 text-brand-gold flex-shrink-0" /> 
-                            <span className="text-[13px]">{job.location}</span>
+                          
+                          <div className="flex items-start">
+                            <Users size={18} className="mr-4 text-brand-gold flex-shrink-0 mt-0.5" />
+                            <div>
+                              <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Gender Preference</p>
+                              <p className="text-gray-200 text-sm font-medium">{job.gender}</p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-start">
+                            <Banknote size={18} className="mr-4 text-brand-gold flex-shrink-0 mt-0.5" />
+                            <div>
+                              <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Salary Range</p>
+                              <p className="text-brand-gold font-bold text-base">{job.salary}</p>
+                            </div>
                           </div>
                         </div>
                       </div>
-                      
-                      <div className="h-[1px] bg-gradient-to-r from-brand-gold/30 to-transparent w-full" />
-                      
-                      <p className="text-gray-400 text-[13px] sm:text-sm leading-relaxed italic font-serif line-clamp-4 sm:line-clamp-none group-hover:text-gray-300 transition-colors">
-                        "{job.description}"
-                      </p>
                     </div>
 
                     <button 
                       onClick={() => handleWhatsAppApply(job)}
-                      className="mt-8 sm:mt-12 bg-brand-gold text-brand-dark py-4 sm:py-5 rounded-full font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] text-[11px] sm:text-xs flex items-center justify-center hover:bg-yellow-500 transition-all shadow-xl shadow-brand-gold/10 group-hover:scale-[1.02]"
+                      className="mt-10 bg-brand-gold text-brand-dark py-4 sm:py-5 rounded-full font-black uppercase tracking-[0.2em] text-[11px] flex items-center justify-center hover:bg-yellow-500 transition-all shadow-xl shadow-brand-gold/10"
                     >
                       Instant WhatsApp Apply <ArrowUpRight size={16} className="ml-2" />
                     </button>
                   </MotionDiv>
                 ))
               ) : (
-                <div className="col-span-full text-center py-20 sm:py-32 bg-white rounded-[2.5rem] sm:rounded-[4rem] shadow-2xl border border-gray-100 px-6">
-                  <div className="w-20 h-20 sm:w-32 sm:h-32 bg-brand-light rounded-full flex items-center justify-center mx-auto mb-8 sm:mb-10 text-gray-200">
-                    <Search size={40} className="sm:size-[64px]" />
-                  </div>
-                  <h3 className="text-2xl sm:text-3xl font-serif font-bold text-brand-dark mb-4">No Mandates Found</h3>
-                  <p className="text-gray-500 font-serif italic text-base sm:text-lg max-w-md mx-auto mb-8">
-                    We couldn't find any opportunities matching your current selection. 
-                  </p>
-                  <button 
-                    onClick={() => { setSearch(''); setActiveFilter('All'); }} 
-                    className="text-brand-gold font-black uppercase tracking-widest text-[10px] sm:text-[11px] hover:underline"
-                  >
-                    Reset Global Search
-                  </button>
+                <div className="col-span-full text-center py-20 bg-white rounded-[2.5rem] shadow-2xl px-6">
+                  <h3 className="text-2xl font-serif font-bold text-brand-dark mb-4">No Mandates Found</h3>
+                  <button onClick={() => { setSearch(''); setActiveFilter('All'); }} className="text-brand-gold font-black uppercase tracking-widest text-[10px] hover:underline">Reset Search</button>
                 </div>
               )}
             </div>
           )}
-        </div>
-      </section>
-
-      <section className="py-16 sm:py-20 bg-brand-dark/5 border-t border-brand-dark/5 px-4 overflow-hidden">
-        <div className="max-w-7xl mx-auto text-center">
-          <p className="text-[9px] font-black uppercase tracking-[0.4em] sm:tracking-[0.5em] text-gray-400 mb-8">Global Placement Partners</p>
-          <div className="flex flex-wrap justify-center gap-8 sm:gap-12 grayscale opacity-40">
-            <span className="text-lg sm:text-2xl font-serif font-bold text-brand-dark">TECHCORE</span>
-            <span className="text-lg sm:text-2xl font-serif font-bold text-brand-dark">BEYOND HR</span>
-            <span className="text-lg sm:text-2xl font-serif font-bold text-brand-dark">VIRTUE GROUP</span>
-            <span className="text-lg sm:text-2xl font-serif font-bold text-brand-dark">ELITE SOLUTIONS</span>
-          </div>
         </div>
       </section>
     </div>

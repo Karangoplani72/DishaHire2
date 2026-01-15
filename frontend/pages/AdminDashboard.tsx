@@ -1,10 +1,9 @@
 
-
 import React, { useEffect, useState } from 'react';
 import * as RouterDOM from 'react-router-dom';
 const { useNavigate } = RouterDOM as any;
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Trash2, Briefcase, LayoutDashboard, LogOut, CheckCircle2, X, AlertCircle, MapPin, Building2 } from 'lucide-react';
+import { Plus, Trash2, Briefcase, LayoutDashboard, LogOut, CheckCircle2, X, AlertCircle, GraduationCap, Users, Banknote } from 'lucide-react';
 import { INDUSTRIES, API_BASE_URL } from '../constants.tsx';
 
 const MotionDiv = (motion as any).div;
@@ -17,10 +16,10 @@ const AdminDashboard: React.FC = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [newJob, setNewJob] = useState({
     title: '',
-    company: '',
-    location: '',
-    industry: INDUSTRIES[0],
-    description: ''
+    education: '',
+    gender: 'Any',
+    salary: '',
+    industry: INDUSTRIES[0]
   });
 
   useEffect(() => {
@@ -54,7 +53,7 @@ const AdminDashboard: React.FC = () => {
       });
       if (res.ok) {
         setShowAddForm(false);
-        setNewJob({ title: '', company: '', location: '', industry: INDUSTRIES[0], description: '' });
+        setNewJob({ title: '', education: '', gender: 'Any', salary: '', industry: INDUSTRIES[0] });
         fetchJobs();
       } else {
         alert("Failed to save mandate. Check required fields.");
@@ -84,6 +83,72 @@ const AdminDashboard: React.FC = () => {
     navigate('/admin/login');
   };
 
+  const FormContent = ({ isMobile = false }) => (
+    <form onSubmit={handleAddJob} className="space-y-4">
+      <div>
+        <label className={`text-[9px] font-black uppercase tracking-widest ${isMobile ? 'text-gray-400' : 'text-gray-500'} ml-1`}>Job Title</label>
+        <input 
+          required
+          placeholder="e.g. Senior Software Engineer"
+          className="w-full mt-1 bg-brand-accent/50 border border-white/5 p-3 rounded-xl text-sm outline-none focus:border-brand-gold transition-colors text-white"
+          value={newJob.title}
+          onChange={e => setNewJob({...newJob, title: e.target.value})}
+        />
+      </div>
+      <div>
+        <label className={`text-[9px] font-black uppercase tracking-widest ${isMobile ? 'text-gray-400' : 'text-gray-500'} ml-1`}>Education Required</label>
+        <input 
+          required
+          placeholder="e.g. B.Tech / MBA / Graduate"
+          className="w-full mt-1 bg-brand-accent/50 border border-white/5 p-3 rounded-xl text-sm outline-none focus:border-brand-gold transition-colors text-white"
+          value={newJob.education}
+          onChange={e => setNewJob({...newJob, education: e.target.value})}
+        />
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+         <div>
+          <label className={`text-[9px] font-black uppercase tracking-widest ${isMobile ? 'text-gray-400' : 'text-gray-500'} ml-1`}>Gender</label>
+          <select 
+            className="w-full mt-1 bg-brand-accent/50 border border-white/5 p-3 rounded-xl text-xs outline-none focus:border-brand-gold appearance-none cursor-pointer transition-colors text-white"
+            value={newJob.gender}
+            onChange={e => setNewJob({...newJob, gender: e.target.value})}
+          >
+            <option value="Any" className="bg-brand-dark">Any</option>
+            <option value="Male" className="bg-brand-dark">Male</option>
+            <option value="Female" className="bg-brand-dark">Female</option>
+          </select>
+        </div>
+        <div>
+          <label className={`text-[9px] font-black uppercase tracking-widest ${isMobile ? 'text-gray-400' : 'text-gray-500'} ml-1`}>Industry</label>
+          <select 
+            className="w-full mt-1 bg-brand-accent/50 border border-white/5 p-3 rounded-xl text-xs outline-none focus:border-brand-gold appearance-none cursor-pointer transition-colors text-white"
+            value={newJob.industry}
+            onChange={e => setNewJob({...newJob, industry: e.target.value})}
+          >
+            {INDUSTRIES.map(i => <option key={i} value={i} className="bg-brand-dark">{i}</option>)}
+          </select>
+        </div>
+      </div>
+      <div>
+        <label className={`text-[9px] font-black uppercase tracking-widest ${isMobile ? 'text-gray-400' : 'text-gray-500'} ml-1`}>Salary Range</label>
+        <input 
+          required
+          placeholder="e.g. 5 LPA - 8 LPA"
+          className="w-full mt-1 bg-brand-accent/50 border border-white/5 p-3 rounded-xl text-sm outline-none focus:border-brand-gold transition-colors text-white"
+          value={newJob.salary}
+          onChange={e => setNewJob({...newJob, salary: e.target.value})}
+        />
+      </div>
+      <button 
+        type="submit"
+        disabled={isSubmitting}
+        className="w-full bg-brand-gold text-brand-dark py-4 rounded-full font-bold flex items-center justify-center hover:bg-yellow-500 transition-all shadow-xl shadow-brand-gold/10 disabled:opacity-50 mt-4"
+      >
+        {isSubmitting ? 'Syncing...' : 'Confirm Posting'} <CheckCircle2 size={18} className="ml-2" />
+      </button>
+    </form>
+  );
+
   return (
     <div className="bg-brand-light min-h-screen p-4 sm:p-8">
       <div className="max-w-7xl mx-auto">
@@ -107,7 +172,6 @@ const AdminDashboard: React.FC = () => {
         </header>
 
         <div className="grid lg:grid-cols-3 gap-8 sm:gap-12">
-          {/* Main List */}
           <div className="lg:col-span-2 space-y-6 sm:space-y-8">
             <div className="flex justify-between items-center px-2 sm:px-0">
               <h2 className="text-lg sm:text-xl font-serif font-bold text-brand-dark flex items-center">
@@ -130,8 +194,7 @@ const AdminDashboard: React.FC = () => {
               <div className="space-y-4">
                 {jobs.length === 0 ? (
                   <div className="bg-white p-10 sm:p-12 rounded-[1.5rem] sm:rounded-[2rem] text-center border-2 border-dashed border-gray-200">
-                    {/* Fixed Duplicate Attribute: Merged className attributes and kept size prop */}
-                    <AlertCircle className="mx-auto text-gray-300 mb-4 sm:size-[48px]" size={40} />
+                    <AlertCircle className="mx-auto text-gray-300 mb-4" size={40} />
                     <p className="text-gray-400 italic text-sm">No active job mandates in the database.</p>
                   </div>
                 ) : (
@@ -149,9 +212,10 @@ const AdminDashboard: React.FC = () => {
                         </div>
                         <div className="overflow-hidden">
                           <h3 className="text-base sm:text-xl font-serif font-bold text-brand-dark truncate">{job.title}</h3>
-                          <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-[10px] sm:text-xs text-gray-500">
-                             <div className="flex items-center truncate"><Building2 size={10} className="mr-1 flex-shrink-0" /> {job.company}</div>
-                             <div className="flex items-center"><MapPin size={10} className="mr-1 flex-shrink-0" /> {job.location}</div>
+                          <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-[10px] sm:text-xs text-gray-500 font-medium">
+                             <div className="flex items-center"><GraduationCap size={12} className="mr-1 text-brand-gold" /> {job.education}</div>
+                             <div className="flex items-center"><Banknote size={12} className="mr-1 text-brand-gold" /> {job.salary}</div>
+                             <div className="flex items-center"><Users size={12} className="mr-1 text-brand-gold" /> {job.gender}</div>
                           </div>
                           <span className="inline-block mt-2 px-2.5 py-0.5 bg-brand-light text-brand-gold text-[8px] font-black uppercase tracking-widest rounded-full">
                             {job.industry}
@@ -162,7 +226,7 @@ const AdminDashboard: React.FC = () => {
                         onClick={() => handleDeleteJob(job._id)}
                         className="p-3 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all flex-shrink-0"
                       >
-                        <Trash2 size={18} className="sm:size-[20px]" />
+                        <Trash2 size={18} />
                       </button>
                     </MotionDiv>
                   ))
@@ -171,76 +235,17 @@ const AdminDashboard: React.FC = () => {
             )}
           </div>
 
-          {/* Desktop Sidebar Form */}
           <div className="hidden lg:block">
             <div className="sticky top-32 bg-brand-dark p-8 rounded-[2.5rem] text-white shadow-4xl border border-white/5">
               <h2 className="text-xl font-serif font-bold mb-6 flex items-center">
                 <Plus className="mr-2 text-brand-gold" size={20} /> New Mandate
               </h2>
-              <form onSubmit={handleAddJob} className="space-y-4">
-                <div>
-                  <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 ml-1">Job Title</label>
-                  <input 
-                    required
-                    className="w-full mt-1 bg-brand-accent/50 border border-white/5 p-3 rounded-xl text-sm outline-none focus:border-brand-gold transition-colors"
-                    value={newJob.title}
-                    onChange={e => setNewJob({...newJob, title: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 ml-1">Company</label>
-                  <input 
-                    required
-                    className="w-full mt-1 bg-brand-accent/50 border border-white/5 p-3 rounded-xl text-sm outline-none focus:border-brand-gold transition-colors"
-                    value={newJob.company}
-                    onChange={e => setNewJob({...newJob, company: e.target.value})}
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                   <div>
-                    <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 ml-1">Location</label>
-                    <input 
-                      required
-                      className="w-full mt-1 bg-brand-accent/50 border border-white/5 p-3 rounded-xl text-sm outline-none focus:border-brand-gold transition-colors"
-                      value={newJob.location}
-                      onChange={e => setNewJob({...newJob, location: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 ml-1">Industry</label>
-                    <select 
-                      className="w-full mt-1 bg-brand-accent/50 border border-white/5 p-3 rounded-xl text-xs outline-none focus:border-brand-gold appearance-none cursor-pointer transition-colors"
-                      value={newJob.industry}
-                      onChange={e => setNewJob({...newJob, industry: e.target.value})}
-                    >
-                      {INDUSTRIES.map(i => <option key={i} value={i} className="bg-brand-dark">{i}</option>)}
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 ml-1">Brief</label>
-                  <textarea 
-                    required
-                    rows={3}
-                    className="w-full mt-1 bg-brand-accent/50 border border-white/5 p-3 rounded-xl text-sm outline-none focus:border-brand-gold resize-none transition-colors"
-                    value={newJob.description}
-                    onChange={e => setNewJob({...newJob, description: e.target.value})}
-                  />
-                </div>
-                <button 
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full bg-brand-gold text-brand-dark py-4 rounded-full font-bold flex items-center justify-center hover:bg-yellow-500 transition-all shadow-xl shadow-brand-gold/10 disabled:opacity-50 mt-4"
-                >
-                  {isSubmitting ? 'Syncing...' : 'Confirm Posting'} <CheckCircle2 size={18} className="ml-2" />
-                </button>
-              </form>
+              <FormContent />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Mobile Modal Form */}
       <AnimatePresence>
         {showAddForm && (
           <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-brand-dark/95 backdrop-blur-sm lg:hidden">
@@ -256,22 +261,7 @@ const AdminDashboard: React.FC = () => {
                     <X size={24} />
                   </button>
                 </div>
-                <form onSubmit={handleAddJob} className="space-y-4">
-                  <input placeholder="Job Title" required className="w-full bg-brand-accent/50 p-4 rounded-xl text-white border border-white/5 outline-none text-sm" value={newJob.title} onChange={e => setNewJob({...newJob, title: e.target.value})} />
-                  <input placeholder="Company Name" required className="w-full bg-brand-accent/50 p-4 rounded-xl text-white border border-white/5 outline-none text-sm" value={newJob.company} onChange={e => setNewJob({...newJob, company: e.target.value})} />
-                  <input placeholder="Location" required className="w-full bg-brand-accent/50 p-4 rounded-xl text-white border border-white/5 outline-none text-sm" value={newJob.location} onChange={e => setNewJob({...newJob, location: e.target.value})} />
-                  <select 
-                    className="w-full bg-brand-accent/50 p-4 rounded-xl text-white border border-white/5 outline-none text-sm"
-                    value={newJob.industry}
-                    onChange={e => setNewJob({...newJob, industry: e.target.value})}
-                  >
-                    {INDUSTRIES.map(i => <option key={i} value={i} className="bg-brand-dark">{i}</option>)}
-                  </select>
-                  <textarea placeholder="Job Brief" required rows={3} className="w-full bg-brand-accent/50 p-4 rounded-xl text-white border border-white/5 outline-none resize-none text-sm" value={newJob.description} onChange={e => setNewJob({...newJob, description: e.target.value})} />
-                  <button type="submit" disabled={isSubmitting} className="w-full bg-brand-gold text-brand-dark py-5 rounded-full font-bold shadow-lg shadow-brand-gold/10 text-base mt-2">
-                    {isSubmitting ? 'Syncing...' : 'Publish Mandate'}
-                  </button>
-                </form>
+                <FormContent isMobile />
              </MotionDiv>
           </div>
         )}
