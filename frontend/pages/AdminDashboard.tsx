@@ -1,12 +1,12 @@
 
 import React, { useEffect, useState } from 'react';
 import * as RouterDOM from 'react-router-dom';
-const { useNavigate } = RouterDOM as any;
+const { useNavigate, Link } = RouterDOM as any;
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, Trash2, Briefcase, LayoutDashboard, LogOut, X, 
   GraduationCap, Users, Banknote, Archive, MapPin, Info, History, Calendar, Download, 
-  Building2, UserCircle2, Filter, Globe, Mail, Phone, ExternalLink, Menu
+  Building2, UserCircle2, Filter, Globe, Mail, Phone, ExternalLink, Menu, ArrowLeft
 } from 'lucide-react';
 import { API_BASE_URL } from '../constants.tsx';
 
@@ -178,7 +178,11 @@ const AdminDashboard: React.FC = () => {
           <NavItem id="companies" icon={Building2} label="Leads" />
           <NavItem id="candidates" icon={UserCircle2} label="Applicants" />
         </nav>
-        <div className="pt-6 border-t border-white/10">
+        <div className="pt-6 border-t border-white/10 space-y-2">
+          <Link to="/" className="w-full flex items-center space-x-4 px-6 py-4 rounded-2xl text-gray-400 hover:text-brand-gold hover:bg-white/5 transition-all">
+            <ArrowLeft size={20} />
+            <span className="text-xs uppercase tracking-widest font-bold">Back to Site</span>
+          </Link>
           <button onClick={handleLogout} className="w-full flex items-center space-x-4 px-6 py-4 rounded-2xl text-gray-400 hover:text-red-400 transition-all">
             <LogOut size={20} />
             <span className="text-xs uppercase tracking-widest font-bold">Log Out</span>
@@ -209,9 +213,15 @@ const AdminDashboard: React.FC = () => {
                 <NavItem id="companies" icon={Building2} label="Companies" />
                 <NavItem id="candidates" icon={UserCircle2} label="Candidates" />
               </nav>
-              <button onClick={handleLogout} className="w-full mt-auto flex items-center space-x-4 px-6 py-4 text-red-400 font-bold uppercase tracking-widest text-[10px]">
-                <LogOut size={20} /> Logout Account
-              </button>
+              <div className="mt-auto space-y-2">
+                <Link to="/" className="w-full flex items-center space-x-4 px-6 py-4 rounded-2xl text-gray-400 hover:text-brand-gold transition-all">
+                  <ArrowLeft size={20} />
+                  <span className="text-[10px] uppercase tracking-widest font-bold">Back to Website</span>
+                </Link>
+                <button onClick={handleLogout} className="w-full flex items-center space-x-4 px-6 py-4 text-red-400 font-bold uppercase tracking-widest text-[10px]">
+                  <LogOut size={20} /> Logout Account
+                </button>
+              </div>
             </MotionDiv>
           </MotionDiv>
         )}
