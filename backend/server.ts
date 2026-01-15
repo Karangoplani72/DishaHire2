@@ -89,16 +89,26 @@ app.post('/api/auth/login', (req, res) => {
   }
 });
 
+// --- HELPER FOR DATE QUERY ---
+const getDateQuery = (startDate?: any, endDate?: any) => {
+  let query: any = {};
+  if (startDate || endDate) {
+    query.createdAt = {};
+    if (startDate) query.createdAt.$gte = new Date(startDate as string);
+    if (endDate) {
+      const end = new Date(endDate as string);
+      end.setHours(23, 59, 59, 999);
+      query.createdAt.$lte = end;
+    }
+  }
+  return query;
+};
+
 // --- STATS ---
 app.get('/api/admin/stats', async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
-    let query: any = {};
-    if (startDate || endDate) {
-      query.createdAt = {};
-      if (startDate) query.createdAt.$gte = new Date(startDate as string);
-      if (endDate) query.createdAt.$lte = new Date(endDate as string);
-    }
+    const query = getDateQuery(startDate, endDate);
 
     const jobCount = await Job.countDocuments(query);
     const companyCount = await CompanyEnquiry.countDocuments(query);
@@ -113,8 +123,11 @@ app.get('/api/admin/stats', async (req, res) => {
 // --- JOBS ---
 app.get('/api/jobs', async (req, res) => {
   try {
-    const { includeArchived } = req.query;
-    const query = includeArchived === 'true' ? {} : { isArchived: false };
+    const { includeArchived, startDate, endDate } = req.query;
+    let query = getDateQuery(startDate, endDate);
+    if (includeArchived !== 'true') {
+      query.isArchived = false;
+    }
     const jobs = await Job.find(query).sort({ createdAt: -1 });
     res.json(jobs);
   } catch (err) {
@@ -174,14 +187,18 @@ app.post('/api/enquiries/candidate', async (req, res) => {
 
 app.get('/api/admin/enquiries/company', async (req, res) => {
   try {
-    const data = await CompanyEnquiry.find().sort({ createdAt: -1 });
+    const { startDate, endDate } = req.query;
+    const query = getDateQuery(startDate, endDate);
+    const data = await CompanyEnquiry.find(query).sort({ createdAt: -1 });
     res.json(data);
   } catch (err) { res.status(500).json({ error: 'Fetch failed.' }); }
 });
 
 app.get('/api/admin/enquiries/candidate', async (req, res) => {
   try {
-    const data = await CandidateEnquiry.find().sort({ createdAt: -1 });
+    const { startDate, endDate } = req.query;
+    const query = getDateQuery(startDate, endDate);
+    const data = await CandidateEnquiry.find(query).sort({ createdAt: -1 });
     res.json(data);
   } catch (err) { res.status(500).json({ error: 'Fetch failed.' }); }
 });

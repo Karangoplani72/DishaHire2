@@ -27,6 +27,10 @@ const ScrollToTop = () => {
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const isAdmin = location.pathname.startsWith('/admin/dashboard');
+
+  // Hide Navbar if on admin dashboard (optional, but requested for dashboard feel)
+  if (isAdmin) return null;
 
   return (
     <nav className="bg-brand-dark text-white sticky top-0 z-50 shadow-xl border-b border-white/5">
@@ -90,6 +94,11 @@ const Navbar = () => {
 };
 
 const Footer = () => {
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith('/admin/dashboard');
+
+  if (isAdmin) return null;
+
   return (
     <footer className="bg-brand-dark text-white pt-24 pb-12 border-t border-white/10 relative overflow-hidden">
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none">

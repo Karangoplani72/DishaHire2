@@ -25,9 +25,12 @@ const AdminDashboard: React.FC = () => {
   const [jobView, setJobView] = useState<'active' | 'archived'>('active');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
-  // Filters
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  // Tab-specific filters
+  const [filters, setFilters] = useState({
+    jobs: { start: '', end: '' },
+    companies: { start: '', end: '' },
+    candidates: { start: '', end: '' }
+  });
 
   const [newJob, setNewJob] = useState({
     title: '', education: '', gender: 'Any', salary: '', industry: '', location: '', otherInfo: ''
@@ -44,13 +47,18 @@ const AdminDashboard: React.FC = () => {
   const fetchAllData = async () => {
     setLoading(true);
     try {
-      const statsUrl = `${API_BASE_URL}/api/admin/stats?startDate=${startDate}&endDate=${endDate}`;
-      
+      // Use current tab filters if appropriate, or just fetch all for stats
+      const currentFilters = activeTab === 'jobs' ? filters.jobs :
+                             activeTab === 'companies' ? filters.companies :
+                             activeTab === 'candidates' ? filters.candidates : { start: '', end: '' };
+
+      const filterQuery = `startDate=${currentFilters.start}&endDate=${currentFilters.end}`;
+
       const [jobsRes, companyRes, candidateRes, statsRes] = await Promise.all([
-        fetch(`${API_BASE_URL}/api/jobs?includeArchived=true`),
-        fetch(`${API_BASE_URL}/api/admin/enquiries/company`),
-        fetch(`${API_BASE_URL}/api/admin/enquiries/candidate`),
-        fetch(statsUrl)
+        fetch(`${API_BASE_URL}/api/jobs?includeArchived=true&${filterQuery}`),
+        fetch(`${API_BASE_URL}/api/admin/enquiries/company?${filterQuery}`),
+        fetch(`${API_BASE_URL}/api/admin/enquiries/candidate?${filterQuery}`),
+        fetch(`${API_BASE_URL}/api/admin/stats`) // Overview stats always all-time
       ]);
 
       const [jobsData, companyData, candidateData, statsData] = await Promise.all([
@@ -66,6 +74,11 @@ const AdminDashboard: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Re-fetch when filter is applied via the button in each tab
+  const handleApplyFilter = () => {
+    fetchAllData();
   };
 
   const handleAddJob = async (e: React.FormEvent) => {
@@ -128,6 +141,40 @@ const AdminDashboard: React.FC = () => {
       <Icon size={20} />
       <span className="text-sm uppercase tracking-widest">{label}</span>
     </button>
+  );
+
+  const DateFilterUI = ({ tab }: { tab: 'jobs' | 'companies' | 'candidates' }) => (
+    <div className="bg-white p-6 rounded-[2rem] shadow-xl mb-8 border border-gray-50">
+      <div className="flex flex-col md:flex-row items-end gap-6">
+        <div className="flex-1 w-full">
+          <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-2 block">Start Date</label>
+          <div className="relative">
+            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-gold" size={16} />
+            <input 
+              type="date" 
+              className="w-full pl-12 pr-4 py-3 bg-gray-50 rounded-2xl text-sm border-none focus:ring-2 focus:ring-brand-gold outline-none" 
+              value={filters[tab].start} 
+              onChange={e => setFilters({...filters, [tab]: { ...filters[tab], start: e.target.value }})} 
+            />
+          </div>
+        </div>
+        <div className="flex-1 w-full">
+          <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-2 block">End Date</label>
+          <div className="relative">
+            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-gold" size={16} />
+            <input 
+              type="date" 
+              className="w-full pl-12 pr-4 py-3 bg-gray-50 rounded-2xl text-sm border-none focus:ring-2 focus:ring-brand-gold outline-none" 
+              value={filters[tab].end} 
+              onChange={e => setFilters({...filters, [tab]: { ...filters[tab], end: e.target.value }})} 
+            />
+          </div>
+        </div>
+        <button onClick={handleApplyFilter} className="bg-brand-dark text-brand-gold px-8 py-3.5 rounded-2xl font-bold text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-black transition-all shadow-lg">
+          <Filter size={14} /> Filter List
+        </button>
+      </div>
+    </div>
   );
 
   return (
@@ -216,7 +263,7 @@ const AdminDashboard: React.FC = () => {
             <MotionDiv key="overview" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
               <div className="mb-12">
                 <h2 className="text-3xl font-serif font-bold text-brand-dark mb-2">Platform Performance</h2>
-                <p className="text-gray-500 text-[10px] uppercase tracking-[0.4em] font-black">Analytical Oversight & Growth Metrics</p>
+                <p className="text-gray-500 text-[10px] uppercase tracking-[0.4em] font-black">Analytical Oversight & All-Time Metrics</p>
               </div>
 
               {/* Stats Grid */}
@@ -235,29 +282,6 @@ const AdminDashboard: React.FC = () => {
                   </div>
                 ))}
               </div>
-
-              {/* Date Filter */}
-              <div className="bg-white p-8 rounded-[2.5rem] shadow-xl mb-12 border border-gray-50">
-                <div className="flex flex-col md:flex-row items-end gap-6">
-                  <div className="flex-1 w-full">
-                    <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-2 block">Performance Range (Start)</label>
-                    <div className="relative">
-                      <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-gold" size={16} />
-                      <input type="date" className="w-full pl-12 pr-4 py-4 bg-gray-50 rounded-2xl text-sm border-none focus:ring-2 focus:ring-brand-gold outline-none" value={startDate} onChange={e => setStartDate(e.target.value)} />
-                    </div>
-                  </div>
-                  <div className="flex-1 w-full">
-                    <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-2 block">Performance Range (End)</label>
-                    <div className="relative">
-                      <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-gold" size={16} />
-                      <input type="date" className="w-full pl-12 pr-4 py-4 bg-gray-50 rounded-2xl text-sm border-none focus:ring-2 focus:ring-brand-gold outline-none" value={endDate} onChange={e => setEndDate(e.target.value)} />
-                    </div>
-                  </div>
-                  <button onClick={fetchAllData} className="bg-brand-dark text-brand-gold px-10 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-black transition-all shadow-lg">
-                    <Filter size={16} /> Recalculate Metrics
-                  </button>
-                </div>
-              </div>
             </MotionDiv>
           )}
 
@@ -272,6 +296,8 @@ const AdminDashboard: React.FC = () => {
                   <Plus size={18} /> New Mandate
                 </button>
               </div>
+
+              <DateFilterUI tab="jobs" />
 
               <div className="flex bg-gray-100 p-1.5 rounded-2xl w-fit">
                 <button onClick={() => setJobView('active')} className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${jobView === 'active' ? 'bg-white text-brand-dark shadow-md' : 'text-gray-400 hover:text-brand-dark'}`}>Live Positions</button>
@@ -316,6 +342,8 @@ const AdminDashboard: React.FC = () => {
                 <h2 className="text-3xl font-serif font-bold text-brand-dark">Corporate Enquiries</h2>
                 <p className="text-gray-400 text-[10px] uppercase tracking-widest font-black mt-1">Direct recruitment mandates from enterprises</p>
               </div>
+
+              <DateFilterUI tab="companies" />
 
               <div className="grid gap-6">
                 {companyEnquiries.length === 0 ? (
@@ -376,6 +404,8 @@ const AdminDashboard: React.FC = () => {
                 <h2 className="text-3xl font-serif font-bold text-brand-dark">Talent Reservoir</h2>
                 <p className="text-gray-400 text-[10px] uppercase tracking-widest font-black mt-1">Profile submissions & career applications</p>
               </div>
+
+              <DateFilterUI tab="candidates" />
 
               <div className="grid gap-6">
                 {candidateEnquiries.length === 0 ? (
