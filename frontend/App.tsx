@@ -157,16 +157,6 @@ const Footer = () => {
         </div>
 
         <div className="pt-12 border-t border-white/5 flex flex-col space-y-8">
-          <div className="flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0">
-            <p className="text-[10px] font-black uppercase tracking-[0.5em] text-gray-500">
-              © {new Date().getFullYear()} DishaHire Consultancy.
-            </p>
-            <div className="flex space-x-8 text-[9px] font-black uppercase tracking-[0.3em] text-gray-500">
-              <Link to="/services" className="hover:text-brand-gold transition-colors">Privacy Charter</Link>
-              <Link to="/services" className="hover:text-brand-gold transition-colors">Engagement Terms</Link>
-            </div>
-          </div>
-          
           <div className="flex justify-center items-center py-4 group">
             <div className="h-[1px] flex-grow bg-white/5" />
             <div className="px-6 text-center">
