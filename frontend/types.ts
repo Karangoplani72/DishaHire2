@@ -4,32 +4,40 @@ export enum EnquiryType {
   EMPLOYER = 'EMPLOYER'
 }
 
-export type ApplicationStatus = 'PENDING' | 'REPLIED' | 'REVIEWING' | 'INTERVIEWING' | 'SHORTLISTED' | 'OFFERED' | 'REJECTED' | 'ARCHIVED';
+export enum ApplicationStatus {
+  PENDING = 'PENDING',
+  REPLIED = 'REPLIED',
+  REVIEWING = 'REVIEWING',
+  INTERVIEWING = 'INTERVIEWING',
+  SHORTLISTED = 'SHORTLISTED',
+  OFFERED = 'OFFERED',
+  REJECTED = 'REJECTED',
+  ARCHIVED = 'ARCHIVED'
+}
+
+export interface Enquiry {
+  _id?: string;
+  id?: string;
+  type?: EnquiryType;
+  name: string;
+  email: string;
+  message: string;
+  subject?: string;
+  company?: string;
+  status?: ApplicationStatus | string;
+  priority?: 'HIGH' | 'NORMAL';
+  experience?: string;
+  resumeName?: string;
+  resumeData?: string;
+  createdAt: string;
+}
 
 export interface Job {
   id: string;
   title: string;
   company: string;
   location: string;
-  type: string;
   description: string;
-  postedDate: string;
   industry: string;
-}
-
-export interface Enquiry {
-  _id?: string;
-  id: string;
-  type: EnquiryType;
-  subject?: string;
-  name: string;
-  email: string;
-  message: string;
-  status: ApplicationStatus;
-  company?: string;
-  priority?: string;
-  experience?: string;
-  resumeData?: string;
-  resumeName?: string;
-  createdAt: string;
+  createdAt?: string;
 }

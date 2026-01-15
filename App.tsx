@@ -2,18 +2,14 @@
 import React, { useState } from 'react';
 import * as RouterDOM from 'react-router-dom';
 const { HashRouter: Router, Routes, Route, Link, useLocation } = RouterDOM as any;
-import { Menu, X, Mail, MapPin, Linkedin, ShieldCheck, Instagram, MessageCircle, ArrowLeft } from 'lucide-react';
+import { Menu, X, Mail, MapPin, Linkedin, Instagram, MessageCircle, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import Home from './pages/Home.tsx';
 import About from './pages/About.tsx';
 import Services from './pages/Services.tsx';
-import Jobs from './pages/Jobs.tsx';
-import Career from './pages/Career.tsx';
-import AdminDashboard from './pages/AdminDashboard.tsx';
 import { NAV_LINKS, CONTACT_INFO } from './constants.tsx';
 
-// Fixed: Using any casting for motion component to bypass property missing errors
 const MotionDiv = (motion as any).div;
 
 const NotFound = () => (
@@ -21,7 +17,7 @@ const NotFound = () => (
     <h1 className="text-9xl font-serif font-bold text-brand-gold mb-4">404</h1>
     <h2 className="text-3xl font-serif mb-8 tracking-wide">NOT FOUND</h2>
     <Link to="/" className="flex items-center gap-4 bg-white text-brand-dark px-10 py-5 rounded-full font-bold">
-      <ArrowLeft size={20}/> Return to Corporate Hub
+      <ArrowLeft size={20}/> Return to Homepage
     </Link>
   </div>
 );
@@ -29,9 +25,6 @@ const NotFound = () => (
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
-  const isAdminPath = location.pathname.startsWith('/admin');
-
-  if (isAdminPath) return null;
 
   return (
     <nav className="bg-brand-dark text-white sticky top-0 z-50 shadow-xl border-b border-white/5">
@@ -56,13 +49,6 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
-            <div className="h-6 w-px bg-white/10 mx-2" />
-            <Link 
-              to="/admin" 
-              className="text-[10px] font-black uppercase tracking-widest text-brand-gold hover:text-white transition-colors flex items-center gap-2"
-            >
-              <ShieldCheck size={14} /> Admin Terminal
-            </Link>
           </div>
 
           <div className="md:hidden">
@@ -92,8 +78,6 @@ const Navbar = () => {
                   {link.name}
                 </Link>
               ))}
-              <div className="h-px bg-white/5 w-full" />
-              <Link to="/admin" onClick={() => setIsOpen(false)} className="block text-xl font-serif font-bold text-brand-gold">Admin Portal</Link>
             </div>
           </MotionDiv>
         )}
@@ -103,21 +87,16 @@ const Navbar = () => {
 };
 
 const Footer = () => {
-  const location = useLocation();
-  const isAdminPath = location.pathname.startsWith('/admin');
-
-  if (isAdminPath) return null;
-
   return (
     <footer className="bg-brand-dark text-white pt-24 pb-12 border-t border-white/5">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-16">
         <div className="space-y-6">
           <div className="flex flex-col">
             <span className="text-2xl font-serif font-bold tracking-widest leading-none">DISHA<span className="text-brand-gold">HIRE</span></span>
             <span className="text-[9px] uppercase tracking-[0.4em] text-gray-500 font-black mt-1">Right Talent, Right Direction</span>
           </div>
           <p className="text-gray-400 text-sm leading-relaxed font-serif italic">
-            Architecting the bridge between world-class organizational ambitions and high-tier professional mastery.
+            Architecting the bridge between organizational ambitions and professional mastery.
           </p>
           <div className="flex space-x-5">
             <a href={CONTACT_INFO.linkedin} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-brand-gold hover:text-brand-dark transition-all">
@@ -154,16 +133,6 @@ const Footer = () => {
             </li>
           </ul>
         </div>
-
-        <div>
-          <h4 className="font-black text-[10px] mb-8 uppercase tracking-[0.4em] text-brand-gold">Enterprise</h4>
-          <Link 
-            to="/admin" 
-            className="inline-block bg-white/5 border border-white/10 px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-brand-dark transition-all"
-          >
-            Dashboard
-          </Link>
-        </div>
       </div>
       <div className="max-w-7xl mx-auto px-4 mt-24 pt-8 border-t border-white/5 text-center">
         <p className="text-[10px] font-black uppercase tracking-[0.5em] text-gray-600">
@@ -184,9 +153,6 @@ const App = () => {
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
             <Route path="/services" element={<Services />} />
-            <Route path="/jobs" element={<Jobs />} />
-            <Route path="/career" element={<Career />} />
-            <Route path="/admin/*" element={<AdminDashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>

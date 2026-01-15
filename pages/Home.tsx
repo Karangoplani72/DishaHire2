@@ -1,27 +1,19 @@
 
 import React, { useState } from 'react';
-// Fixed: Using any casting for motion components to bypass property missing errors
 import { motion } from 'framer-motion';
 const MotionDiv = (motion as any).div;
 const MotionButton = (motion as any).button;
 import { ArrowRight, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { INDUSTRIES } from '../constants.tsx';
 import EnquiryModal from '../components/EnquiryModal.tsx';
-import { EnquiryType } from '../types.ts';
 
 const Home: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
-  const [activeEnquiryType, setActiveEnquiryType] = useState<EnquiryType>(EnquiryType.CANDIDATE);
-
-  const openEnquiry = (type: EnquiryType) => {
-    setActiveEnquiryType(type);
-    setModalOpen(true);
-  };
 
   return (
     <div className="overflow-hidden">
       {/* Hero Section */}
-      <section className="relative min-h-[95vh] flex items-center bg-brand-dark overflow-hidden">
+      <section className="relative min-h-[90vh] flex items-center bg-brand-dark overflow-hidden">
         <div className="absolute inset-0 z-0">
           <div className="absolute top-0 right-0 w-[1000px] h-[1000px] bg-brand-gold/5 rounded-full blur-[180px] -translate-y-1/2 translate-x-1/2 animate-pulse" />
           <div className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-brand-accent/25 rounded-full blur-[150px] translate-y-1/2 -translate-x-1/2" />
@@ -46,25 +38,17 @@ const Home: React.FC = () => {
               </h1>
               
               <p className="text-2xl text-gray-400 leading-relaxed max-w-xl font-serif italic">
-                Architecting the bridge between world-class organizational ambitions and high-tier professional mastery.
+                Architecting the bridge between organizational ambitions and professional mastery.
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-8 pt-6">
+              <div className="pt-6">
                 <MotionButton 
                   whileHover={{ scale: 1.05, y: -5 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => openEnquiry(EnquiryType.EMPLOYER)}
+                  onClick={() => setModalOpen(true)}
                   className="bg-brand-gold text-brand-dark px-12 py-6 rounded-[2rem] font-serif font-black text-2xl flex items-center justify-center group transition-all shadow-3xl shadow-brand-gold/30"
                 >
-                  Hire Talent <ArrowRight size={24} className="ml-4 group-hover:translate-x-3 transition-transform" />
-                </MotionButton>
-                <MotionButton 
-                  whileHover={{ scale: 1.05, y: -5 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => openEnquiry(EnquiryType.CANDIDATE)}
-                  className="bg-white/5 backdrop-blur-md border border-white/20 text-white px-12 py-6 rounded-[2rem] font-serif font-black text-2xl transition-all"
-                >
-                  Find a Job
+                  Get Started <ArrowRight size={24} className="ml-4 group-hover:translate-x-3 transition-transform" />
                 </MotionButton>
               </div>
             </MotionDiv>
@@ -78,7 +62,7 @@ const Home: React.FC = () => {
               >
                  <img 
                   src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=1400" 
-                  alt="Senior Recruitment" 
+                  alt="Business Consulting" 
                   className="w-full h-[850px] object-cover grayscale brightness-75 group-hover:grayscale-0 group-hover:brightness-100 transition-all duration-[2000ms]"
                  />
                  <div className="absolute inset-0 bg-gradient-to-t from-brand-dark via-transparent to-transparent opacity-80" />
@@ -107,39 +91,13 @@ const Home: React.FC = () => {
                   <CheckCircle2 size={44} />
                 </div>
                 <p className="text-2xl font-serif font-bold text-white leading-tight group-hover:text-brand-gold transition-colors duration-500">{industry}</p>
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 mt-4">Premium Vertical</p>
               </MotionDiv>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Final Call to Action */}
-      <section className="py-48 bg-white relative overflow-hidden text-center">
-        <div className="max-w-6xl mx-auto px-4 relative z-10 space-y-16">
-          <h2 className="text-6xl md:text-9xl font-serif font-bold text-brand-dark tracking-tighter">Secure Your Strategic Advantage.</h2>
-          <div className="flex flex-col sm:flex-row justify-center gap-10 pt-8">
-             <MotionButton 
-              whileHover={{ scale: 1.05, y: -5 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => openEnquiry(EnquiryType.EMPLOYER)} 
-              className="bg-brand-dark text-white px-20 py-8 rounded-[2.5rem] font-serif font-black text-2xl shadow-4xl"
-             >
-               Consultation
-             </MotionButton>
-             <MotionButton 
-              whileHover={{ scale: 1.05, y: -5 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => openEnquiry(EnquiryType.CANDIDATE)} 
-              className="bg-white border-4 border-brand-dark text-brand-dark px-20 py-8 rounded-[2.5rem] font-serif font-black text-2xl"
-             >
-               Submit Executive CV
-             </MotionButton>
-          </div>
-        </div>
-      </section>
-
-      {modalOpen && <EnquiryModal type={activeEnquiryType} onClose={() => setModalOpen(false)} />}
+      {modalOpen && <EnquiryModal onClose={() => setModalOpen(false)} />}
     </div>
   );
 };
