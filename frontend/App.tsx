@@ -134,12 +134,6 @@ const Footer = () => {
                   </Link>
                 </li>
               ))}
-              <li>
-                <Link to="/terms" className="text-gray-400 hover:text-brand-gold text-sm font-medium flex items-center group transition-colors">
-                  <ArrowRight size={14} className="mr-3 opacity-0 group-hover:opacity-100 transition-all" />
-                  Commercial Terms
-                </Link>
-              </li>
             </ul>
           </div>
 
