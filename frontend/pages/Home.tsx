@@ -1,12 +1,13 @@
 
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import * as RouterDOM from 'react-router-dom';
+const { useNavigate } = RouterDOM as any;
 const MotionDiv = (motion as any).div;
 const MotionButton = (motion as any).button;
 import { 
   ArrowRight, 
   ShieldCheck, 
-  CheckCircle2, 
   X, 
   Laptop, 
   Headset, 
@@ -14,10 +15,11 @@ import {
   BarChart3, 
   Stethoscope, 
   Building2,
-  HelpCircle 
+  HelpCircle,
+  UserCircle2,
+  Briefcase
 } from 'lucide-react';
-import { INDUSTRIES, API_BASE_URL } from '../constants.tsx';
-import { EnquiryType } from '../types.ts';
+import { INDUSTRIES } from '../constants.tsx';
 
 // Industry to Icon Mapping System
 const INDUSTRY_ICONS: Record<string, React.ElementType> = {
@@ -29,111 +31,52 @@ const INDUSTRY_ICONS: Record<string, React.ElementType> = {
   'Finance & Accounts': Building2,
 };
 
-const EnquiryModal: React.FC<{ type: EnquiryType; onClose: () => void }> = ({ type, onClose }) => {
-  const [formData, setFormData] = useState({ name: '', email: '', company: '', message: '' });
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+const SelectionModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+  const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/enquiries`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-      if (res.ok) setSuccess(true);
-    } catch (err) {
-      console.error('Submission error:', err);
-    } finally {
-      setLoading(false);
-    }
+  const handleSelect = (tab: 'seeker' | 'employer') => {
+    navigate('/contact', { state: { tab } });
   };
 
-  if (success) {
-    return (
-      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-brand-dark/95 backdrop-blur-md">
-        <MotionDiv 
-          initial={{ scale: 0.9, opacity: 0 }} 
-          animate={{ scale: 1, opacity: 1 }} 
-          className="bg-white p-8 sm:p-12 rounded-[2rem] sm:rounded-[3rem] text-center max-w-md w-full shadow-2xl"
-        >
-          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle2 size={32} />
-          </div>
-          <h3 className="text-2xl sm:text-3xl font-serif font-bold text-brand-dark mb-4">Request Sent</h3>
-          <p className="text-sm sm:text-base text-gray-600 mb-8">Our executive staffing partners will contact you shortly to discuss your organizational needs.</p>
-          <button onClick={onClose} className="w-full bg-brand-gold text-brand-dark py-4 rounded-full font-bold hover:bg-yellow-500 transition-colors">Return to Dashboard</button>
-        </MotionDiv>
-      </div>
-    );
-  }
-
   return (
-    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-brand-dark/95 backdrop-blur-md overflow-y-auto">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-brand-dark/95 backdrop-blur-md">
       <MotionDiv 
-        initial={{ y: "100%", opacity: 0 }} 
-        animate={{ y: 0, opacity: 1 }} 
-        className="bg-white rounded-t-[2.5rem] sm:rounded-[3.5rem] overflow-hidden max-w-2xl w-full shadow-2xl relative"
+        initial={{ scale: 0.9, opacity: 0 }} 
+        animate={{ scale: 1, opacity: 1 }} 
+        exit={{ scale: 0.9, opacity: 0 }}
+        className="bg-white rounded-[3rem] overflow-hidden max-w-2xl w-full shadow-4xl relative"
       >
-        <div className="p-6 sm:p-12">
-          <div className="flex justify-between items-start mb-8 sm:mb-10">
-            <div>
-              <h3 className="text-2xl sm:text-4xl font-serif font-bold text-brand-dark">Executive Sourcing</h3>
-              <p className="text-brand-gold font-bold uppercase tracking-widest text-[9px] sm:text-[10px] mt-2">Strategic Talent Acquisition Request</p>
-            </div>
-            <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors"><X size={24} /></button>
-          </div>
+        <button onClick={onClose} className="absolute top-8 right-8 p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400">
+          <X size={24} />
+        </button>
 
-          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-            <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
-              <div className="space-y-2">
-                <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 ml-1">Full Name</label>
-                <input 
-                  required 
-                  value={formData.name} 
-                  onChange={e => setFormData({...formData, name: e.target.value})} 
-                  className="w-full px-5 py-3.5 sm:px-6 sm:py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-brand-gold outline-none text-brand-dark" 
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 ml-1">Corporate Email</label>
-                <input 
-                  required 
-                  type="email" 
-                  value={formData.email} 
-                  onChange={e => setFormData({...formData, email: e.target.value})} 
-                  className="w-full px-5 py-3.5 sm:px-6 sm:py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-brand-gold outline-none text-brand-dark" 
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 ml-1">Organization / Department</label>
-              <input 
-                value={formData.company} 
-                onChange={e => setFormData({...formData, company: e.target.value})} 
-                className="w-full px-5 py-3.5 sm:px-6 sm:py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-brand-gold outline-none text-brand-dark" 
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 ml-1">Requirement Brief</label>
-              <textarea 
-                required 
-                rows={3} 
-                value={formData.message} 
-                onChange={e => setFormData({...formData, message: e.target.value})} 
-                className="w-full px-5 py-3.5 sm:px-6 sm:py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-brand-gold outline-none resize-none text-brand-dark" 
-              />
-            </div>
+        <div className="p-10 sm:p-16 text-center">
+          <h3 className="text-3xl sm:text-4xl font-serif font-bold text-brand-dark mb-4">How can we assist you?</h3>
+          <p className="text-gray-500 mb-12 font-serif italic">Select your professional path to continue</p>
+
+          <div className="grid sm:grid-cols-2 gap-6">
             <button 
-              disabled={loading} 
-              type="submit" 
-              className="w-full bg-brand-gold text-brand-dark py-5 sm:py-6 rounded-full font-bold text-base sm:text-lg hover:bg-yellow-500 transition-all shadow-lg shadow-brand-gold/20 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={() => handleSelect('seeker')}
+              className="group p-8 rounded-[2rem] border-2 border-gray-100 hover:border-brand-gold hover:bg-brand-light transition-all text-center space-y-4"
             >
-              {loading ? 'Processing...' : 'Submit Engagement Request'} <ArrowRight size={20} className="ml-2" />
+              <div className="w-16 h-16 bg-brand-gold/10 text-brand-gold rounded-2xl flex items-center justify-center mx-auto group-hover:bg-brand-gold group-hover:text-white transition-all">
+                <UserCircle2 size={32} />
+              </div>
+              <h4 className="text-xl font-serif font-bold text-brand-dark">I am a Candidate</h4>
+              <p className="text-[10px] uppercase tracking-widest text-gray-400 font-black">Looking for opportunities</p>
             </button>
-          </form>
+
+            <button 
+              onClick={() => handleSelect('employer')}
+              className="group p-8 rounded-[2rem] border-2 border-gray-100 hover:border-brand-gold hover:bg-brand-light transition-all text-center space-y-4"
+            >
+              <div className="w-16 h-16 bg-brand-gold/10 text-brand-gold rounded-2xl flex items-center justify-center mx-auto group-hover:bg-brand-gold group-hover:text-white transition-all">
+                <Briefcase size={32} />
+              </div>
+              <h4 className="text-xl font-serif font-bold text-brand-dark">I am an Employer</h4>
+              <p className="text-[10px] uppercase tracking-widest text-gray-400 font-black">Looking for elite talent</p>
+            </button>
+          </div>
         </div>
       </MotionDiv>
     </div>
@@ -141,7 +84,7 @@ const EnquiryModal: React.FC<{ type: EnquiryType; onClose: () => void }> = ({ ty
 };
 
 const Home: React.FC = () => {
-  const [modalOpen, setModalOpen] = useState(false);
+  const [selectionOpen, setSelectionOpen] = useState(false);
 
   return (
     <div className="overflow-hidden">
@@ -169,7 +112,7 @@ const Home: React.FC = () => {
               <div className="pt-4 flex justify-center lg:justify-start">
                 <MotionButton 
                   whileHover={{ scale: 1.05 }}
-                  onClick={() => setModalOpen(true)} 
+                  onClick={() => setSelectionOpen(true)} 
                   className="bg-brand-gold text-brand-dark w-full sm:w-auto px-10 sm:px-14 py-5 sm:py-6 rounded-full font-bold text-lg sm:text-xl flex items-center justify-center group hover:bg-yellow-500 transition-all shadow-xl shadow-brand-gold/10"
                 >
                   Consult With Us <ArrowRight size={20} className="ml-3 group-hover:translate-x-2 transition-transform" />
@@ -224,7 +167,9 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {modalOpen && <EnquiryModal type={EnquiryType.EMPLOYER} onClose={() => setModalOpen(false)} />}
+      <AnimatePresence>
+        {selectionOpen && <SelectionModal onClose={() => setSelectionOpen(false)} />}
+      </AnimatePresence>
     </div>
   );
 };
