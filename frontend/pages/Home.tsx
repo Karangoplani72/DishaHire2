@@ -217,7 +217,6 @@ const Home: React.FC = () => {
                     <IconComponent size={32} className="sm:size-[40px]" />
                   </div>
                   <p className="text-xl sm:text-2xl font-serif font-bold text-white group-hover:text-brand-gold transition-colors">{industry}</p>
-                  <div className="text-[9px] uppercase tracking-widest text-gray-500 mt-4 font-bold">Premium Vertical</div>
                 </MotionDiv>
               );
             })}
