@@ -1,22 +1,15 @@
 
 import React, { useState } from 'react';
-// Fixed: Using any casting for motion components to bypass property missing errors
 import { motion } from 'framer-motion';
 const MotionDiv = (motion as any).div;
 const MotionButton = (motion as any).button;
 import { ArrowRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
-import { INDUSTRIES, CONTACT_INFO } from '../constants.tsx';
+import { INDUSTRIES } from '../constants.tsx';
 import EnquiryModal from '../components/EnquiryModal.tsx';
 import { EnquiryType } from '../types.ts';
 
 const Home: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
-  const [activeType, setActiveType] = useState<EnquiryType>(EnquiryType.CANDIDATE);
-
-  const openEnquiry = (type: EnquiryType) => {
-    setActiveType(type);
-    setModalOpen(true);
-  };
 
   return (
     <div className="overflow-hidden">
@@ -39,23 +32,16 @@ const Home: React.FC = () => {
               </h1>
               
               <p className="text-xl text-gray-400 leading-relaxed max-w-xl font-serif italic">
-                Architecting the bridge between world-class organizational ambitions and high-tier professional mastery.
+                Architecting the bridge between organizational ambitions and high-tier professional mastery.
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-6 pt-4">
+              <div className="pt-4">
                 <MotionButton 
                   whileHover={{ scale: 1.05 }}
-                  onClick={() => openEnquiry(EnquiryType.EMPLOYER)} 
-                  className="bg-brand-gold text-brand-dark px-12 py-5 rounded-full font-bold text-xl flex items-center justify-center group hover:bg-yellow-500 transition-all shadow-xl shadow-brand-gold/10"
+                  onClick={() => setModalOpen(true)} 
+                  className="bg-brand-gold text-brand-dark px-14 py-6 rounded-full font-bold text-xl flex items-center justify-center group hover:bg-yellow-500 transition-all shadow-xl shadow-brand-gold/10"
                 >
-                  Hire Talent <ArrowRight size={20} className="ml-3 group-hover:translate-x-2 transition-transform" />
-                </MotionButton>
-                <MotionButton 
-                  whileHover={{ scale: 1.05 }}
-                  onClick={() => openEnquiry(EnquiryType.CANDIDATE)} 
-                  className="bg-white/5 backdrop-blur-md border border-white/20 text-white px-12 py-5 rounded-full font-bold text-xl hover:bg-white/10 transition-all"
-                >
-                  Find a Job
+                  Consult With Us <ArrowRight size={20} className="ml-3 group-hover:translate-x-2 transition-transform" />
                 </MotionButton>
               </div>
             </MotionDiv>
@@ -106,18 +92,7 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Footer CTA */}
-      <section className="py-32 bg-brand-light text-center">
-        <div className="max-w-4xl mx-auto px-4 space-y-10">
-           <h2 className="text-6xl font-serif font-bold text-brand-dark">Ready to find your path?</h2>
-           <div className="flex flex-col sm:flex-row justify-center gap-6">
-              <button onClick={() => openEnquiry(EnquiryType.EMPLOYER)} className="bg-brand-dark text-white px-12 py-5 rounded-2xl font-bold text-xl">Get a Consultation</button>
-              <button onClick={() => openEnquiry(EnquiryType.CANDIDATE)} className="border-2 border-brand-dark text-brand-dark px-12 py-5 rounded-2xl font-bold text-xl">Submit CV</button>
-           </div>
-        </div>
-      </section>
-
-      {modalOpen && <EnquiryModal type={activeType} onClose={() => setModalOpen(false)} />}
+      {modalOpen && <EnquiryModal type={EnquiryType.EMPLOYER} onClose={() => setModalOpen(false)} />}
     </div>
   );
 };

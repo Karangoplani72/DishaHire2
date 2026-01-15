@@ -24,7 +24,7 @@ const fetcher = async (url: string, options?: RequestInit) => {
     });
     
     const data = await res.json().catch(() => null);
-    if (!res.ok) throw new Error(data?.error || `Request failed with status ${res.status}`);
+    if (!res.ok) throw new Error(data?.error || `Gateway Error: ${res.status}`);
     
     return data;
   } catch (err: any) {
@@ -33,9 +33,9 @@ const fetcher = async (url: string, options?: RequestInit) => {
   }
 };
 
+// Fixed: Added missing methods used across various application pages
 export const db = {
   addEnquiry: (enquiry: any): Promise<any> => fetcher('/api/enquiries', { method: 'POST', body: JSON.stringify(enquiry) }),
-  // Added missing data retrieval methods
   getJobs: (): Promise<any[]> => fetcher('/api/jobs'),
   getEnquiries: (): Promise<any[]> => fetcher('/api/enquiries'),
   getBlogs: (): Promise<any[]> => fetcher('/api/blogs'),

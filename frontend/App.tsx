@@ -27,9 +27,15 @@ const Navbar = () => {
             </div>
           </Link>
 
-          <div className="hidden md:flex space-x-8 items-center">
+          <div className="hidden md:flex space-x-12 items-center">
             {NAV_LINKS.map((link: any) => (
-              <Link key={link.name} to={link.href} className="text-[10px] font-bold uppercase tracking-widest hover:text-brand-gold transition-colors">
+              <Link 
+                key={link.name} 
+                to={link.href} 
+                className={`text-[10px] font-bold uppercase tracking-widest transition-all ${
+                  location.pathname === link.href ? 'text-brand-gold' : 'text-white hover:text-brand-gold'
+                }`}
+              >
                 {link.name}
               </Link>
             ))}
@@ -67,7 +73,7 @@ const Navbar = () => {
 
 const AppContent = () => {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-brand-light">
       <Navbar />
       <main className="flex-grow">
         <Routes>
@@ -76,6 +82,11 @@ const AppContent = () => {
           <Route path="/services" element={<Services />} />
         </Routes>
       </main>
+      <footer className="bg-brand-dark text-white py-12 border-t border-white/5">
+        <div className="max-w-7xl mx-auto px-4 text-center space-y-4">
+          <p className="text-[10px] font-black uppercase tracking-[0.5em] text-gray-500">© {new Date().getFullYear()} DishaHire Consultancy</p>
+        </div>
+      </footer>
     </div>
   );
 };

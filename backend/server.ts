@@ -29,8 +29,8 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// --- ROUTES ---
-app.get('/health', (req, res) => res.json({ status: 'active' }));
+// --- PUBLIC ROUTES ---
+app.get('/health', (req, res) => res.json({ status: 'active', timestamp: new Date().toISOString() }));
 
 app.post('/api/enquiries', async (req, res) => {
   try {
@@ -38,7 +38,7 @@ app.post('/api/enquiries', async (req, res) => {
     await newEnquiry.save();
     res.status(201).json({ success: true });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to process enquiry' });
+    res.status(500).json({ error: 'Internal service failure' });
   }
 });
 
@@ -46,9 +46,9 @@ app.post('/api/enquiries', async (req, res) => {
 const MONGO_URI = process.env.MONGO_URI;
 if (MONGO_URI) {
   mongoose.connect(MONGO_URI).then(() => {
-    app.listen(PORT, () => console.log(`🚀 Production API operational on port ${PORT}`));
+    app.listen(PORT, () => console.log(`🚀 Public API operational on port ${PORT}`));
   });
 } else {
-  console.error('❌ MONGO_URI missing');
+  console.error('❌ FATAL: MONGO_URI missing');
   process.exit(1);
 }
