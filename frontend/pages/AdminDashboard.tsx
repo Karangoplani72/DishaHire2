@@ -1,4 +1,5 @@
 
+
 import React, { useEffect, useState } from 'react';
 import * as RouterDOM from 'react-router-dom';
 const { useNavigate } = RouterDOM as any;
@@ -86,81 +87,82 @@ const AdminDashboard: React.FC = () => {
   return (
     <div className="bg-brand-light min-h-screen p-4 sm:p-8">
       <div className="max-w-7xl mx-auto">
-        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-12 sm:mb-16 gap-6">
-          <div className="flex items-center space-x-4">
-            <div className="p-4 bg-brand-dark rounded-2xl text-brand-gold shadow-lg">
-              <LayoutDashboard size={32} />
+        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 sm:mb-16 gap-6">
+          <div className="flex items-center space-x-3 sm:space-x-4">
+            <div className="p-3 sm:p-4 bg-brand-dark rounded-xl sm:rounded-2xl text-brand-gold shadow-lg">
+              <LayoutDashboard size={24} className="sm:size-[32px]" />
             </div>
             <div>
-              <h1 className="text-3xl font-serif font-bold text-brand-dark">Mandate Management</h1>
-              <p className="text-gray-500 text-[10px] uppercase tracking-[0.4em] font-black">Executive Control Panel</p>
+              <h1 className="text-2xl sm:text-3xl font-serif font-bold text-brand-dark">Dashboard</h1>
+              <p className="text-gray-500 text-[8px] sm:text-[10px] uppercase tracking-[0.3em] sm:tracking-[0.4em] font-black">Executive Control Panel</p>
             </div>
           </div>
           <button 
             onClick={handleLogout}
-            className="flex items-center space-x-2 text-gray-400 hover:text-red-500 font-bold uppercase text-[10px] tracking-widest transition-all"
+            className="flex items-center space-x-2 text-gray-400 hover:text-red-500 font-bold uppercase text-[9px] sm:text-[10px] tracking-widest transition-all px-2 py-1"
           >
-            <LogOut size={16} />
+            <LogOut size={14} className="sm:size-[16px]" />
             <span>Terminate Session</span>
           </button>
         </header>
 
-        <div className="grid lg:grid-cols-3 gap-12">
+        <div className="grid lg:grid-cols-3 gap-8 sm:gap-12">
           {/* Main List */}
-          <div className="lg:col-span-2 space-y-8">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-serif font-bold text-brand-dark flex items-center">
+          <div className="lg:col-span-2 space-y-6 sm:space-y-8">
+            <div className="flex justify-between items-center px-2 sm:px-0">
+              <h2 className="text-lg sm:text-xl font-serif font-bold text-brand-dark flex items-center">
                 Active Mandates 
-                <span className="ml-3 px-3 py-1 bg-brand-dark text-white text-xs rounded-full">{jobs.length}</span>
+                <span className="ml-3 px-2 py-0.5 bg-brand-dark text-white text-[10px] sm:text-xs rounded-full">{jobs.length}</span>
               </h2>
               <button 
                 onClick={() => setShowAddForm(true)}
-                className="bg-brand-dark text-white p-4 rounded-full hover:bg-brand-gold transition-all shadow-xl lg:hidden"
+                className="bg-brand-dark text-white p-3.5 sm:p-4 rounded-full hover:bg-brand-gold transition-all shadow-xl lg:hidden"
               >
-                <Plus size={24} />
+                <Plus size={20} className="sm:size-[24px]" />
               </button>
             </div>
 
             {loading ? (
               <div className="animate-pulse space-y-4">
-                {[1, 2, 3].map(i => <div key={i} className="h-32 bg-gray-200 rounded-[2rem]"></div>)}
+                {[1, 2, 3].map(i => <div key={i} className="h-28 sm:h-32 bg-gray-200 rounded-[1.5rem] sm:rounded-[2rem]"></div>)}
               </div>
             ) : (
               <div className="space-y-4">
                 {jobs.length === 0 ? (
-                  <div className="bg-white p-12 rounded-[2rem] text-center border-2 border-dashed border-gray-200">
-                    <AlertCircle className="mx-auto text-gray-300 mb-4" size={48} />
-                    <p className="text-gray-400 italic">No active job mandates in the database.</p>
+                  <div className="bg-white p-10 sm:p-12 rounded-[1.5rem] sm:rounded-[2rem] text-center border-2 border-dashed border-gray-200">
+                    {/* Fixed Duplicate Attribute: Merged className attributes and kept size prop */}
+                    <AlertCircle className="mx-auto text-gray-300 mb-4 sm:size-[48px]" size={40} />
+                    <p className="text-gray-400 italic text-sm">No active job mandates in the database.</p>
                   </div>
                 ) : (
                   jobs.map(job => (
                     <MotionDiv 
                       layout
                       key={job._id}
-                      initial={{ opacity: 0, x: -20 }}
+                      initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
-                      className="bg-white p-6 sm:p-8 rounded-[2rem] shadow-lg border border-gray-100 flex justify-between items-center group"
+                      className="bg-white p-5 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] shadow-lg border border-gray-100 flex justify-between items-center group"
                     >
-                      <div className="flex items-center space-x-6">
-                        <div className="w-16 h-16 bg-brand-light rounded-2xl flex items-center justify-center text-brand-gold border border-brand-gold/20 flex-shrink-0">
-                          <Briefcase size={28} />
+                      <div className="flex items-center space-x-4 sm:space-x-6 overflow-hidden">
+                        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-brand-light rounded-[1rem] sm:rounded-2xl flex items-center justify-center text-brand-gold border border-brand-gold/20 flex-shrink-0">
+                          <Briefcase size={22} className="sm:size-[28px]" />
                         </div>
-                        <div>
-                          <h3 className="text-xl font-serif font-bold text-brand-dark">{job.title}</h3>
-                          <div className="flex flex-wrap gap-4 mt-1 text-xs text-gray-500">
-                             <div className="flex items-center"><Building2 size={12} className="mr-1" /> {job.company}</div>
-                             <div className="flex items-center"><MapPin size={12} className="mr-1" /> {job.location}</div>
+                        <div className="overflow-hidden">
+                          <h3 className="text-base sm:text-xl font-serif font-bold text-brand-dark truncate">{job.title}</h3>
+                          <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-[10px] sm:text-xs text-gray-500">
+                             <div className="flex items-center truncate"><Building2 size={10} className="mr-1 flex-shrink-0" /> {job.company}</div>
+                             <div className="flex items-center"><MapPin size={10} className="mr-1 flex-shrink-0" /> {job.location}</div>
                           </div>
-                          <span className="inline-block mt-2 px-3 py-1 bg-brand-light text-brand-gold text-[9px] font-black uppercase tracking-widest rounded-full">
+                          <span className="inline-block mt-2 px-2.5 py-0.5 bg-brand-light text-brand-gold text-[8px] font-black uppercase tracking-widest rounded-full">
                             {job.industry}
                           </span>
                         </div>
                       </div>
                       <button 
                         onClick={() => handleDeleteJob(job._id)}
-                        className="p-4 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all"
+                        className="p-3 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all flex-shrink-0"
                       >
-                        <Trash2 size={20} />
+                        <Trash2 size={18} className="sm:size-[20px]" />
                       </button>
                     </MotionDiv>
                   ))
@@ -171,43 +173,43 @@ const AdminDashboard: React.FC = () => {
 
           {/* Desktop Sidebar Form */}
           <div className="hidden lg:block">
-            <div className="sticky top-32 bg-brand-dark p-10 rounded-[3rem] text-white shadow-4xl border border-white/5">
-              <h2 className="text-2xl font-serif font-bold mb-8 flex items-center">
-                <Plus className="mr-3 text-brand-gold" size={24} /> New Mandate
+            <div className="sticky top-32 bg-brand-dark p-8 rounded-[2.5rem] text-white shadow-4xl border border-white/5">
+              <h2 className="text-xl font-serif font-bold mb-6 flex items-center">
+                <Plus className="mr-2 text-brand-gold" size={20} /> New Mandate
               </h2>
-              <form onSubmit={handleAddJob} className="space-y-6">
+              <form onSubmit={handleAddJob} className="space-y-4">
                 <div>
-                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Job Title</label>
+                  <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 ml-1">Job Title</label>
                   <input 
                     required
-                    className="w-full mt-2 bg-brand-accent/50 border border-white/5 p-4 rounded-xl text-sm outline-none focus:border-brand-gold transition-colors"
+                    className="w-full mt-1 bg-brand-accent/50 border border-white/5 p-3 rounded-xl text-sm outline-none focus:border-brand-gold transition-colors"
                     value={newJob.title}
                     onChange={e => setNewJob({...newJob, title: e.target.value})}
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Company</label>
+                  <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 ml-1">Company</label>
                   <input 
                     required
-                    className="w-full mt-2 bg-brand-accent/50 border border-white/5 p-4 rounded-xl text-sm outline-none focus:border-brand-gold transition-colors"
+                    className="w-full mt-1 bg-brand-accent/50 border border-white/5 p-3 rounded-xl text-sm outline-none focus:border-brand-gold transition-colors"
                     value={newJob.company}
                     onChange={e => setNewJob({...newJob, company: e.target.value})}
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3">
                    <div>
-                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Location</label>
+                    <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 ml-1">Location</label>
                     <input 
                       required
-                      className="w-full mt-2 bg-brand-accent/50 border border-white/5 p-4 rounded-xl text-sm outline-none focus:border-brand-gold transition-colors"
+                      className="w-full mt-1 bg-brand-accent/50 border border-white/5 p-3 rounded-xl text-sm outline-none focus:border-brand-gold transition-colors"
                       value={newJob.location}
                       onChange={e => setNewJob({...newJob, location: e.target.value})}
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Industry</label>
+                    <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 ml-1">Industry</label>
                     <select 
-                      className="w-full mt-2 bg-brand-accent/50 border border-white/5 p-4 rounded-xl text-sm outline-none focus:border-brand-gold appearance-none cursor-pointer transition-colors"
+                      className="w-full mt-1 bg-brand-accent/50 border border-white/5 p-3 rounded-xl text-xs outline-none focus:border-brand-gold appearance-none cursor-pointer transition-colors"
                       value={newJob.industry}
                       onChange={e => setNewJob({...newJob, industry: e.target.value})}
                     >
@@ -216,11 +218,11 @@ const AdminDashboard: React.FC = () => {
                   </div>
                 </div>
                 <div>
-                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Mandate Brief</label>
+                  <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 ml-1">Brief</label>
                   <textarea 
                     required
-                    rows={4}
-                    className="w-full mt-2 bg-brand-accent/50 border border-white/5 p-4 rounded-xl text-sm outline-none focus:border-brand-gold resize-none transition-colors"
+                    rows={3}
+                    className="w-full mt-1 bg-brand-accent/50 border border-white/5 p-3 rounded-xl text-sm outline-none focus:border-brand-gold resize-none transition-colors"
                     value={newJob.description}
                     onChange={e => setNewJob({...newJob, description: e.target.value})}
                   />
@@ -228,7 +230,7 @@ const AdminDashboard: React.FC = () => {
                 <button 
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-brand-gold text-brand-dark py-4 rounded-full font-bold flex items-center justify-center hover:bg-yellow-500 transition-all shadow-xl shadow-brand-gold/10 disabled:opacity-50"
+                  className="w-full bg-brand-gold text-brand-dark py-4 rounded-full font-bold flex items-center justify-center hover:bg-yellow-500 transition-all shadow-xl shadow-brand-gold/10 disabled:opacity-50 mt-4"
                 >
                   {isSubmitting ? 'Syncing...' : 'Confirm Posting'} <CheckCircle2 size={18} className="ml-2" />
                 </button>
@@ -241,32 +243,32 @@ const AdminDashboard: React.FC = () => {
       {/* Mobile Modal Form */}
       <AnimatePresence>
         {showAddForm && (
-          <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-brand-dark/90 backdrop-blur-sm lg:hidden p-4">
+          <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-brand-dark/95 backdrop-blur-sm lg:hidden">
              <MotionDiv 
               initial={{ y: '100%' }} 
               animate={{ y: 0 }} 
               exit={{ y: '100%' }} 
-              className="bg-brand-dark w-full max-w-xl p-8 rounded-t-[3rem] sm:rounded-[3rem] border-t border-white/10"
+              className="bg-brand-dark w-full max-w-xl p-8 rounded-t-[2.5rem] sm:rounded-[3rem] border-t border-white/10 overflow-y-auto max-h-[90vh]"
              >
                 <div className="flex justify-between items-center mb-8">
                   <h2 className="text-2xl font-serif font-bold text-white">Post Mandate</h2>
-                  <button onClick={() => setShowAddForm(false)} className="text-gray-500 hover:text-white transition-colors">
+                  <button onClick={() => setShowAddForm(false)} className="text-gray-500 hover:text-white transition-colors p-2">
                     <X size={24} />
                   </button>
                 </div>
                 <form onSubmit={handleAddJob} className="space-y-4">
-                  <input placeholder="Job Title" required className="w-full bg-brand-accent/50 p-4 rounded-xl text-white border border-white/5 outline-none" value={newJob.title} onChange={e => setNewJob({...newJob, title: e.target.value})} />
-                  <input placeholder="Company Name" required className="w-full bg-brand-accent/50 p-4 rounded-xl text-white border border-white/5 outline-none" value={newJob.company} onChange={e => setNewJob({...newJob, company: e.target.value})} />
-                  <input placeholder="Location" required className="w-full bg-brand-accent/50 p-4 rounded-xl text-white border border-white/5 outline-none" value={newJob.location} onChange={e => setNewJob({...newJob, location: e.target.value})} />
+                  <input placeholder="Job Title" required className="w-full bg-brand-accent/50 p-4 rounded-xl text-white border border-white/5 outline-none text-sm" value={newJob.title} onChange={e => setNewJob({...newJob, title: e.target.value})} />
+                  <input placeholder="Company Name" required className="w-full bg-brand-accent/50 p-4 rounded-xl text-white border border-white/5 outline-none text-sm" value={newJob.company} onChange={e => setNewJob({...newJob, company: e.target.value})} />
+                  <input placeholder="Location" required className="w-full bg-brand-accent/50 p-4 rounded-xl text-white border border-white/5 outline-none text-sm" value={newJob.location} onChange={e => setNewJob({...newJob, location: e.target.value})} />
                   <select 
-                    className="w-full bg-brand-accent/50 p-4 rounded-xl text-white border border-white/5 outline-none"
+                    className="w-full bg-brand-accent/50 p-4 rounded-xl text-white border border-white/5 outline-none text-sm"
                     value={newJob.industry}
                     onChange={e => setNewJob({...newJob, industry: e.target.value})}
                   >
                     {INDUSTRIES.map(i => <option key={i} value={i} className="bg-brand-dark">{i}</option>)}
                   </select>
-                  <textarea placeholder="Job Brief" required rows={3} className="w-full bg-brand-accent/50 p-4 rounded-xl text-white border border-white/5 outline-none resize-none" value={newJob.description} onChange={e => setNewJob({...newJob, description: e.target.value})} />
-                  <button type="submit" disabled={isSubmitting} className="w-full bg-brand-gold text-brand-dark py-5 rounded-full font-bold shadow-lg shadow-brand-gold/10">
+                  <textarea placeholder="Job Brief" required rows={3} className="w-full bg-brand-accent/50 p-4 rounded-xl text-white border border-white/5 outline-none resize-none text-sm" value={newJob.description} onChange={e => setNewJob({...newJob, description: e.target.value})} />
+                  <button type="submit" disabled={isSubmitting} className="w-full bg-brand-gold text-brand-dark py-5 rounded-full font-bold shadow-lg shadow-brand-gold/10 text-base mt-2">
                     {isSubmitting ? 'Syncing...' : 'Publish Mandate'}
                   </button>
                 </form>
