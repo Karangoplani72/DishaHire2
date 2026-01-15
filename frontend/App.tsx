@@ -175,7 +175,7 @@ const Footer = () => {
 
           {/* Elite Verticals Column - Tight Spacing & Gold Bullets */}
           <div>
-            <h4 className="text-brand-gold text-[10px] font-black uppercase tracking-[0.3em] mb-10">ELITE VERTICALS</h4>
+            <h4 className="text-brand-gold text-[10px] font-black uppercase tracking-[0.3em] mb-10">Industries We Serve</h4>
             <div className="space-y-4">
               {INDUSTRIES.slice(0, 8).map(industry => (
                 <div key={industry} className="text-gray-300 text-sm font-medium flex items-center hover:text-brand-gold transition-colors cursor-default group">
