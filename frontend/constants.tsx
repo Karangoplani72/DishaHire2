@@ -1,7 +1,10 @@
+
 export const NAV_LINKS = [
   { name: 'Home', href: '/' },
   { name: 'About', href: '/about' },
   { name: 'Services', href: '/services' },
+  { name: 'Jobs', href: '/jobs' },
+  { name: 'Contact Us', href: '/contact' },
 ];
 
 export const CONTACT_INFO = {
@@ -14,14 +17,35 @@ export const CONTACT_INFO = {
 };
 
 export const INDUSTRIES = [
-  'IT & Technology',
-  'BPO & Customer Support',
-  'Manufacturing',
+  'Information Technology (IT & Tech)',
+  'Healthcare & Life Sciences',
+  'Banking, Finance & Insurance (BFSI)',
+  'Manufacturing & Engineering',
   'Sales & Marketing',
-  'Healthcare',
-  'Finance & Accounts'
+  'Human Resources & Administration',
+  'Retail & E-commerce',
+  'Hospitality & Travel',
+  'Education & Training',
+  'Construction & Real Estate',
+  'Telecom & Networking',
+  'Media, Advertising & Creative',
+  'Logistics & Supply Chain',
+  'Energy & Utilities',
+  'Startups & MSME’s'
 ];
 
-export const COMMERCIAL_TERMS = [
-  { level: 'Consultation', range: 'Standard Service', charges: 'Inquire for Quote' },
+export const COMPANY_TYPES = [
+  'Private Company',
+  'Public Company',
+  'NGO',
+  'Manufacture',
+  'Government',
+  'Partnership',
+  'Proprietorship',
+  'Other'
 ];
+
+export const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || 
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+    ? '' 
+    : 'https://dishahire-backend.onrender.com');
