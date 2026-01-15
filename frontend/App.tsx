@@ -144,42 +144,36 @@ const Footer = () => {
             </ul>
           </div>
 
-          <div className="hidden lg:block">
-            <h4 className="text-brand-gold text-[10px] font-black uppercase tracking-[0.4em] mb-10">Elite Verticals</h4>
-            <ul className="space-y-5">
-              {INDUSTRIES.slice(0, 5).map(industry => (
-                <li key={industry} className="text-gray-400 text-sm font-medium flex items-center">
-                  <div className="w-1 h-1 bg-brand-gold rounded-full mr-3" />
+          <div className="lg:col-span-2 hidden lg:block">
+            <h4 className="text-brand-gold text-[10px] font-black uppercase tracking-[0.4em] mb-10">Industries We Serve</h4>
+            <div className="grid grid-cols-2 gap-y-4 gap-x-8">
+              {INDUSTRIES.map(industry => (
+                <div key={industry} className="text-gray-400 text-[11px] font-medium flex items-center hover:text-white transition-colors cursor-default">
+                  <div className="w-1 h-1 bg-brand-gold rounded-full mr-3 flex-shrink-0" />
                   {industry}
-                </li>
+                </div>
               ))}
-            </ul>
-          </div>
-
-          <div className="space-y-6 sm:space-y-10">
-            <h4 className="text-brand-gold text-[10px] font-black uppercase tracking-[0.4em] mb-4 sm:mb-10">Corporate Hub</h4>
-            <ul className="space-y-6">
-              <li className="flex items-start space-x-4">
-                <MapPin size={20} className="text-brand-gold flex-shrink-0 mt-1" />
-                <span className="text-gray-400 text-sm leading-relaxed">{CONTACT_INFO.address}</span>
-              </li>
-              <li className="flex items-center space-x-4">
-                <Mail size={20} className="text-brand-gold flex-shrink-0" />
-                <a href={`mailto:${CONTACT_INFO.email}`} className="text-gray-400 hover:text-brand-gold text-sm transition-colors truncate">{CONTACT_INFO.email}</a>
-              </li>
-              <li className="flex items-center space-x-4">
-                <Phone size={20} className="text-brand-gold flex-shrink-0" />
-                <a href={`tel:${CONTACT_INFO.phone.replace(/\s/g, '')}`} className="text-gray-400 hover:text-brand-gold text-sm transition-colors">{CONTACT_INFO.phone}</a>
-              </li>
-            </ul>
+            </div>
           </div>
         </div>
 
-        <div className="pt-8 sm:pt-12 border-t border-white/5 text-center">
-          <p className="text-[9px] font-bold uppercase tracking-[0.4em] text-gray-600 mb-2">Engineered for Excellence</p>
-          <a href="https://karan-portfolio-self.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-[10px] sm:text-[11px] font-serif italic text-gray-400 hover:text-brand-gold transition-all duration-300">
-            Website Handcrafted by <span className="font-bold text-gray-300 not-italic">Karan Goplani</span>
-          </a>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center py-8 border-t border-white/5">
+            <div className="flex flex-col sm:flex-row gap-6 sm:gap-12">
+              <div className="flex items-center space-x-4">
+                <Mail size={18} className="text-brand-gold" />
+                <a href={`mailto:${CONTACT_INFO.email}`} className="text-gray-400 hover:text-brand-gold text-sm transition-colors">{CONTACT_INFO.email}</a>
+              </div>
+              <div className="flex items-center space-x-4">
+                <Phone size={18} className="text-brand-gold" />
+                <a href={`tel:${CONTACT_INFO.phone.replace(/\s/g, '')}`} className="text-gray-400 hover:text-brand-gold text-sm transition-colors">{CONTACT_INFO.phone}</a>
+              </div>
+            </div>
+            <div className="text-center md:text-right">
+              <p className="text-[9px] font-bold uppercase tracking-[0.4em] text-gray-600 mb-2">Engineered for Excellence</p>
+              <a href="https://karan-portfolio-self.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-[10px] sm:text-[11px] font-serif italic text-gray-400 hover:text-brand-gold transition-all duration-300">
+                Website Handcrafted by <span className="font-bold text-gray-300 not-italic">Karan Goplani</span>
+              </a>
+            </div>
         </div>
       </div>
     </footer>

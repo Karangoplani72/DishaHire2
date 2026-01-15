@@ -158,26 +158,26 @@ const Home: React.FC = () => {
       </section>
 
       <section className="py-20 sm:py-32 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6">
           <div className="text-center mb-16 sm:mb-24 space-y-4">
             <h2 className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.4em] sm:tracking-[0.5em] text-brand-gold">Our Expertise</h2>
             <h3 className="text-3xl sm:text-5xl font-serif font-bold text-brand-dark">Industries We Serve</h3>
             <div className="w-16 sm:w-20 h-1 bg-brand-gold mx-auto rounded-full" />
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 lg:gap-8">
             {INDUSTRIES.map((industry) => {
               const IconComponent = INDUSTRY_ICONS[industry] || HelpCircle;
               return (
                 <MotionDiv 
                   whileHover={{ y: -10 }}
                   key={industry} 
-                  className="p-10 sm:p-12 bg-brand-dark rounded-[2.5rem] sm:rounded-[3rem] text-center group transition-all duration-500 shadow-2xl border border-white/5"
+                  className="p-6 sm:p-8 bg-brand-dark rounded-[2rem] text-center group transition-all duration-500 shadow-xl border border-white/5 flex flex-col items-center justify-center min-h-[220px]"
                 >
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 border-2 sm:border-4 border-brand-gold rounded-full flex items-center justify-center mx-auto mb-8 sm:mb-10 text-brand-gold group-hover:bg-brand-gold group-hover:text-brand-dark transition-all duration-500">
-                    <IconComponent size={32} className="sm:size-[36px]" />
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 border-2 border-brand-gold/30 rounded-2xl flex items-center justify-center mb-6 text-brand-gold group-hover:bg-brand-gold group-hover:text-brand-dark group-hover:border-brand-gold transition-all duration-500">
+                    <IconComponent size={24} className="sm:size-[28px]" />
                   </div>
-                  <p className="text-lg sm:text-xl font-serif font-bold text-white group-hover:text-brand-gold transition-colors leading-snug">{industry}</p>
+                  <p className="text-sm sm:text-base font-serif font-bold text-white group-hover:text-brand-gold transition-colors leading-tight px-2">{industry}</p>
                 </MotionDiv>
               );
             })}
