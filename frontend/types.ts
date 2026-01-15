@@ -4,6 +4,7 @@ export enum EnquiryType {
   EMPLOYER = 'EMPLOYER'
 }
 
+// Added ApplicationStatus enum for recruitment tracking
 export enum ApplicationStatus {
   PENDING = 'PENDING',
   REPLIED = 'REPLIED',
@@ -15,23 +16,7 @@ export enum ApplicationStatus {
   ARCHIVED = 'ARCHIVED'
 }
 
-export interface Enquiry {
-  _id?: string;
-  id?: string;
-  type?: EnquiryType;
-  name: string;
-  email: string;
-  message: string;
-  subject?: string;
-  company?: string;
-  status?: ApplicationStatus | string;
-  priority?: 'HIGH' | 'NORMAL';
-  experience?: string;
-  resumeName?: string;
-  resumeData?: string;
-  createdAt: string;
-}
-
+// Added Job interface for elite opportunities
 export interface Job {
   id: string;
   title: string;
@@ -39,5 +24,17 @@ export interface Job {
   location: string;
   description: string;
   industry: string;
-  createdAt?: string;
+}
+
+export interface Enquiry {
+  _id?: string;
+  id?: string;
+  type?: EnquiryType;
+  name: string;
+  email: string;
+  subject?: string;
+  message: string;
+  company?: string;
+  createdAt: string;
+  status?: ApplicationStatus;
 }

@@ -1,4 +1,3 @@
-
 export const NAV_LINKS = [
   { name: 'Home', href: '/' },
   { name: 'About', href: '/about' },
@@ -23,7 +22,6 @@ export const INDUSTRIES = [
   'Finance & Accounts'
 ];
 
-// Added missing COMMERCIAL_TERMS
 export const COMMERCIAL_TERMS = [
   { level: 'Consultation', range: 'Standard Service', charges: 'Inquire for Quote' },
 ];
