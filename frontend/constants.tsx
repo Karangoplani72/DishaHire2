@@ -2,8 +2,9 @@
 export const NAV_LINKS = [
   { name: 'Home', href: '/' },
   { name: 'Jobs', href: '/jobs' },
-  { name: 'About', href: '/about' },
   { name: 'Services', href: '/services' },
+  { name: 'About', href: '/about' },
+  { name: 'Contact Us', href: '/contact' },
 ];
 
 export const CONTACT_INFO = {
@@ -24,14 +25,17 @@ export const INDUSTRIES = [
   'Finance & Accounts'
 ];
 
-export const COMMERCIAL_TERMS = [
-  { level: 'Consultation', range: 'Standard Service', charges: 'Inquire for Quote' },
+export const COMPANY_TYPES = [
+  'Private Company',
+  'Public Company',
+  'NGO',
+  'Manufacture',
+  'Government',
+  'Partnership',
+  'Proprietorship',
+  'Other'
 ];
 
-/**
- * Accesses the VITE_API_URL from Render's Frontend Environment Variables.
- * Falls back to a hardcoded URL or empty string for local development.
- */
 export const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || 
   (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
     ? '' 

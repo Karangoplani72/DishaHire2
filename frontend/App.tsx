@@ -9,16 +9,13 @@ import Home from './pages/Home.tsx';
 import About from './pages/About.tsx';
 import Services from './pages/Services.tsx';
 import Jobs from './pages/Jobs.tsx';
+import Contact from './pages/Contact.tsx';
 import AdminLogin from './pages/AdminLogin.tsx';
 import AdminDashboard from './pages/AdminDashboard.tsx';
 import { NAV_LINKS, CONTACT_INFO, INDUSTRIES } from './constants.tsx';
 
 const MotionDiv = (motion as any).div;
 
-/**
- * ScrollToTop component ensures that every navigation reset the scroll position
- * to the top of the viewport, providing a standard SPA experience.
- */
 const ScrollToTop = () => {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -198,6 +195,7 @@ const App = () => {
             <Route path="/about" element={<About />} />
             <Route path="/services" element={<Services />} />
             <Route path="/jobs" element={<Jobs />} />
+            <Route path="/contact" element={<Contact />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
           </Routes>

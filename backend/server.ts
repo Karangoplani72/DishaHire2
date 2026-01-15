@@ -10,11 +10,36 @@ const PORT = process.env.PORT || 10000;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://dishahire-huya.onrender.com';
 
 // --- SCHEMAS ---
-const enquirySchema = new mongoose.Schema({
-  name: { type: String, required: true },
+const companyEnquirySchema = new mongoose.Schema({
+  companyName: { type: String, required: true },
+  industry: { type: String, required: true },
+  website: { type: String, required: true },
+  address: { type: String, required: true },
+  companyType: { type: String, required: true },
+  contactName: { type: String, required: true },
+  designation: { type: String, required: true },
   email: { type: String, required: true },
-  company: { type: String },
-  message: { type: String, required: true },
+  mobile: { type: String, required: true },
+  alternateNumber: { type: String },
+  createdAt: { type: Date, default: Date.now }
+});
+
+const candidateEnquirySchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  mobile: { type: String, required: true },
+  location: { type: String, required: true },
+  dob: { type: String, required: true },
+  qualification: { type: String, required: true },
+  passingYear: { type: String, required: true },
+  currentTitle: { type: String },
+  preferredRole: { type: String, required: true },
+  preferredIndustry: { type: String },
+  preferredLocation: { type: String, required: true },
+  currentSalary: { type: String },
+  expectedSalary: { type: String, required: true },
+  noticePeriod: { type: String, required: true },
+  resumeName: { type: String },
+  resumeData: { type: String, required: true }, // base64
   createdAt: { type: Date, default: Date.now }
 });
 
@@ -30,8 +55,9 @@ const jobSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-const Enquiry = (mongoose.models.Enquiry || mongoose.model('Enquiry', enquirySchema)) as any;
-const Job = (mongoose.models.Job || mongoose.model('Job', jobSchema)) as any;
+const CompanyEnquiry = mongoose.model('CompanyEnquiry', companyEnquirySchema);
+const CandidateEnquiry = mongoose.model('CandidateEnquiry', candidateEnquirySchema);
+const Job = mongoose.model('Job', jobSchema);
 
 // --- MIDDLEWARE ---
 app.use(helmet() as any);
@@ -47,7 +73,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'X-Requested-With', 'Authorization'],
   credentials: true
 }) as any);
-app.use(express.json() as any);
+app.use(express.json({ limit: '5mb' }) as any);
 
 // --- AUTHENTICATION ---
 app.post('/api/auth/login', (req, res) => {
@@ -59,11 +85,32 @@ app.post('/api/auth/login', (req, res) => {
     const token = btoa(`${email}:${Date.now()}`);
     res.json({ success: true, token });
   } else {
-    res.status(401).json({ error: 'Invalid corporate credentials.' });
+    res.status(401).json({ error: 'Invalid credentials.' });
   }
 });
 
-// --- PUBLIC ROUTES ---
+// --- STATS ---
+app.get('/api/admin/stats', async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    let query: any = {};
+    if (startDate || endDate) {
+      query.createdAt = {};
+      if (startDate) query.createdAt.$gte = new Date(startDate as string);
+      if (endDate) query.createdAt.$lte = new Date(endDate as string);
+    }
+
+    const jobCount = await Job.countDocuments(query);
+    const companyCount = await CompanyEnquiry.countDocuments(query);
+    const candidateCount = await CandidateEnquiry.countDocuments(query);
+
+    res.json({ jobCount, companyCount, candidateCount });
+  } catch (err) {
+    res.status(500).json({ error: 'Stats error' });
+  }
+});
+
+// --- JOBS ---
 app.get('/api/jobs', async (req, res) => {
   try {
     const { includeArchived } = req.query;
@@ -71,7 +118,7 @@ app.get('/api/jobs', async (req, res) => {
     const jobs = await Job.find(query).sort({ createdAt: -1 });
     res.json(jobs);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to sync database.' });
+    res.status(500).json({ error: 'Jobs fetch failed.' });
   }
 });
 
@@ -81,7 +128,7 @@ app.post('/api/jobs', async (req, res) => {
     await newJob.save();
     res.status(201).json({ success: true, job: newJob });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to create job.' });
+    res.status(500).json({ error: 'Job creation failed.' });
   }
 });
 
@@ -91,7 +138,7 @@ app.patch('/api/jobs/:id/archive', async (req, res) => {
     const job = await Job.findByIdAndUpdate(req.params.id, { isArchived }, { new: true });
     res.json({ success: true, job });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to update status.' });
+    res.status(500).json({ error: 'Archive failed.' });
   }
 });
 
@@ -100,18 +147,43 @@ app.delete('/api/jobs/:id', async (req, res) => {
     await Job.findByIdAndDelete(req.params.id);
     res.json({ success: true });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to delete.' });
+    res.status(500).json({ error: 'Delete failed.' });
   }
 });
 
-app.post('/api/enquiries', async (req, res) => {
+// --- ENQUIRIES ---
+app.post('/api/enquiries/company', async (req, res) => {
   try {
-    const enquiry = new Enquiry(req.body);
+    const enquiry = new CompanyEnquiry(req.body);
     await enquiry.save();
     res.status(201).json({ success: true });
   } catch (err) {
-    res.status(500).json({ error: 'Enquiry failed.' });
+    res.status(500).json({ error: 'Submission failed.' });
   }
+});
+
+app.post('/api/enquiries/candidate', async (req, res) => {
+  try {
+    const enquiry = new CandidateEnquiry(req.body);
+    await enquiry.save();
+    res.status(201).json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Submission failed.' });
+  }
+});
+
+app.get('/api/admin/enquiries/company', async (req, res) => {
+  try {
+    const data = await CompanyEnquiry.find().sort({ createdAt: -1 });
+    res.json(data);
+  } catch (err) { res.status(500).json({ error: 'Fetch failed.' }); }
+});
+
+app.get('/api/admin/enquiries/candidate', async (req, res) => {
+  try {
+    const data = await CandidateEnquiry.find().sort({ createdAt: -1 });
+    res.json(data);
+  } catch (err) { res.status(500).json({ error: 'Fetch failed.' }); }
 });
 
 const MONGO_URI = process.env.MONGO_URI;
