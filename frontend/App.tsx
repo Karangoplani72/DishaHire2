@@ -1,12 +1,16 @@
+
 import React, { useState } from 'react';
 import * as RouterDOM from 'react-router-dom';
 const { HashRouter: Router, Routes, Route, Link, useLocation } = RouterDOM as any;
-import { Menu, X, Mail, MapPin, Linkedin, Instagram, MessageCircle, Phone, ArrowRight } from 'lucide-react';
+import { Menu, X, Mail, MapPin, Linkedin, Instagram, MessageCircle, Phone, ArrowRight, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import Home from './pages/Home.tsx';
 import About from './pages/About.tsx';
 import Services from './pages/Services.tsx';
+import Jobs from './pages/Jobs.tsx';
+import AdminLogin from './pages/AdminLogin.tsx';
+import AdminDashboard from './pages/AdminDashboard.tsx';
 import { NAV_LINKS, CONTACT_INFO, INDUSTRIES } from './constants.tsx';
 
 const MotionDiv = (motion as any).div;
@@ -38,6 +42,9 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
+            <Link to="/admin/login" className="text-gray-500 hover:text-brand-gold transition-colors">
+              <Lock size={16} />
+            </Link>
           </div>
 
           <div className="md:hidden">
@@ -62,6 +69,9 @@ const Navbar = () => {
                   {link.name}
                 </Link>
               ))}
+              <Link to="/admin/login" onClick={() => setIsOpen(false)} className="block text-lg font-serif font-bold text-gray-400">
+                Admin Access
+              </Link>
             </div>
           </MotionDiv>
         )}
@@ -184,6 +194,9 @@ const App = () => {
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
             <Route path="/services" element={<Services />} />
+            <Route path="/jobs" element={<Jobs />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
           </Routes>
         </main>
         <Footer />
