@@ -1,9 +1,10 @@
+
 import React, { useEffect, useState } from 'react';
 import * as RouterDOM from 'react-router-dom';
 const { useNavigate } = RouterDOM as any;
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Trash2, Briefcase, LayoutDashboard, LogOut, CheckCircle2, X, AlertCircle, MapPin, Building2 } from 'lucide-react';
-import { INDUSTRIES } from '../constants.tsx';
+import { INDUSTRIES, API_BASE_URL } from '../constants.tsx';
 
 const MotionDiv = (motion as any).div;
 
@@ -31,7 +32,7 @@ const AdminDashboard: React.FC = () => {
 
   const fetchJobs = async () => {
     try {
-      const res = await fetch('/api/jobs');
+      const res = await fetch(`${API_BASE_URL}/api/jobs`);
       const data = await res.json();
       setJobs(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -45,7 +46,7 @@ const AdminDashboard: React.FC = () => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const res = await fetch('/api/jobs', {
+      const res = await fetch(`${API_BASE_URL}/api/jobs`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newJob)
@@ -67,7 +68,7 @@ const AdminDashboard: React.FC = () => {
   const handleDeleteJob = async (id: string) => {
     if (window.confirm('Are you sure you want to retire this mandate from the database?')) {
       try {
-        const res = await fetch(`/api/jobs/${id}`, { method: 'DELETE' });
+        const res = await fetch(`${API_BASE_URL}/api/jobs/${id}`, { method: 'DELETE' });
         if (res.ok) {
           fetchJobs();
         }

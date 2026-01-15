@@ -4,6 +4,7 @@ import * as RouterDOM from 'react-router-dom';
 const { useNavigate } = RouterDOM as any;
 import { motion } from 'framer-motion';
 import { Lock, Mail, ArrowRight, ShieldAlert, ShieldCheck } from 'lucide-react';
+import { API_BASE_URL } from '../constants.tsx';
 
 const MotionDiv = (motion as any).div;
 
@@ -20,7 +21,11 @@ const AdminLogin: React.FC = () => {
     setError('');
 
     try {
-      const response = await fetch('/api/auth/login', {
+      // Use the absolute URL from constants
+      const apiUrl = `${API_BASE_URL}/api/auth/login`;
+      console.log('Attempting login at:', apiUrl);
+
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -32,10 +37,11 @@ const AdminLogin: React.FC = () => {
         sessionStorage.setItem('isAdmin', 'true');
         navigate('/admin/dashboard');
       } else {
-        setError(data.error || 'Verification failed. Unauthorized access.');
+        setError(data.error || 'Invalid credentials.');
       }
     } catch (err) {
-      setError('Connection to security server failed.');
+      console.error('Fetch error:', err);
+      setError('Cannot reach security server. Verify backend URL in constants.');
     } finally {
       setIsAuthenticating(false);
     }
@@ -96,7 +102,7 @@ const AdminLogin: React.FC = () => {
 
           {error && (
             <MotionDiv initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center space-x-3 text-red-400 text-xs bg-red-400/5 p-5 rounded-2xl border border-red-400/10">
-              <ShieldAlert size={18} />
+              <ShieldAlert size={18} className="flex-shrink-0" />
               <span>{error}</span>
             </MotionDiv>
           )}
@@ -106,7 +112,16 @@ const AdminLogin: React.FC = () => {
             disabled={isAuthenticating}
             className="w-full bg-brand-gold text-brand-dark py-6 rounded-[2rem] font-bold text-xl flex items-center justify-center hover:bg-yellow-500 transition-all shadow-2xl disabled:opacity-50"
           >
-            {isAuthenticating ? 'Verifying...' : 'Authorize Entry'}
+            {isAuthenticating ? (
+              <div className="flex items-center space-x-3">
+                <div className="w-5 h-5 border-2 border-brand-dark border-t-transparent rounded-full animate-spin" />
+                <span>Verifying...</span>
+              </div>
+            ) : (
+              <div className="flex items-center">
+                Authorize Entry <ArrowRight size={22} className="ml-3" />
+              </div>
+            )}
           </button>
         </form>
       </MotionDiv>

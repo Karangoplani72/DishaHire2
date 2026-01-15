@@ -27,3 +27,12 @@ export const INDUSTRIES = [
 export const COMMERCIAL_TERMS = [
   { level: 'Consultation', range: 'Standard Service', charges: 'Inquire for Quote' },
 ];
+
+/**
+ * Accesses the VITE_API_URL from Render's Frontend Environment Variables.
+ * Falls back to a hardcoded URL or empty string for local development.
+ */
+export const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || 
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+    ? '' 
+    : 'https://dishahire-backend.onrender.com');

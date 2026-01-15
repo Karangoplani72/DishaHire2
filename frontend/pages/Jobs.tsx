@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Briefcase, MapPin, Building2, Search, ArrowUpRight, Clock, Filter, Sparkles } from 'lucide-react';
-import { CONTACT_INFO } from '../constants.tsx';
+import { CONTACT_INFO, API_BASE_URL } from '../constants.tsx';
 
 const MotionDiv = (motion as any).div;
 
@@ -18,7 +18,7 @@ const Jobs: React.FC = () => {
 
   const fetchJobs = () => {
     setLoading(true);
-    fetch('/api/jobs')
+    fetch(`${API_BASE_URL}/api/jobs`)
       .then(res => res.json())
       .then(data => {
         setJobs(Array.isArray(data) ? data : []);
@@ -50,7 +50,6 @@ const Jobs: React.FC = () => {
 
   return (
     <div className="bg-brand-light min-h-screen">
-      {/* Dynamic Header */}
       <section className="bg-brand-dark text-white py-32 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-brand-gold/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2" />
@@ -71,7 +70,6 @@ const Jobs: React.FC = () => {
 
       <section className="py-20 -mt-16 relative z-20">
         <div className="max-w-7xl mx-auto px-4">
-          {/* Search & Filter Bar */}
           <div className="bg-white p-2 rounded-[3rem] shadow-2xl flex flex-col md:flex-row items-center mb-16 max-w-5xl mx-auto border border-gray-100">
             <div className="flex-grow flex items-center px-6 py-4 w-full">
               <Search className="text-brand-gold mr-4" size={24} />
@@ -112,7 +110,6 @@ const Jobs: React.FC = () => {
                     whileHover={{ y: -10 }}
                     className="bg-brand-dark p-10 rounded-[4rem] text-white border border-white/5 flex flex-col justify-between group h-full shadow-4xl relative overflow-hidden"
                   >
-                    {/* Decorative Background Element */}
                     <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
                       <Briefcase size={120} />
                     </div>
@@ -185,12 +182,10 @@ const Jobs: React.FC = () => {
         </div>
       </section>
 
-      {/* Trust Banner */}
       <section className="py-20 bg-brand-dark/5 border-t border-brand-dark/5">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <p className="text-[10px] font-black uppercase tracking-[0.5em] text-gray-400 mb-8">Global Placement Partners</p>
           <div className="flex flex-wrap justify-center gap-12 grayscale opacity-40">
-            {/* These would typically be logos */}
             <span className="text-2xl font-serif font-bold text-brand-dark">TECHCORE</span>
             <span className="text-2xl font-serif font-bold text-brand-dark">BEYOND HR</span>
             <span className="text-2xl font-serif font-bold text-brand-dark">VIRTUE GROUP</span>

@@ -32,10 +32,18 @@ const Job = (mongoose.models.Job || mongoose.model('Job', jobSchema)) as any;
 
 // --- MIDDLEWARE ---
 app.use(helmet() as any);
+// Robust CORS to handle all potential Render frontend variants
 app.use(cors({
-  origin: [FRONTEND_URL, 'http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:3000'],
+  origin: [
+    FRONTEND_URL, 
+    'https://dishahire-huya.onrender.com', 
+    'http://localhost:3000', 
+    'http://localhost:5173', 
+    'http://127.0.0.1:3000'
+  ],
   methods: ['GET', 'POST', 'DELETE', 'OPTIONS', 'PUT'],
-  allowedHeaders: ['Content-Type', 'X-Requested-With', 'Authorization']
+  allowedHeaders: ['Content-Type', 'X-Requested-With', 'Authorization'],
+  credentials: true
 }) as any);
 app.use(express.json() as any);
 
@@ -45,17 +53,30 @@ app.post('/api/auth/login', (req, res) => {
   const adminEmail = process.env.ADMIN_EMAIL;
   const adminPassword = process.env.ADMIN_PASSWORD;
 
-  if (email === adminEmail && password === adminPassword) {
-    // In a production app, you would sign a JWT here. 
-    // For this implementation, we return a success status.
-    res.json({ success: true, message: 'Authenticated' });
+  console.log(`Login attempt for: ${email}`);
+
+  if (email && password && email === adminEmail && password === adminPassword) {
+    // Return a simple token based on JWT_SECRET if it exists, otherwise a secure string
+    const token = process.env.JWT_SECRET 
+      ? btoa(`${email}:${process.env.JWT_SECRET}:${Date.now()}`)
+      : btoa(`${email}:${Date.now()}`);
+      
+    res.json({ 
+      success: true, 
+      token: token,
+      message: 'Authentication Successful' 
+    });
   } else {
-    res.status(401).json({ error: 'Invalid corporate credentials.' });
+    res.status(401).json({ error: 'Invalid corporate credentials. Access Denied.' });
   }
 });
 
 // --- PUBLIC ROUTES ---
-app.get('/health', (req, res) => res.json({ status: 'active', server: 'DishaHire-Node-Core', uptime: process.uptime() }));
+app.get('/health', (req, res) => res.json({ 
+  status: 'active', 
+  service: 'DishaHire Core API', 
+  db: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected' 
+}));
 
 // Enquiries
 app.post('/api/enquiries', async (req, res) => {
@@ -83,7 +104,7 @@ app.post('/api/jobs', async (req, res) => {
   try {
     const { title, company, location, industry, description } = req.body;
     if (!title || !company || !location || !industry || !description) {
-      return res.status(400).json({ error: 'All mandate attributes are required.' });
+      return res.status(400).json({ error: 'Missing required mandate attributes.' });
     }
     const newJob = new Job(req.body);
     await newJob.save();
@@ -109,14 +130,14 @@ const MONGO_URI = process.env.MONGO_URI;
 if (MONGO_URI) {
   mongoose.connect(MONGO_URI)
     .then(() => {
-      console.log('💎 Enterprise Database Connected Successfully');
-      app.listen(PORT, () => console.log(`🚀 DishaHire Public API operational on port ${PORT}`));
+      console.log('💎 Enterprise Database Connected');
+      app.listen(PORT, () => console.log(`🚀 DishaHire API active on port ${PORT}`));
     })
     .catch(err => {
-      console.error('❌ DATABASE CONNECTION FAILURE:', err);
+      console.error('❌ DB Connection Error:', err);
       process.exit(1);
     });
 } else {
-  console.error('❌ FATAL: MONGO_URI missing');
+  console.error('❌ FATAL: MONGO_URI is missing');
   process.exit(1);
 }

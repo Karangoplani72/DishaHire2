@@ -1,12 +1,12 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 const MotionDiv = (motion as any).div;
 const MotionButton = (motion as any).button;
 import { ArrowRight, ShieldCheck, CheckCircle2, X } from 'lucide-react';
-import { INDUSTRIES } from '../constants.tsx';
+import { INDUSTRIES, API_BASE_URL } from '../constants.tsx';
 import { EnquiryType } from '../types.ts';
 
-// Added missing EnquiryModal component to handle employer inquiries
 const EnquiryModal: React.FC<{ type: EnquiryType; onClose: () => void }> = ({ type, onClose }) => {
   const [formData, setFormData] = useState({ name: '', email: '', company: '', message: '' });
   const [loading, setLoading] = useState(false);
@@ -16,7 +16,7 @@ const EnquiryModal: React.FC<{ type: EnquiryType; onClose: () => void }> = ({ ty
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch('/api/enquiries', {
+      const res = await fetch(`${API_BASE_URL}/api/enquiries`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -123,7 +123,6 @@ const Home: React.FC = () => {
 
   return (
     <div className="overflow-hidden">
-      {/* Hero Section */}
       <section className="relative min-h-[90vh] flex items-center bg-brand-dark overflow-hidden">
         <div className="absolute inset-0 z-0 opacity-20">
            <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-brand-gold/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
@@ -175,7 +174,6 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Industries Section */}
       <section className="py-32 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-24 space-y-4">
