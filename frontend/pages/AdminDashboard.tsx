@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import * as RouterDOM from 'react-router-dom';
 const { useNavigate, Link } = RouterDOM as any;
@@ -8,7 +7,6 @@ import {
   GraduationCap, Banknote, Archive, MapPin, 
   Building2, UserCircle2, Mail, Phone, Menu,
   ChevronRight, ClipboardCheck, Info, Loader2, CheckCircle, Calendar, BriefcaseBusiness,
-  // Added Users icon import
   Users
 } from 'lucide-react';
 import { API_BASE_URL } from '../constants.tsx';
@@ -131,15 +129,22 @@ const AdminDashboard: React.FC = () => {
   return (
     <div className="flex min-h-screen bg-[#F0F2F5]">
       <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-brand-dark p-6 transition-transform lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="mb-12 px-2 flex justify-between items-center">
-          <Link to="/" className="block">
-            <img 
-              src="/logo.png" 
-              alt="DishaHire Logo" 
-              className="h-12 w-auto object-contain"
-            />
+        <div className="mb-12 flex justify-between items-center px-2">
+          <Link to="/" className="block group">
+            <div className="bg-white p-3 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] ring-1 ring-white/10 group-hover:scale-[1.02] transition-transform duration-300">
+              <img 
+                src="/logo.png" 
+                alt="DishaHire Logo" 
+                className="h-10 sm:h-12 w-auto object-contain"
+              />
+            </div>
           </Link>
-          <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden text-white"><X size={20}/></button>
+          <button 
+            onClick={() => setIsSidebarOpen(false)} 
+            className="lg:hidden text-white p-2 hover:bg-white/5 rounded-xl transition-colors"
+          >
+            <X size={20}/>
+          </button>
         </div>
         
         <nav className="space-y-2">
@@ -152,7 +157,7 @@ const AdminDashboard: React.FC = () => {
         <div className="absolute bottom-10 left-6 right-6 pt-6 border-t border-white/10">
           <button onClick={handleLogout} className="w-full flex items-center space-x-4 px-6 py-4 rounded-2xl text-gray-500 hover:text-red-400 transition-all">
             <LogOut size={18} />
-            <span className="text-[10px] uppercase tracking-widest font-bold">Logout</span>
+            <span className="text-[10px] uppercase tracking-widest font-bold">Terminate Session</span>
           </button>
         </div>
       </aside>
