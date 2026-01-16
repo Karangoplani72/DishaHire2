@@ -59,12 +59,12 @@ const About: React.FC = () => {
         </div>
       </section>
 
-      {/* Section 2: Who We Are (Text-Centric Refined Layout - NO IMAGE) */}
+      {/* Section 2: Who We Are (Redesigned Text-Centric Layout - NO PHOTO) */}
       <section className="py-20 sm:py-32 px-4 sm:px-6 relative bg-white">
         <div className="absolute top-0 right-0 w-1/4 h-full bg-brand-gold/5 pointer-events-none -skew-x-12 transform translate-x-1/2" />
         <div className="absolute bottom-0 left-0 w-1/4 h-1/2 bg-brand-dark/[0.02] pointer-events-none skew-x-12 transform -translate-x-1/2" />
         
-        <div className="max-w-4xl mx-auto relative z-10 text-center space-y-10 sm:space-y-14">
+        <div className="max-w-4xl mx-auto relative z-10 text-center space-y-12 sm:space-y-20">
           <MotionDiv 
             initial={{ opacity: 0, y: 30 }} 
             whileInView={{ opacity: 1, y: 0 }} 
@@ -86,8 +86,8 @@ const About: React.FC = () => {
             className="space-y-12"
           >
             <div className="relative inline-block px-4">
-              <Quote className="absolute -top-8 -left-2 sm:-left-12 text-brand-gold/20" size={80} />
-              <p className="text-xl sm:text-4xl text-brand-dark leading-snug font-serif italic font-semibold">
+              <Quote className="absolute -top-10 -left-4 sm:-left-16 text-brand-gold/10" size={100} />
+              <p className="text-2xl sm:text-4xl text-brand-dark leading-tight font-serif italic font-semibold">
                 Disha Hire is a professional recruitment consultancy committed to ethical, transparent, and result-oriented hiring solutions.
               </p>
             </div>
@@ -101,20 +101,19 @@ const About: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="pt-12"
           >
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-8 text-center border-t border-gray-100 pt-16">
-               <div className="space-y-1">
-                  <p className="text-4xl sm:text-5xl font-serif font-bold text-brand-dark">15+</p>
-                  <p className="text-[9px] font-black uppercase tracking-[0.4em] text-brand-gold">Industries</p>
+               <div className="space-y-2">
+                  <p className="text-4xl sm:text-6xl font-serif font-bold text-brand-dark">15+</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-gold">Industries</p>
                </div>
-               <div className="space-y-1">
-                  <p className="text-4xl sm:text-5xl font-serif font-bold text-brand-dark">Pure</p>
-                  <p className="text-[9px] font-black uppercase tracking-[0.4em] text-brand-gold">Integrity</p>
+               <div className="space-y-2">
+                  <p className="text-4xl sm:text-6xl font-serif font-bold text-brand-dark">Ethical</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-gold">Hiring</p>
                </div>
-               <div className="col-span-2 sm:col-span-1 space-y-1">
-                  <p className="text-4xl sm:text-5xl font-serif font-bold text-brand-dark">Elite</p>
-                  <p className="text-[9px] font-black uppercase tracking-[0.4em] text-brand-gold">Sourcing</p>
+               <div className="col-span-2 sm:col-span-1 space-y-2">
+                  <p className="text-4xl sm:text-6xl font-serif font-bold text-brand-dark">Direct</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-gold">Impact</p>
                </div>
             </div>
           </MotionDiv>

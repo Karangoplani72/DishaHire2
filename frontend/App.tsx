@@ -197,20 +197,22 @@ const Footer = () => {
         </div>
 
         <div className="pt-12 border-t border-white/5">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left">
             <div className="space-y-1">
               <p className="text-[9px] font-bold uppercase tracking-[0.4em] text-gray-600">TECHNICAL ARCHITECTURE</p>
-              <p className="text-[10px] font-serif italic text-gray-400">Handcrafted for DishaHire Consultancy Excellence</p>
+              <p className="text-[11px] font-serif italic text-gray-400">Handcrafted for DishaHire Consultancy Excellence</p>
             </div>
             
             <MotionDiv 
-              whileHover={{ scale: 1.05 }}
-              className="px-6 py-3 bg-brand-gold/5 border border-brand-gold/20 rounded-full flex items-center gap-3 group transition-all hover:bg-brand-gold/10"
+              whileHover={{ scale: 1.02 }}
+              className="px-8 py-4 bg-brand-gold/5 border border-brand-gold/20 rounded-[2rem] flex items-center gap-4 group transition-all hover:bg-brand-gold/10 hover:border-brand-gold/40 shadow-xl shadow-black/20"
             >
-              <Code2 size={16} className="text-brand-gold group-hover:rotate-12 transition-transform" />
+              <div className="p-3 bg-brand-gold/10 rounded-2xl group-hover:bg-brand-gold/20 transition-colors">
+                <Code2 size={20} className="text-brand-gold group-hover:rotate-12 transition-transform duration-500" />
+              </div>
               <div className="text-left">
-                <p className="text-[8px] font-black uppercase tracking-widest text-gray-500">Engineered by</p>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-brand-gold">ST Tech Solutions</p>
+                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-500">Architected & Engineered by</p>
+                <p className="text-sm font-bold uppercase tracking-[0.1em] text-brand-gold">ST Tech Solutions</p>
               </div>
             </MotionDiv>
           </div>
