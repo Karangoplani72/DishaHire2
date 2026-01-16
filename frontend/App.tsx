@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import * as RouterDOM from 'react-router-dom';
-const { HashRouter: Router, Routes, Route, Link, useLocation } = RouterDOM as any;
-import { Menu, X, Mail, MapPin, Linkedin, Instagram, MessageCircle, Phone, ArrowRight, Lock, ChevronRight } from 'lucide-react';
+const { HashRouter: Router, Routes, Route, Link, useLocation, useNavigate } = RouterDOM as any;
+import { Menu, X, Mail, MapPin, Linkedin, Instagram, MessageCircle, Phone, ArrowLeft, ArrowRight, Lock, ChevronRight, ShieldAlert } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import Home from './pages/Home.tsx';
@@ -25,6 +25,38 @@ const ScrollToTop = () => {
   return null;
 };
 
+// Premium Error Page Component
+const NotFound = () => {
+  return (
+    <div className="min-h-screen bg-brand-dark flex items-center justify-center p-6 text-center relative overflow-hidden">
+      <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none" />
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-brand-gold/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
+      
+      <MotionDiv 
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="relative z-10 space-y-8"
+      >
+        <div className="inline-flex p-6 rounded-[2.5rem] bg-brand-gold/10 border border-brand-gold/20 text-brand-gold mb-4">
+          <ShieldAlert size={64} />
+        </div>
+        <h1 className="text-7xl sm:text-9xl font-serif font-bold text-white leading-none">404</h1>
+        <div className="space-y-4">
+          <h2 className="text-2xl sm:text-4xl font-serif font-bold text-brand-gold italic">Mandate Not Found</h2>
+          <p className="text-gray-400 max-w-md mx-auto text-sm sm:text-lg font-serif italic">
+            The professional path you are seeking has been moved or does not exist in our current registry.
+          </p>
+        </div>
+        <div className="pt-8">
+          <Link to="/" className="inline-flex items-center gap-3 px-10 py-5 bg-brand-gold text-brand-dark rounded-full font-bold uppercase tracking-widest text-sm hover:bg-yellow-500 transition-all shadow-2xl">
+            <ArrowLeft size={18} /> Return to Headquarters
+          </Link>
+        </div>
+      </MotionDiv>
+    </div>
+  );
+};
+
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
@@ -41,7 +73,6 @@ const Navbar = () => {
     return () => { document.body.style.overflow = 'unset'; };
   }, [isOpen]);
 
-  // Close menu on navigation
   useEffect(() => {
     setIsOpen(false);
   }, [location.pathname]);
@@ -50,7 +81,7 @@ const Navbar = () => {
     <>
       <nav className="bg-brand-dark text-white sticky top-0 z-[60] shadow-xl border-b border-white/5 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20 sm:h-24">
+          <div className="flex justify-between items-center h-20 h-24">
             <Link to="/" className="flex items-center relative z-[110]">
               <img 
                 src={logoPath} 
@@ -128,7 +159,15 @@ const Navbar = () => {
 const Footer = () => {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin/dashboard');
-  if (isAdmin) return null;
+  
+  // Also hide footer on login page and not found page to keep focus
+  const isHideFooter = isAdmin || location.pathname === '/admin/login';
+  
+  // We check if the current route is one of the valid ones. If not, we might be on 404.
+  const validPaths = [...NAV_LINKS.map(l => l.href), '/admin/login', '/admin/dashboard'];
+  const isNotFound = !validPaths.includes(location.pathname);
+
+  if (isHideFooter || isNotFound) return null;
 
   return (
     <footer className="bg-brand-dark text-white pt-20 pb-12 border-t border-white/5 relative overflow-hidden">
@@ -216,7 +255,6 @@ const App = () => {
   return (
     <Router>
       <ScrollToTop />
-      {/* Global Wrapper to strictly prevent horizontal overflow */}
       <div className="min-h-screen flex flex-col bg-brand-light overflow-x-hidden relative w-full max-w-full">
         <Navbar />
         <main className="flex-grow w-full relative overflow-x-hidden">
@@ -228,6 +266,8 @@ const App = () => {
             <Route path="/contact" element={<Contact />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            {/* Catch-all 404 Route */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
         <Footer />
