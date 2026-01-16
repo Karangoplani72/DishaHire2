@@ -13,8 +13,7 @@ import AdminLogin from './pages/AdminLogin.tsx';
 import AdminDashboard from './pages/AdminDashboard.tsx';
 import { NAV_LINKS, CONTACT_INFO, INDUSTRIES } from './constants.tsx';
 
-// Logo import
-import logo from './pages/logo.png';
+const logoPath = "/frontend/pages/logo.png";
 
 const MotionDiv = (motion as any).div;
 
@@ -48,9 +47,13 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-20 sm:h-24">
           <Link to="/" className="flex items-center" onClick={() => setIsOpen(false)}>
             <img 
-              src={logo} 
+              src={logoPath} 
               alt="DishaHire Logo" 
               className="h-12 sm:h-16 w-auto object-contain hover:opacity-90 transition-opacity"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = "/logo.png"; // Fallback to root public if misconfigured
+              }}
             />
           </Link>
 
@@ -132,7 +135,7 @@ const Footer = () => {
           <div className="space-y-8">
             <Link to="/" className="inline-block">
               <img 
-                src={logo} 
+                src={logoPath} 
                 alt="DishaHire Logo" 
                 className="h-16 sm:h-20 w-auto object-contain"
               />

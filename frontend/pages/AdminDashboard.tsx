@@ -10,9 +10,6 @@ import {
 } from 'lucide-react';
 import { API_BASE_URL } from '../constants.tsx';
 
-// Logo import
-import logo from './logo.png';
-
 const MotionDiv = (motion as any).div;
 
 const AdminDashboard: React.FC = () => {
@@ -134,7 +131,7 @@ const AdminDashboard: React.FC = () => {
         <div className="mb-12 px-2 flex justify-between items-center">
           <Link to="/" className="block">
             <img 
-              src={logo} 
+              src="/frontend/pages/logo.png" 
               alt="DishaHire Logo" 
               className="h-12 w-auto object-contain"
             />

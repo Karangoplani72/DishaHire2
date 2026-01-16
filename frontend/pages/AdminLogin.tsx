@@ -5,9 +5,6 @@ import { motion } from 'framer-motion';
 import { Lock, Mail, ArrowRight, ShieldAlert } from 'lucide-react';
 import { API_BASE_URL } from '../constants.tsx';
 
-// Logo import
-import logo from './logo.png';
-
 const MotionDiv = (motion as any).div;
 
 const AdminLogin: React.FC = () => {
@@ -60,7 +57,7 @@ const AdminLogin: React.FC = () => {
         <div className="text-center mb-8 sm:mb-12">
           <div className="mx-auto mb-6 sm:mb-8 transform rotate-1">
             <img 
-              src={logo} 
+              src="/frontend/pages/logo.png" 
               alt="DishaHire Logo" 
               className="h-24 sm:h-32 w-auto mx-auto object-contain"
             />
@@ -72,7 +69,7 @@ const AdminLogin: React.FC = () => {
         <form onSubmit={handleLogin} className="space-y-6 sm:space-y-8">
           <div className="space-y-4 sm:space-y-6">
             <div className="group">
-              <label className="block text-[9px] font-black uppercase tracking-widest text-gray-500 ml-2 mb-2">Credential Identifier</label>
+              <label className="block text-[9px] font-black uppercase tracking-widest text-gray-400 ml-2 mb-2">Credential Identifier</label>
               <div className="relative">
                 <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
                 <input 
@@ -87,7 +84,7 @@ const AdminLogin: React.FC = () => {
             </div>
 
             <div className="group">
-              <label className="block text-[9px] font-black uppercase tracking-widest text-gray-500 ml-2 mb-2">Access Keyphrase</label>
+              <label className="block text-[9px] font-black uppercase tracking-widest text-gray-400 ml-2 mb-2">Access Keyphrase</label>
               <div className="relative">
                 <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
                 <input 

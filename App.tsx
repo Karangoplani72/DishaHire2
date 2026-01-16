@@ -13,7 +13,17 @@ import AdminLogin from './frontend/pages/AdminLogin.tsx';
 import AdminDashboard from './frontend/pages/AdminDashboard.tsx';
 import { NAV_LINKS, CONTACT_INFO, INDUSTRIES } from './frontend/constants.tsx';
 
+const logoPath = "/frontend/pages/logo.png";
+
 const MotionDiv = (motion as any).div;
+
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+};
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -28,7 +38,7 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-20 sm:h-24">
           <Link to="/" className="flex items-center" onClick={() => setIsOpen(false)}>
             <img 
-              src="/frontend/pages/logo.png" 
+              src={logoPath} 
               alt="DishaHire Logo" 
               className="h-12 sm:h-16 w-auto object-contain hover:opacity-90 transition-opacity"
             />
@@ -85,6 +95,7 @@ const Navbar = () => {
 const App = () => {
   return (
     <Router>
+      <ScrollToTop />
       <div className="min-h-screen flex flex-col bg-brand-light">
         <Navbar />
         <main className="flex-grow">
