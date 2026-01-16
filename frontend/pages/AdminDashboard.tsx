@@ -8,7 +8,7 @@ import {
   GraduationCap, Banknote, Archive, MapPin, 
   Building2, UserCircle2, Mail, Phone, Menu,
   ChevronRight, ClipboardCheck, Info, Loader2, CheckCircle, Calendar, BriefcaseBusiness,
-  Users, Search, Filter, Database, ArrowUpDown, CalendarDays, Cake
+  Users, Search, Filter, Database, ArrowUpDown, CalendarDays, Cake, PencilLine
 } from 'lucide-react';
 import { API_BASE_URL, COMPANY_TYPES, INDUSTRIES } from '../constants.tsx';
 
@@ -23,6 +23,7 @@ const AdminDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [editingJobId, setEditingJobId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'jobs' | 'companies' | 'candidates'>('overview');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
@@ -125,17 +126,44 @@ const AdminDashboard: React.FC = () => {
   // Derived filters for selects
   const uniqueQualifications = useMemo(() => ['All', ...new Set(candidateEnquiries.map(c => c.qualification))], [candidateEnquiries]);
 
-  const handleAddJob = async (e: React.FormEvent) => {
+  const handleOpenAddForm = () => {
+    setEditingJobId(null);
+    setNewJob({ title: '', education: '', gender: 'Any', salary: '', industry: '', location: '', otherInfo: '' });
+    setShowAddForm(true);
+  };
+
+  const handleEditJobClick = (job: any) => {
+    setEditingJobId(job._id);
+    setNewJob({
+      title: job.title,
+      education: job.education,
+      gender: job.gender,
+      salary: job.salary,
+      industry: job.industry,
+      location: job.location,
+      otherInfo: job.otherInfo || ''
+    });
+    setShowAddForm(true);
+  };
+
+  const handleJobSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/jobs`, {
-        method: 'POST',
+      const url = editingJobId 
+        ? `${API_BASE_URL}/api/jobs/${editingJobId}` 
+        : `${API_BASE_URL}/api/jobs`;
+      
+      const method = editingJobId ? 'PATCH' : 'POST';
+
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newJob)
       });
       if (res.ok) {
         setShowAddForm(false);
+        setEditingJobId(null);
         setNewJob({ title: '', education: '', gender: 'Any', salary: '', industry: '', location: '', otherInfo: '' });
         fetchAllData();
       }
@@ -323,7 +351,7 @@ const AdminDashboard: React.FC = () => {
           </button>
           <div className="hidden lg:block">
             <p className="text-gray-400 text-[10px] font-black uppercase tracking-[0.3em]">Administrative Interface</p>
-            <h1 className="text-sm font-bold text-brand-dark">Control Center v1.2.2</h1>
+            <h1 className="text-sm font-bold text-brand-dark">Control Center v1.2.5</h1>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-right hidden sm:block">
@@ -366,7 +394,7 @@ const AdminDashboard: React.FC = () => {
                   title="Job Hub" 
                   subtitle="Enterprise Opportunities" 
                   action={
-                    <button onClick={() => setShowAddForm(true)} className="w-full sm:w-auto px-8 py-4 bg-brand-dark text-brand-gold rounded-2xl font-bold uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 shadow-xl hover:bg-black transition-all">
+                    <button onClick={handleOpenAddForm} className="w-full sm:w-auto px-8 py-4 bg-brand-dark text-brand-gold rounded-2xl font-bold uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 shadow-xl hover:bg-black transition-all">
                       <Plus size={16} /> Post Job
                     </button>
                   } 
@@ -390,6 +418,7 @@ const AdminDashboard: React.FC = () => {
                         </div>
                       </div>
                       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                         <button onClick={() => handleEditJobClick(job)} title="Edit" className="flex-1 sm:flex-none p-3 sm:p-4 bg-gray-50 rounded-2xl text-gray-400 hover:text-blue-500 transition-all flex justify-center"><PencilLine size={18} /></button>
                          <button onClick={() => toggleArchive(job._id, job.isArchived)} title={job.isArchived ? 'Activate' : 'Archive'} className="flex-1 sm:flex-none p-3 sm:p-4 bg-gray-50 rounded-2xl text-gray-400 hover:text-brand-gold transition-all flex justify-center"><Archive size={18} /></button>
                          <button onClick={() => handleDeleteJob(job._id)} title="Delete" className="flex-1 sm:flex-none p-3 sm:p-4 bg-gray-50 rounded-2xl text-gray-400 hover:text-red-500 transition-all flex justify-center"><Trash2 size={18} /></button>
                       </div>
@@ -517,14 +546,16 @@ const AdminDashboard: React.FC = () => {
         )}
       </main>
 
-      {/* Modal for adding jobs */}
+      {/* Modal for adding/editing jobs */}
       <AnimatePresence>
         {showAddForm && (
           <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6 bg-brand-dark/90 backdrop-blur-md overflow-y-auto">
             <MotionDiv initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white w-full max-w-2xl rounded-[2.5rem] sm:rounded-[3rem] p-6 sm:p-10 relative shadow-4xl my-auto">
-               <button onClick={() => setShowAddForm(false)} className="absolute top-6 right-6 sm:top-10 sm:right-10 text-gray-400 hover:text-brand-dark transition-colors"><X size={28}/></button>
-               <h2 className="text-2xl sm:text-3xl font-serif font-bold text-brand-dark mb-8 sm:mb-10">Post New Job</h2>
-               <form onSubmit={handleAddJob} className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+               <button onClick={() => { setShowAddForm(false); setEditingJobId(null); }} className="absolute top-6 right-6 sm:top-10 sm:right-10 text-gray-400 hover:text-brand-dark transition-colors"><X size={28}/></button>
+               <h2 className="text-2xl sm:text-3xl font-serif font-bold text-brand-dark mb-8 sm:mb-10">
+                 {editingJobId ? 'Edit Job Details' : 'Post New Job'}
+               </h2>
+               <form onSubmit={handleJobSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                  <div className="sm:col-span-2">
                     <label className="text-[9px] font-black uppercase text-gray-400 mb-2 block tracking-widest">Job Title*</label>
                     <input required className="w-full bg-gray-50 p-4 sm:p-5 rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold transition-all" placeholder="e.g. Senior VP of Operations" value={newJob.title} onChange={e => setNewJob({...newJob, title: e.target.value})} />
@@ -551,7 +582,7 @@ const AdminDashboard: React.FC = () => {
                  <div className="sm:col-span-2 pt-4">
                     <button disabled={isSubmitting} className="w-full bg-brand-dark text-brand-gold py-5 sm:py-6 rounded-3xl font-bold uppercase tracking-[0.3em] text-[12px] shadow-2xl flex items-center justify-center gap-4 hover:bg-black transition-all disabled:opacity-50">
                        {isSubmitting ? <Loader2 className="animate-spin"/> : <CheckCircle size={20}/>}
-                       {isSubmitting ? 'Publishing...' : 'Confirm Post'}
+                       {isSubmitting ? 'Syncing...' : (editingJobId ? 'Update Record' : 'Confirm Post')}
                     </button>
                  </div>
                </form>
