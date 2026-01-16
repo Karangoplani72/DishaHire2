@@ -1,6 +1,7 @@
+
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Briefcase, GraduationCap, Users, Banknote, Search, ArrowUpRight, Filter, Sparkles, MapPin } from 'lucide-react';
+import { Briefcase, GraduationCap, Users, Banknote, Search, ArrowUpRight, Filter, Sparkles, MapPin, Factory } from 'lucide-react';
 import { CONTACT_INFO, API_BASE_URL } from '../constants.tsx';
 
 const MotionDiv = (motion as any).div;
@@ -44,7 +45,8 @@ const Jobs: React.FC = () => {
   });
 
   const handleWhatsAppApply = (job: any) => {
-    const message = `Hi DishaHire Team!%0A%0AI saw this job posting on your website and would like to apply:%0A%0A🚀 *Role:* ${job.title}%0A📍 *Location:* ${job.location}%0A🎓 *Education:* ${job.education}%0A👫 *Gender:* ${job.gender}%0A💰 *Salary:* ${job.salary}%0A💼 *Industry:* ${job.industry}%0A%0AI have my profile ready. Could you please share the next steps?`;
+    // Removed emojis to ensure support on all platforms including PC and Laptop web browsers
+    const message = `Hi DishaHire Team!%0A%0AI saw this job posting on your website and would like to apply:%0A%0A*Role:* ${job.title}%0A*Location:* ${job.location}%0A*Education:* ${job.education}%0A*Gender:* ${job.gender}%0A*Salary:* ${job.salary}%0A*Industry:* ${job.industry}%0A%0AI have my profile ready. Could you please share the next steps?`;
     window.open(`${CONTACT_INFO.whatsapp}?text=${message}`, '_blank');
   };
 
@@ -110,11 +112,11 @@ const Jobs: React.FC = () => {
                     className="bg-brand-dark p-8 sm:p-10 rounded-[2rem] sm:rounded-[4rem] text-white border border-white/5 flex flex-col justify-between group h-full shadow-4xl relative overflow-hidden"
                   >
                     <div className="space-y-6 sm:space-y-8 relative z-10">
-                      <div className="flex justify-between items-start">
-                        <div className="p-3 bg-brand-gold/10 rounded-[1.2rem] sm:rounded-[1.5rem] text-brand-gold border border-brand-gold/20">
+                      <div className="flex justify-between items-start gap-4">
+                        <div className="p-3 bg-brand-gold/10 rounded-[1.2rem] sm:rounded-[1.5rem] text-brand-gold border border-brand-gold/20 shrink-0">
                           <Briefcase size={24} className="sm:size-[28px]" />
                         </div>
-                        <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-brand-gold bg-brand-gold/5 px-3 py-1.5 rounded-full border border-brand-gold/10 truncate max-w-[120px]">
+                        <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-brand-gold bg-brand-gold/5 px-3 py-1.5 rounded-full border border-brand-gold/10 text-right leading-tight">
                           {job.industry}
                         </span>
                       </div>
@@ -129,6 +131,14 @@ const Jobs: React.FC = () => {
                         </h3>
                         
                         <div className="space-y-4">
+                          <div className="flex items-start">
+                            <Factory size={16} className="mr-3 sm:mr-4 text-brand-gold flex-shrink-0 mt-0.5" />
+                            <div className="overflow-hidden">
+                              <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-gray-500">Business Sector</p>
+                              <p className="text-gray-200 text-xs sm:text-sm font-medium">{job.industry}</p>
+                            </div>
+                          </div>
+
                           <div className="flex items-start">
                             <GraduationCap size={16} className="mr-3 sm:mr-4 text-brand-gold flex-shrink-0 mt-0.5" />
                             <div className="overflow-hidden">
