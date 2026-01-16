@@ -51,7 +51,6 @@ const Navbar = () => {
             />
           </Link>
 
-          {/* Desktop Nav */}
           <div className="hidden md:flex space-x-8 lg:space-x-12 items-center">
             {NAV_LINKS.map((link: any) => (
               <Link 
@@ -69,7 +68,6 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* Mobile Toggle Button */}
           <div className="md:hidden flex items-center">
             <button 
               onClick={() => setIsOpen(!isOpen)} 
@@ -82,7 +80,6 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Menu Overlay */}
       <AnimatePresence>
         {isOpen && (
           <MotionDiv
@@ -107,7 +104,6 @@ const Navbar = () => {
                     <ChevronRight size={20} className={location.pathname === link.href ? 'opacity-100' : 'opacity-20'} />
                   </Link>
                 ))}
-                
                 <div className="pt-12 mt-auto pb-12">
                    <Link to="/admin/login" onClick={() => setIsOpen(false)} className="flex items-center gap-3 text-gray-500 text-sm font-black uppercase tracking-[0.3em]">
                       <Lock size={14} /> Personnel Access
@@ -124,14 +120,12 @@ const Navbar = () => {
 const Footer = () => {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin/dashboard');
-
   if (isAdmin) return null;
 
   return (
     <footer className="bg-brand-dark text-white pt-20 pb-12 border-t border-white/5 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 sm:gap-16 mb-20">
-          {/* Brand Column */}
           <div className="space-y-8">
             <Link to="/" className="inline-block">
               <img 
@@ -144,19 +138,18 @@ const Footer = () => {
               Empowering organizations by bridging the gap between exceptional talent and strategic vision.
             </p>
             <div className="flex space-x-4">
-              <a href={CONTACT_INFO.linkedin} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-full border border-white/10 flex items-center justify-center hover:bg-brand-gold hover:text-brand-dark hover:border-brand-gold transition-all duration-300">
+              <a href={CONTACT_INFO.linkedin} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-full border border-white/10 flex items-center justify-center hover:bg-brand-gold hover:text-brand-dark transition-all">
                 <Linkedin size={18} />
               </a>
-              <a href={CONTACT_INFO.instagram} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-full border border-white/10 flex items-center justify-center hover:bg-brand-gold hover:text-brand-dark hover:border-brand-gold transition-all duration-300">
+              <a href={CONTACT_INFO.instagram} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-full border border-white/10 flex items-center justify-center hover:bg-brand-gold hover:text-brand-dark transition-all">
                 <Instagram size={18} />
               </a>
-              <a href={CONTACT_INFO.whatsapp} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-full border border-white/10 flex items-center justify-center hover:bg-brand-gold hover:text-brand-dark hover:border-brand-gold transition-all duration-300">
+              <a href={CONTACT_INFO.whatsapp} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-full border border-white/10 flex items-center justify-center hover:bg-brand-gold hover:text-brand-dark transition-all">
                 <MessageCircle size={18} />
               </a>
             </div>
           </div>
 
-          {/* Quick Navigation Column */}
           <div className="lg:pl-8">
             <h4 className="text-brand-gold text-[10px] font-black uppercase tracking-[0.3em] mb-10">QUICK NAVIGATION</h4>
             <ul className="space-y-4">
@@ -167,28 +160,21 @@ const Footer = () => {
                   </Link>
                 </li>
               ))}
-              <li>
-                <Link to="/services" className="text-gray-300 hover:text-brand-gold text-sm font-medium transition-colors">
-                  Commercial Terms
-                </Link>
-              </li>
             </ul>
           </div>
 
-          {/* Elite Verticals Column */}
           <div>
             <h4 className="text-brand-gold text-[10px] font-black uppercase tracking-[0.3em] mb-10">Industries We Serve</h4>
             <div className="space-y-4">
-              {INDUSTRIES.slice(0, 8).map(industry => (
-                <div key={industry} className="text-gray-300 text-sm font-medium flex items-center hover:text-brand-gold transition-colors cursor-default group">
+              {INDUSTRIES.slice(0, 6).map(industry => (
+                <div key={industry} className="text-gray-300 text-sm font-medium flex items-center hover:text-brand-gold transition-colors cursor-default">
                   <div className="w-1.5 h-1.5 bg-brand-gold rounded-full mr-4 flex-shrink-0" />
-                  <span className="truncate">{industry.replace(/\(.*\)/, '').trim()}</span>
+                  <span className="truncate">{industry}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Corporate Hub Column */}
           <div>
             <h4 className="text-brand-gold text-[10px] font-black uppercase tracking-[0.3em] mb-10">CORPORATE HUB</h4>
             <ul className="space-y-6">
@@ -207,14 +193,10 @@ const Footer = () => {
             </ul>
           </div>
         </div>
-
-        {/* Footer Bottom Bar */}
         <div className="pt-12 border-t border-white/5">
           <div className="flex flex-col items-center text-center">
             <p className="text-[9px] font-bold uppercase tracking-[0.4em] text-gray-600 mb-2">ENGINEERED FOR EXCELLENCE</p>
-            <a href="https://karan-portfolio-self.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-[10px] font-serif italic text-gray-400 hover:text-brand-gold transition-all duration-300">
-              Website Handcrafted by <span className="font-bold text-gray-300 not-italic uppercase tracking-wider">Karan Goplani</span>
-            </a>
+            <p className="text-[10px] font-serif italic text-gray-400">Handcrafted for DishaHire Consultancy</p>
           </div>
         </div>
       </div>
