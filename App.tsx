@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import * as RouterDOM from 'react-router-dom';
 const { HashRouter: Router, Routes, Route, Link, useLocation } = RouterDOM as any;
-import { Menu, X, Mail, MapPin, Linkedin, Instagram, MessageCircle, Phone, ArrowRight, Lock, ChevronRight } from 'lucide-react';
+import { Menu, X, Mail, MapPin, Linkedin, Instagram, MessageCircle, Phone, ArrowRight, Lock, ChevronRight, Code } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import Home from './frontend/pages/Home.tsx';
@@ -132,6 +133,11 @@ const Footer = () => {
             <p className="text-gray-400 text-sm leading-relaxed font-serif italic max-w-xs">
               Empowering organizations by bridging the gap between exceptional talent and strategic vision.
             </p>
+            <div className="flex space-x-4 pt-4">
+               <a href={CONTACT_INFO.linkedin} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-brand-gold hover:text-brand-dark transition-all"><Linkedin size={18}/></a>
+               <a href={CONTACT_INFO.instagram} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-brand-gold hover:text-brand-dark transition-all"><Instagram size={18}/></a>
+               <a href={CONTACT_INFO.whatsapp} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-brand-gold hover:text-brand-dark transition-all"><MessageCircle size={18}/></a>
+            </div>
           </div>
           <div>
             <h4 className="text-brand-gold text-[10px] font-black uppercase tracking-[0.3em] mb-10">QUICK NAVIGATION</h4>
@@ -141,6 +147,44 @@ const Footer = () => {
               ))}
             </ul>
           </div>
+          <div>
+            <h4 className="text-brand-gold text-[10px] font-black uppercase tracking-[0.3em] mb-10">Contact Hub</h4>
+            <ul className="space-y-6">
+              <li className="flex items-start gap-4">
+                <MapPin size={20} className="text-brand-gold shrink-0"/>
+                <span className="text-gray-300 text-sm">{CONTACT_INFO.address}</span>
+              </li>
+              <li className="flex items-center gap-4">
+                <Mail size={20} className="text-brand-gold shrink-0"/>
+                <a href={`mailto:${CONTACT_INFO.email}`} className="text-gray-300 hover:text-brand-gold text-sm truncate">{CONTACT_INFO.email}</a>
+              </li>
+              <li className="flex items-center gap-4">
+                <Phone size={20} className="text-brand-gold shrink-0"/>
+                <a href={`tel:${CONTACT_INFO.phone}`} className="text-gray-300 hover:text-brand-gold text-sm">{CONTACT_INFO.phone}</a>
+              </li>
+            </ul>
+          </div>
+          <div>
+             <h4 className="text-brand-gold text-[10px] font-black uppercase tracking-[0.3em] mb-10">Strategic Verticals</h4>
+             <ul className="space-y-2">
+                {INDUSTRIES.slice(0, 4).map(ind => (
+                  <li key={ind} className="text-gray-500 text-[10px] font-black uppercase tracking-widest">{ind}</li>
+                ))}
+             </ul>
+          </div>
+        </div>
+
+        {/* Developer Attribution Section */}
+        <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
+           <div className="text-center md:text-left">
+              <p className="text-[10px] font-serif italic text-gray-500">© {new Date().getFullYear()} DishaHire Consulting. All Rights Reserved.</p>
+           </div>
+           <div className="flex items-center gap-3 px-6 py-3 bg-white/5 border border-white/10 rounded-2xl">
+              <Code size={14} className="text-brand-gold" />
+              <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                Designed & Developed by <span className="text-white">Enterprise Solutions Team</span>
+              </p>
+           </div>
         </div>
       </div>
     </footer>
@@ -151,7 +195,7 @@ const App = () => {
   return (
     <Router>
       <ScrollToTop />
-      <div className="min-h-screen flex flex-col bg-brand-light">
+      <div className="min-h-screen flex flex-col bg-white">
         <Navbar />
         <main className="flex-grow">
           <Routes>
