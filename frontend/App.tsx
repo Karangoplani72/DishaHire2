@@ -13,6 +13,9 @@ import AdminLogin from './pages/AdminLogin.tsx';
 import AdminDashboard from './pages/AdminDashboard.tsx';
 import { NAV_LINKS, CONTACT_INFO, INDUSTRIES } from './constants.tsx';
 
+// Logo import
+import logo from './pages/logo.png';
+
 const MotionDiv = (motion as any).div;
 
 const ScrollToTop = () => {
@@ -45,7 +48,7 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-20 sm:h-24">
           <Link to="/" className="flex items-center" onClick={() => setIsOpen(false)}>
             <img 
-              src="/frontend/pages/logo.png" 
+              src={logo} 
               alt="DishaHire Logo" 
               className="h-12 sm:h-16 w-auto object-contain hover:opacity-90 transition-opacity"
             />
@@ -129,7 +132,7 @@ const Footer = () => {
           <div className="space-y-8">
             <Link to="/" className="inline-block">
               <img 
-                src="/frontend/pages/logo.png" 
+                src={logo} 
                 alt="DishaHire Logo" 
                 className="h-16 sm:h-20 w-auto object-contain"
               />
