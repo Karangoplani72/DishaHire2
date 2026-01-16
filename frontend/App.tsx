@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import * as RouterDOM from 'react-router-dom';
 const { HashRouter: Router, Routes, Route, Link, useLocation } = RouterDOM as any;
@@ -130,6 +131,15 @@ const Navbar = () => {
             transition={{ duration: 0.2 }}
             className="md:hidden fixed inset-0 bg-brand-dark z-[100] flex flex-col pt-24 px-8 overflow-y-auto mobile-menu-container"
           >
+             {/* Explicit Close Button inside the overlay */}
+             <button 
+                onClick={() => setIsOpen(false)}
+                className="absolute top-6 right-6 p-3 text-brand-gold bg-white/5 rounded-full hover:bg-white/10 transition-colors focus:outline-none"
+                aria-label="Close Menu"
+              >
+                <X size={32} />
+              </button>
+
              <div className="flex flex-col space-y-6 pt-8">
                 {NAV_LINKS.map((link: any) => (
                   <Link 

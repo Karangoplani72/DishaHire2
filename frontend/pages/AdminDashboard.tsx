@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+
+import React, { useEffect, useState, useMemo } from 'react';
 import * as RouterDOM from 'react-router-dom';
 const { useNavigate, Link } = RouterDOM as any;
 import { motion, AnimatePresence } from 'framer-motion';
@@ -7,9 +8,9 @@ import {
   GraduationCap, Banknote, Archive, MapPin, 
   Building2, UserCircle2, Mail, Phone, Menu,
   ChevronRight, ClipboardCheck, Info, Loader2, CheckCircle, Calendar, BriefcaseBusiness,
-  Users
+  Users, Search, Filter, Database
 } from 'lucide-react';
-import { API_BASE_URL } from '../constants.tsx';
+import { API_BASE_URL, COMPANY_TYPES, INDUSTRIES } from '../constants.tsx';
 
 const MotionDiv = (motion as any).div;
 
@@ -25,6 +26,10 @@ const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'jobs' | 'companies' | 'candidates'>('overview');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
+  // Filter States
+  const [searchQuery, setSearchQuery] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('All');
+
   const [newJob, setNewJob] = useState({
     title: '', education: '', gender: 'Any', salary: '', industry: '', location: '', otherInfo: ''
   });
@@ -35,7 +40,13 @@ const AdminDashboard: React.FC = () => {
       return;
     }
     fetchAllData();
-  }, [navigate, activeTab]);
+  }, [navigate]);
+
+  // Reset filters when changing tabs
+  useEffect(() => {
+    setSearchQuery('');
+    setCategoryFilter('All');
+  }, [activeTab]);
 
   const fetchAllData = async () => {
     setLoading(true);
@@ -61,6 +72,37 @@ const AdminDashboard: React.FC = () => {
       setLoading(false);
     }
   };
+
+  // --- Filtered Data Computations ---
+  const filteredJobs = useMemo(() => {
+    return jobs.filter(j => {
+      const matchesSearch = j.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                           j.location.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = categoryFilter === 'All' || j.industry === categoryFilter;
+      return matchesSearch && matchesCategory;
+    });
+  }, [jobs, searchQuery, categoryFilter]);
+
+  const filteredCompanies = useMemo(() => {
+    return companyEnquiries.filter(c => {
+      const matchesSearch = c.companyName.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                           c.contactName.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = categoryFilter === 'All' || c.companyType === categoryFilter;
+      return matchesSearch && matchesCategory;
+    });
+  }, [companyEnquiries, searchQuery, categoryFilter]);
+
+  const filteredCandidates = useMemo(() => {
+    return candidateEnquiries.filter(c => {
+      const matchesSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                           c.email.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = categoryFilter === 'All' || c.qualification === categoryFilter;
+      return matchesSearch && matchesCategory;
+    });
+  }, [candidateEnquiries, searchQuery, categoryFilter]);
+
+  // Derived filters for selects
+  const uniqueQualifications = useMemo(() => ['All', ...new Set(candidateEnquiries.map(c => c.qualification))], [candidateEnquiries]);
 
   const handleAddJob = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,7 +144,6 @@ const AdminDashboard: React.FC = () => {
 
   const handleLogout = () => {
     sessionStorage.removeItem('isAdmin');
-    // Navigate to homepage and force refresh for a clean state transition
     window.location.hash = '/';
     window.location.reload();
   };
@@ -128,6 +169,56 @@ const AdminDashboard: React.FC = () => {
     </div>
   );
 
+  const FilterBar = ({ placeholder, filterOptions, categoryLabel }: { placeholder: string, filterOptions: string[], categoryLabel: string }) => (
+    <div className="flex flex-col md:flex-row gap-4 mb-8 bg-white p-4 rounded-2xl border border-white shadow-sm">
+      <div className="flex-grow relative">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+        <input 
+          type="text" 
+          placeholder={placeholder}
+          className="w-full pl-11 pr-4 py-3 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-brand-gold/20 text-sm transition-all"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+      <div className="flex items-center gap-3 bg-gray-50 px-4 py-3 rounded-xl border border-gray-100 min-w-[200px]">
+        <Filter className="text-brand-gold" size={14} />
+        <select 
+          className="bg-transparent outline-none text-[10px] font-black uppercase tracking-widest text-brand-dark cursor-pointer w-full"
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
+        >
+          <option value="All">All {categoryLabel}s</option>
+          {filterOptions.map(opt => (
+            <option key={opt} value={opt}>{opt}</option>
+          ))}
+        </select>
+      </div>
+    </div>
+  );
+
+  const EmptyState = ({ icon: Icon, message, type }: { icon: any, message: string, type: string }) => (
+    <MotionDiv 
+      initial={{ opacity: 0, scale: 0.98 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="text-center py-24 bg-white rounded-[3rem] border-2 border-dashed border-gray-100 px-6"
+    >
+      <div className="w-20 h-20 bg-gray-50 rounded-[2rem] flex items-center justify-center mx-auto mb-6 text-gray-200">
+        <Icon size={40} />
+      </div>
+      <h3 className="text-xl font-serif font-bold text-brand-dark mb-2">No {type} Found</h3>
+      <p className="text-gray-400 font-serif italic text-sm mb-6">{message}</p>
+      {(searchQuery || categoryFilter !== 'All') && (
+        <button 
+          onClick={() => { setSearchQuery(''); setCategoryFilter('All'); }}
+          className="text-brand-gold text-[10px] font-black uppercase tracking-widest hover:underline"
+        >
+          Clear All Filters
+        </button>
+      )}
+    </MotionDiv>
+  );
+
   return (
     <div className="flex min-h-screen bg-[#F0F2F5]">
       <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-brand-dark p-6 transition-transform lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
@@ -151,7 +242,7 @@ const AdminDashboard: React.FC = () => {
         
         <nav className="space-y-2">
           <NavItem id="overview" icon={LayoutDashboard} label="Dashboard" />
-          <NavItem id="jobs" icon={Briefcase} label="Job" />
+          <NavItem id="jobs" icon={Briefcase} label="Job Hub" />
           <NavItem id="companies" icon={Building2} label="Company Enquiry" />
           <NavItem id="candidates" icon={UserCircle2} label="Candidate Enquiry" />
         </nav>
@@ -209,7 +300,7 @@ const AdminDashboard: React.FC = () => {
             )}
 
             {activeTab === 'jobs' && (
-              <MotionDiv key="jobs" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-10">
+              <MotionDiv key="jobs" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
                 <SectionHeader 
                   title="Job Hub" 
                   subtitle="Enterprise Opportunities" 
@@ -219,8 +310,9 @@ const AdminDashboard: React.FC = () => {
                     </button>
                   } 
                 />
+                <FilterBar placeholder="Search by job title or location..." filterOptions={INDUSTRIES} categoryLabel="Industry" />
                 <div className="grid gap-6 sm:gap-8">
-                  {jobs.map(job => (
+                  {filteredJobs.length > 0 ? filteredJobs.map(job => (
                     <div key={job._id} className={`bg-white p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] shadow-sm border border-white flex flex-col md:flex-row justify-between gap-6 hover:shadow-xl transition-all ${job.isArchived ? 'opacity-60 grayscale' : ''}`}>
                       <div className="flex-grow flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
                         <div className={`p-4 rounded-2xl shrink-0 ${job.isArchived ? 'bg-gray-100 text-gray-400' : 'bg-brand-light text-brand-gold'}`}><Briefcase size={24}/></div>
@@ -240,16 +332,19 @@ const AdminDashboard: React.FC = () => {
                          <button onClick={() => handleDeleteJob(job._id)} title="Delete" className="flex-1 sm:flex-none p-3 sm:p-4 bg-gray-50 rounded-2xl text-gray-400 hover:text-red-500 transition-all flex justify-center"><Trash2 size={18} /></button>
                       </div>
                     </div>
-                  ))}
+                  )) : (
+                    <EmptyState icon={Database} message="We couldn't find any job postings matching your current selection." type="Jobs" />
+                  )}
                 </div>
               </MotionDiv>
             )}
 
             {activeTab === 'companies' && (
-              <MotionDiv key="companies" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-10">
+              <MotionDiv key="companies" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
                 <SectionHeader title="Company Enquiry" subtitle="B2B Lead Management" />
+                <FilterBar placeholder="Search by company or POC name..." filterOptions={COMPANY_TYPES} categoryLabel="Company Type" />
                 <div className="grid gap-6 sm:gap-8">
-                  {companyEnquiries.map(enq => (
+                  {filteredCompanies.length > 0 ? filteredCompanies.map(enq => (
                     <div key={enq._id} className="bg-white p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] shadow-sm border border-white hover:shadow-xl transition-all">
                       <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-8">
                         <div className="flex items-center gap-4 sm:gap-6 w-full">
@@ -284,16 +379,19 @@ const AdminDashboard: React.FC = () => {
                          )}
                       </div>
                     </div>
-                  ))}
+                  )) : (
+                    <EmptyState icon={Building2} message="No corporate leads were found matching your current filters." type="Company Enquiries" />
+                  )}
                 </div>
               </MotionDiv>
             )}
 
             {activeTab === 'candidates' && (
-              <MotionDiv key="candidates" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-10">
+              <MotionDiv key="candidates" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
                 <SectionHeader title="Candidate Enquiry" subtitle="Strategic Talent Pipeline" />
+                <FilterBar placeholder="Search by name or email address..." filterOptions={uniqueQualifications} categoryLabel="Qualification" />
                 <div className="grid gap-6 sm:gap-8">
-                  {candidateEnquiries.map(enq => (
+                  {filteredCandidates.length > 0 ? filteredCandidates.map(enq => (
                     <div key={enq._id} className="bg-white p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] shadow-sm border border-white hover:shadow-xl transition-all">
                       {/* Header Section */}
                       <div className="flex flex-col md:flex-row justify-between gap-6 mb-8 pb-8 border-b border-gray-100">
@@ -337,11 +435,8 @@ const AdminDashboard: React.FC = () => {
                          </div>
                       </div>
                     </div>
-                  ))}
-                  {candidateEnquiries.length === 0 && (
-                    <div className="text-center py-20 bg-white rounded-[3rem] border border-white">
-                       <p className="text-gray-400 font-serif italic">No candidate enquiries recorded yet.</p>
-                    </div>
+                  )) : (
+                    <EmptyState icon={UserCircle2} message="No professional profiles were found matching your search criteria." type="Candidate Enquiries" />
                   )}
                 </div>
               </MotionDiv>
@@ -364,19 +459,22 @@ const AdminDashboard: React.FC = () => {
                  </div>
                  <div>
                     <label className="text-[9px] font-black uppercase text-gray-400 mb-2 block tracking-widest">Industry Verticals*</label>
-                    <input required className="w-full bg-gray-50 p-4 sm:p-5 rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold transition-all" value={newJob.industry} onChange={e => setNewJob({...newJob, industry: e.target.value})} />
+                    <select required className="w-full bg-gray-50 p-4 sm:p-5 rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold transition-all appearance-none" value={newJob.industry} onChange={e => setNewJob({...newJob, industry: e.target.value})}>
+                        <option value="">Select Industry</option>
+                        {INDUSTRIES.map(i => <option key={i} value={i}>{i}</option>)}
+                    </select>
                  </div>
                  <div>
                     <label className="text-[9px] font-black uppercase text-gray-400 mb-2 block tracking-widest">Location*</label>
-                    <input required className="w-full bg-gray-50 p-4 sm:p-5 rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold transition-all" value={newJob.location} onChange={e => setNewJob({...newJob, location: e.target.value})} />
+                    <input required className="w-full bg-gray-50 p-4 sm:p-5 rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold transition-all" placeholder="e.g. Mumbai, Maharashtra" value={newJob.location} onChange={e => setNewJob({...newJob, location: e.target.value})} />
                  </div>
                  <div>
                     <label className="text-[9px] font-black uppercase text-gray-400 mb-2 block tracking-widest">Academic Prerequisites*</label>
-                    <input required className="w-full bg-gray-50 p-4 sm:p-5 rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold transition-all" value={newJob.education} onChange={e => setNewJob({...newJob, education: e.target.value})} />
+                    <input required className="w-full bg-gray-50 p-4 sm:p-5 rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold transition-all" placeholder="e.g. MBA, B.Tech" value={newJob.education} onChange={e => setNewJob({...newJob, education: e.target.value})} />
                  </div>
                  <div>
                     <label className="text-[9px] font-black uppercase text-gray-400 mb-2 block tracking-widest">Compensation Slab*</label>
-                    <input required className="w-full bg-gray-50 p-4 sm:p-5 rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold transition-all" value={newJob.salary} onChange={e => setNewJob({...newJob, salary: e.target.value})} />
+                    <input required className="w-full bg-gray-50 p-4 sm:p-5 rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold transition-all" placeholder="e.g. 5-8 LPA" value={newJob.salary} onChange={e => setNewJob({...newJob, salary: e.target.value})} />
                  </div>
                  <div className="sm:col-span-2 pt-4">
                     <button disabled={isSubmitting} className="w-full bg-brand-dark text-brand-gold py-5 sm:py-6 rounded-3xl font-bold uppercase tracking-[0.3em] text-[12px] shadow-2xl flex items-center justify-center gap-4 hover:bg-black transition-all disabled:opacity-50">
