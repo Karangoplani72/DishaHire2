@@ -102,8 +102,9 @@ const AdminDashboard: React.FC = () => {
 
   const handleLogout = () => {
     sessionStorage.removeItem('isAdmin');
-    // Navigate to homepage on logout as requested
-    navigate('/');
+    // Navigate to homepage and force refresh for a clean state transition
+    window.location.hash = '/';
+    window.location.reload();
   };
 
   const NavItem = ({ id, icon: Icon, label }: { id: any, icon: any, label: string }) => (
