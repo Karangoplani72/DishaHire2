@@ -1,33 +1,40 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import * as RouterDOM from 'react-router-dom';
 const { HashRouter: Router, Routes, Route, Link, useLocation } = RouterDOM as any;
-import { Menu, X, Mail, MapPin, Linkedin, Instagram, MessageCircle, Phone, ArrowRight } from 'lucide-react';
+import { Menu, X, Mail, MapPin, Linkedin, Instagram, MessageCircle, Phone, ArrowRight, Lock, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-import Home from './pages/Home.tsx';
-import About from './pages/About.tsx';
-import Services from './pages/Services.tsx';
-import { NAV_LINKS, CONTACT_INFO, INDUSTRIES } from './constants.tsx';
+import Home from './frontend/pages/Home.tsx';
+import About from './frontend/pages/About.tsx';
+import Services from './frontend/pages/Services.tsx';
+import Jobs from './frontend/pages/Jobs.tsx';
+import Contact from './frontend/pages/Contact.tsx';
+import AdminLogin from './frontend/pages/AdminLogin.tsx';
+import AdminDashboard from './frontend/pages/AdminDashboard.tsx';
+import { NAV_LINKS, CONTACT_INFO, INDUSTRIES } from './frontend/constants.tsx';
 
 const MotionDiv = (motion as any).div;
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const isAdmin = location.pathname.startsWith('/admin/dashboard');
+
+  if (isAdmin) return null;
 
   return (
-    <nav className="bg-brand-dark text-white sticky top-0 z-50 shadow-xl border-b border-white/5">
+    <nav className="bg-brand-dark text-white sticky top-0 z-50 shadow-xl border-b border-white/5 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-24">
+        <div className="flex justify-between items-center h-20 sm:h-24">
           <Link to="/" className="flex items-center" onClick={() => setIsOpen(false)}>
-            <div className="flex flex-col">
-              <span className="text-2xl font-serif font-bold tracking-widest leading-none">DISHA<span className="text-brand-gold">HIRE</span></span>
-              <span className="text-[9px] uppercase tracking-[0.4em] text-gray-500 font-black mt-1">Right Talent, Right Direction</span>
-            </div>
+            <img 
+              src="/frontend/pages/logo.png" 
+              alt="DishaHire Logo" 
+              className="h-12 sm:h-16 w-auto object-contain hover:opacity-90 transition-opacity"
+            />
           </Link>
 
-          <div className="hidden md:flex space-x-12 items-center">
+          <div className="hidden md:flex space-x-8 lg:space-x-12 items-center">
             {NAV_LINKS.map((link: any) => (
               <Link 
                 key={link.name} 
@@ -39,10 +46,13 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
+            <Link to="/admin/login" className="text-gray-500 hover:text-brand-gold transition-colors">
+              <Lock size={16} />
+            </Link>
           </div>
 
-          <div className="md:hidden">
-            <button onClick={() => setIsOpen(!isOpen)} className="text-gray-200 p-2">
+          <div className="md:hidden flex items-center">
+            <button onClick={() => setIsOpen(!isOpen)} className="text-brand-gold p-2 relative focus:outline-none">
               {isOpen ? <X size={32} /> : <Menu size={32} />}
             </button>
           </div>
@@ -52,116 +62,23 @@ const Navbar = () => {
       <AnimatePresence>
         {isOpen && (
           <MotionDiv
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-brand-accent border-t border-white/5 overflow-hidden"
+            initial={{ opacity: 0, x: '100%' }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: '100%' }}
+            className="md:hidden fixed inset-0 bg-brand-dark z-[100] flex flex-col pt-24 px-8 overflow-y-auto"
           >
-            <div className="px-6 py-10 space-y-8">
-              {NAV_LINKS.map((link: any) => (
-                <Link key={link.name} to={link.href} onClick={() => setIsOpen(false)} className="block text-lg font-serif font-bold text-gray-200">
-                  {link.name}
-                </Link>
-              ))}
-            </div>
+             <div className="flex flex-col space-y-6 pt-8">
+                {NAV_LINKS.map((link: any) => (
+                  <Link key={link.name} to={link.href} onClick={() => setIsOpen(false)} className="flex items-center justify-between py-4 border-b border-white/5 transition-all text-gray-200">
+                    <span className="text-2xl font-serif font-bold">{link.name}</span>
+                    <ChevronRight size={20} />
+                  </Link>
+                ))}
+             </div>
           </MotionDiv>
         )}
       </AnimatePresence>
     </nav>
-  );
-};
-
-const Footer = () => {
-  return (
-    <footer className="bg-brand-dark text-white pt-24 pb-12 border-t border-white/10 relative overflow-hidden">
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-brand-gold rounded-full blur-[100px]" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-brand-accent rounded-full blur-[100px]" />
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-20">
-          <div className="space-y-8">
-            <div className="flex flex-col">
-              <span className="text-3xl font-serif font-bold tracking-widest leading-none">DISHA<span className="text-brand-gold">HIRE</span></span>
-              <span className="text-[10px] uppercase tracking-[0.4em] text-gray-500 font-black mt-1">Right Talent, Right Direction</span>
-            </div>
-            <p className="text-gray-400 text-sm leading-relaxed font-serif italic">
-              Empowering organizations by bridging the gap between exceptional talent and strategic vision.
-            </p>
-            <div className="flex space-x-4">
-              <a href={CONTACT_INFO.linkedin} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-brand-gold hover:text-brand-dark transition-all duration-300 group">
-                <Linkedin size={20} />
-              </a>
-              <a href={CONTACT_INFO.instagram} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-brand-gold hover:text-brand-dark transition-all duration-300 group">
-                <Instagram size={20} />
-              </a>
-              <a href={CONTACT_INFO.whatsapp} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-brand-gold hover:text-brand-dark transition-all duration-300 group">
-                <MessageCircle size={20} />
-              </a>
-            </div>
-          </div>
-
-          <div>
-            <h4 className="text-brand-gold text-[10px] font-black uppercase tracking-[0.4em] mb-10">Quick Navigation</h4>
-            <ul className="space-y-5">
-              {NAV_LINKS.map(link => (
-                <li key={link.name}>
-                  <Link to={link.href} className="text-gray-400 hover:text-brand-gold text-sm font-medium flex items-center group transition-colors">
-                    <ArrowRight size={14} className="mr-3 opacity-0 group-hover:opacity-100 transition-all" />
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-brand-gold text-[10px] font-black uppercase tracking-[0.4em] mb-10">Elite Verticals</h4>
-            <ul className="space-y-5">
-              {INDUSTRIES.slice(0, 5).map(industry => (
-                <li key={industry} className="text-gray-400 text-sm font-medium flex items-center">
-                  <div className="w-1 h-1 bg-brand-gold rounded-full mr-3" />
-                  {industry}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-brand-gold text-[10px] font-black uppercase tracking-[0.4em] mb-10">Corporate Hub</h4>
-            <ul className="space-y-6">
-              <li className="flex items-start space-x-4">
-                <MapPin size={20} className="text-brand-gold flex-shrink-0 mt-1" />
-                <span className="text-gray-400 text-sm leading-relaxed">{CONTACT_INFO.address}</span>
-              </li>
-              <li className="flex items-center space-x-4">
-                <Mail size={20} className="text-brand-gold flex-shrink-0" />
-                <a href={`mailto:${CONTACT_INFO.email}`} className="text-gray-400 hover:text-brand-gold text-sm transition-colors">{CONTACT_INFO.email}</a>
-              </li>
-              <li className="flex items-center space-x-4">
-                <Phone size={20} className="text-brand-gold flex-shrink-0" />
-                <a href={`tel:${CONTACT_INFO.phone.replace(/\s/g, '')}`} className="text-gray-400 hover:text-brand-gold text-sm transition-colors">{CONTACT_INFO.phone}</a>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="pt-12 border-t border-white/5 flex flex-col space-y-8">
-          <div className="flex justify-center items-center py-4 group">
-            <div className="h-[1px] flex-grow bg-white/5" />
-            <div className="px-6 text-center">
-              <p className="text-[9px] font-bold uppercase tracking-[0.4em] text-gray-600 mb-1">Engineered for Excellence</p>
-              <a href="https://karan-portfolio-self.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-[11px] font-serif italic text-gray-400 hover:text-brand-gold transition-all duration-300 flex items-center justify-center gap-2 group">
-                Website Handcrafted by <span className="font-bold text-gray-300 group-hover:text-brand-gold transition-colors not-italic">Karan Goplani</span>
-                <ArrowRight size={10} className="opacity-0 group-hover:opacity-100 transition-all" />
-              </a>
-            </div>
-            <div className="h-[1px] flex-grow bg-white/5" />
-          </div>
-        </div>
-      </div>
-    </footer>
   );
 };
 
@@ -175,9 +92,12 @@ const App = () => {
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
             <Route path="/services" element={<Services />} />
+            <Route path="/jobs" element={<Jobs />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
           </Routes>
         </main>
-        <Footer />
       </div>
     </Router>
   );

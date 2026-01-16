@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import * as RouterDOM from 'react-router-dom';
 const { HashRouter: Router, Routes, Route, Link, useLocation } = RouterDOM as any;
@@ -46,7 +45,7 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-20 sm:h-24">
           <Link to="/" className="flex items-center" onClick={() => setIsOpen(false)}>
             <img 
-              src="/logo.png" 
+              src="/frontend/pages/logo.png" 
               alt="DishaHire Logo" 
               className="h-12 sm:h-16 w-auto object-contain hover:opacity-90 transition-opacity"
             />
@@ -136,7 +135,7 @@ const Footer = () => {
           <div className="space-y-8">
             <Link to="/" className="inline-block">
               <img 
-                src="/logo.png" 
+                src="/frontend/pages/logo.png" 
                 alt="DishaHire Logo" 
                 className="h-16 sm:h-20 w-auto object-contain"
               />
