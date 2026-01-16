@@ -16,7 +16,11 @@ import {
   ChevronDown,
   MessageSquare,
   Zap,
-  Loader2
+  Loader2,
+  Globe,
+  BriefcaseBusiness,
+  GraduationCap,
+  CalendarDays
 } from 'lucide-react';
 import { API_BASE_URL, COMPANY_TYPES, CONTACT_INFO } from '../constants.tsx';
 
@@ -151,6 +155,22 @@ const Contact: React.FC = () => {
     );
   }
 
+  const InputField = ({ label, icon: Icon, value, onChange, placeholder, type = "text", required = true }: any) => (
+    <div className="space-y-1.5">
+      <label className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 ml-1 flex items-center gap-1.5">
+        <Icon size={12} className="text-brand-gold" /> {label}{required && '*'}
+      </label>
+      <input 
+        required={required}
+        type={type} 
+        placeholder={placeholder} 
+        className="w-full p-4 sm:p-5 bg-white/5 text-white border border-white/10 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold transition-all text-sm placeholder:text-white/20" 
+        value={value} 
+        onChange={onChange} 
+      />
+    </div>
+  );
+
   return (
     <div className="bg-white min-h-screen">
       <section className="bg-brand-dark text-white pt-16 sm:pt-24 pb-32 sm:pb-48 px-4 relative overflow-hidden">
@@ -200,34 +220,34 @@ const Contact: React.FC = () => {
                       <h2 className="text-2xl sm:text-3xl font-serif font-bold text-white">Corporate Mandate</h2>
                       <p className="text-brand-gold text-[9px] sm:text-xs font-black uppercase tracking-widest mt-1">Personnel Procurement Request</p>
                     </div>
-                    <form onSubmit={handleEmployerSubmit} className="space-y-6 sm:space-y-10">
-                      <div className="grid sm:grid-cols-2 gap-4 sm:gap-8">
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 ml-1">Entity Name*</label>
-                          <input required placeholder="Your Organization" className="w-full p-4 sm:p-5 bg-white/5 text-white border border-white/10 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold transition-all text-sm" value={employerForm.companyName} onChange={e => setEmployerForm({...employerForm, companyName: e.target.value})} />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 ml-1">Entity Type*</label>
-                          <select required className="w-full p-4 sm:p-5 bg-white/5 text-white border border-white/10 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={employerForm.companyType} onChange={e => setEmployerForm({...employerForm, companyType: e.target.value})}>
-                            <option value="">Select Type</option>
-                            {COMPANY_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                    <form onSubmit={handleEmployerSubmit} className="space-y-6 sm:space-y-8">
+                      <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
+                        <InputField label="Entity Name" icon={Building2} placeholder="Your Organization" value={employerForm.companyName} onChange={(e: any) => setEmployerForm({...employerForm, companyName: e.target.value})} />
+                        
+                        <div className="space-y-1.5">
+                          <label className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 ml-1 flex items-center gap-1.5">
+                            <Zap size={12} className="text-brand-gold" /> Entity Type*
+                          </label>
+                          <select required className="w-full p-4 sm:p-5 bg-white/5 text-white border border-white/10 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm appearance-none cursor-pointer" value={employerForm.companyType} onChange={e => setEmployerForm({...employerForm, companyType: e.target.value})}>
+                            <option value="" className="bg-brand-dark">Select Type</option>
+                            {COMPANY_TYPES.map(t => <option key={t} value={t} className="bg-brand-dark">{t}</option>)}
                           </select>
                         </div>
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 ml-1">Sector/Industry*</label>
-                          <input required placeholder="e.g. IT, Logistics" className="w-full p-4 sm:p-5 bg-white/5 text-white border border-white/10 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={employerForm.industry} onChange={e => setEmployerForm({...employerForm, industry: e.target.value})} />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 ml-1">Company Location*</label>
-                          <input required placeholder="e.g. Rajkot, Gujarat" className="w-full p-4 sm:p-5 bg-white/5 text-white border border-white/10 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={employerForm.address} onChange={e => setEmployerForm({...employerForm, address: e.target.value})} />
-                        </div>
-                        <div className="space-y-1 sm:col-span-2">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 ml-1">Work Email*</label>
-                          <input required type="email" placeholder="hr@yourcompany.com" className="w-full p-4 sm:p-5 bg-white/5 text-white border border-white/10 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={employerForm.email} onChange={e => setEmployerForm({...employerForm, email: e.target.value})} />
-                        </div>
+
+                        <InputField label="Sector/Industry" icon={BriefcaseBusiness} placeholder="e.g. IT, Manufacturing" value={employerForm.industry} onChange={(e: any) => setEmployerForm({...employerForm, industry: e.target.value})} />
+                        <InputField label="Company Location" icon={MapPin} placeholder="e.g. Rajkot, Gujarat" value={employerForm.address} onChange={(e: any) => setEmployerForm({...employerForm, address: e.target.value})} />
+                        
+                        <InputField label="POC Name" icon={UserCircle2} placeholder="Authorized Contact Person" value={employerForm.contactName} onChange={(e: any) => setEmployerForm({...employerForm, contactName: e.target.value})} />
+                        <InputField label="Designation" icon={ShieldCheck} placeholder="e.g. HR Manager / CEO" value={employerForm.designation} onChange={(e: any) => setEmployerForm({...employerForm, designation: e.target.value})} />
+                        
+                        <InputField label="Work Email" icon={Mail} type="email" placeholder="hr@yourcompany.com" value={employerForm.email} onChange={(e: any) => setEmployerForm({...employerForm, email: e.target.value})} />
+                        <InputField label="POC Phone Number" icon={Phone} placeholder="+91 XXXXX XXXXX" value={employerForm.mobile} onChange={(e: any) => setEmployerForm({...employerForm, mobile: e.target.value})} />
+                        
+                        <InputField label="Company Website" icon={Globe} placeholder="www.yourcompany.com" required={false} value={employerForm.website} onChange={(e: any) => setEmployerForm({...employerForm, website: e.target.value})} />
+                        <InputField label="Alternate Number" icon={Phone} placeholder="Optional Backup Number" required={false} value={employerForm.alternateNumber} onChange={(e: any) => setEmployerForm({...employerForm, alternateNumber: e.target.value})} />
                       </div>
 
-                      <button disabled={isSubmitting} className="w-full bg-brand-gold text-brand-dark py-5 sm:py-6 rounded-full font-bold text-sm sm:text-lg flex items-center justify-center hover:bg-yellow-500 transition-all shadow-xl disabled:opacity-50">
+                      <button disabled={isSubmitting} className="w-full mt-4 bg-brand-gold text-brand-dark py-5 sm:py-6 rounded-full font-bold text-sm sm:text-lg flex items-center justify-center hover:bg-yellow-500 transition-all shadow-xl disabled:opacity-50">
                         {isSubmitting ? <Loader2 className="animate-spin mr-2" /> : <Send size={18} className="mr-2" />}
                         {isSubmitting ? 'Processing...' : 'Register Corporate Mandate'}
                       </button>
@@ -239,27 +259,22 @@ const Contact: React.FC = () => {
                       <h2 className="text-2xl sm:text-3xl font-serif font-bold text-white">Candidate Profile</h2>
                       <p className="text-brand-gold text-[9px] sm:text-xs font-black uppercase tracking-widest mt-1">Strategic Career Mapping</p>
                     </div>
-                    <form onSubmit={handleSeekerSubmit} className="space-y-6 sm:space-y-10">
-                      <div className="grid sm:grid-cols-2 gap-4 sm:gap-8">
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 ml-1">Full Name*</label>
-                          <input required placeholder="Your Legal Name" className="w-full p-4 sm:p-5 bg-white/5 text-white border border-white/10 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={seekerForm.name} onChange={e => setSeekerForm({...seekerForm, name: e.target.value})} />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 ml-1">Email Address*</label>
-                          <input required type="email" placeholder="email@example.com" className="w-full p-4 sm:p-5 bg-white/5 text-white border border-white/10 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={seekerForm.email} onChange={e => setSeekerForm({...seekerForm, email: e.target.value})} />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 ml-1">Location*</label>
-                          <input required placeholder="Current City" className="w-full p-4 sm:p-5 bg-white/5 text-white border border-white/10 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={seekerForm.location} onChange={e => setSeekerForm({...seekerForm, location: e.target.value})} />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 ml-1">Mobile Number*</label>
-                          <input required placeholder="+91 XXXXX XXXXX" className="w-full p-4 sm:p-5 bg-white/5 text-white border border-white/10 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={seekerForm.mobile} onChange={e => setSeekerForm({...seekerForm, mobile: e.target.value})} />
-                        </div>
+                    <form onSubmit={handleSeekerSubmit} className="space-y-6 sm:space-y-8">
+                      <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
+                        <InputField label="Full Name" icon={UserCircle2} placeholder="Your Legal Name" value={seekerForm.name} onChange={(e: any) => setSeekerForm({...seekerForm, name: e.target.value})} />
+                        <InputField label="Email Address" icon={Mail} type="email" placeholder="email@example.com" value={seekerForm.email} onChange={(e: any) => setSeekerForm({...seekerForm, email: e.target.value})} />
+                        
+                        <InputField label="Mobile Number" icon={Phone} placeholder="+91 XXXXX XXXXX" value={seekerForm.mobile} onChange={(e: any) => setSeekerForm({...seekerForm, mobile: e.target.value})} />
+                        <InputField label="Current Location" icon={MapPin} placeholder="Your City" value={seekerForm.location} onChange={(e: any) => setSeekerForm({...seekerForm, location: e.target.value})} />
+                        
+                        <InputField label="Education (Highest)" icon={GraduationCap} placeholder="e.g. MBA, B.Tech, M.Com" value={seekerForm.qualification} onChange={(e: any) => setSeekerForm({...seekerForm, qualification: e.target.value})} />
+                        <InputField label="Passing Year" icon={CalendarDays} placeholder="e.g. 2022" value={seekerForm.passingYear} onChange={(e: any) => setSeekerForm({...seekerForm, passingYear: e.target.value})} />
+                        
+                        <InputField label="Target Role" icon={BriefcaseBusiness} placeholder="e.g. Software Engineer, Sales Head" value={seekerForm.preferredRole} onChange={(e: any) => setSeekerForm({...seekerForm, preferredRole: e.target.value})} />
+                        <InputField label="Notice Period" icon={Clock} placeholder="Days (e.g. 30, Immediate)" value={seekerForm.noticePeriod} onChange={(e: any) => setSeekerForm({...seekerForm, noticePeriod: e.target.value})} />
                       </div>
 
-                      <button disabled={isSubmitting} className="w-full bg-brand-gold text-brand-dark py-5 sm:py-6 rounded-full font-bold text-sm sm:text-lg flex items-center justify-center hover:bg-yellow-500 transition-all shadow-xl disabled:opacity-50">
+                      <button disabled={isSubmitting} className="w-full mt-4 bg-brand-gold text-brand-dark py-5 sm:py-6 rounded-full font-bold text-sm sm:text-lg flex items-center justify-center hover:bg-yellow-500 transition-all shadow-xl disabled:opacity-50">
                         {isSubmitting ? <Loader2 className="animate-spin mr-2" /> : <Send size={18} className="mr-2" />}
                         {isSubmitting ? 'Sending Profile...' : 'Submit Profile for Review'}
                       </button>
