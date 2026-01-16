@@ -9,18 +9,26 @@
   --brand-accent: #164e4b;
 }
 
+/* Strict overflow control to prevent 'blank space' on mobile swipe */
 html, body {
   margin: 0;
   padding: 0;
   width: 100%;
-  overflow-x: hidden;
+  max-width: 100%;
+  overflow-x: hidden !important;
+  position: relative;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #f8f9fa;
+  /* Prevent horizontal bounce on iOS */
+  overscroll-behavior-x: none;
 }
 
 #root {
   width: 100%;
-  overflow-x: hidden;
+  max-width: 100%;
+  overflow-x: hidden !important;
+  position: relative;
 }
 
 /* Custom Scrollbar for Desktop */
@@ -38,4 +46,10 @@ html, body {
   ::-webkit-scrollbar-thumb:hover {
     background: #0d3d3b;
   }
+}
+
+/* Fix for mobile menu links being cut off */
+.mobile-menu-container {
+  height: 100vh;
+  height: -webkit-fill-available;
 }

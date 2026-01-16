@@ -35,7 +35,6 @@ const Navbar = () => {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
-      document.body.style.paddingRight = '0px'; // Prevent shift if any
     } else {
       document.body.style.overflow = 'unset';
     }
@@ -48,67 +47,69 @@ const Navbar = () => {
   }, [location.pathname]);
 
   return (
-    <nav className="bg-brand-dark text-white sticky top-0 z-[60] shadow-xl border-b border-white/5 backdrop-blur-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20 sm:h-24">
-          <Link to="/" className="flex items-center relative z-[70]">
-            <img 
-              src={logoPath} 
-              alt="DishaHire Logo" 
-              className="h-10 sm:h-16 w-auto object-contain hover:opacity-90 transition-opacity"
-            />
-          </Link>
-
-          <div className="hidden md:flex space-x-8 lg:space-x-12 items-center">
-            {NAV_LINKS.map((link: any) => (
-              <Link 
-                key={link.name} 
-                to={link.href} 
-                className={`text-[10px] font-bold uppercase tracking-widest transition-all ${
-                  location.pathname === link.href ? 'text-brand-gold' : 'text-white hover:text-brand-gold'
-                }`}
-              >
-                {link.name}
-              </Link>
-            ))}
-            <Link to="/admin/login" className="text-gray-500 hover:text-brand-gold transition-colors">
-              <Lock size={16} />
+    <>
+      <nav className="bg-brand-dark text-white sticky top-0 z-[60] shadow-xl border-b border-white/5 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-20 sm:h-24">
+            <Link to="/" className="flex items-center relative z-[110]">
+              <img 
+                src={logoPath} 
+                alt="DishaHire Logo" 
+                className="h-10 sm:h-16 w-auto object-contain hover:opacity-90 transition-opacity"
+              />
             </Link>
-          </div>
 
-          <div className="md:hidden flex items-center">
-            <button 
-              onClick={() => setIsOpen(!isOpen)} 
-              className="text-brand-gold p-2 z-[70] relative focus:outline-none touch-manipulation"
-              aria-label="Toggle Menu"
-            >
-              {isOpen ? <X size={32} /> : <Menu size={32} />}
-            </button>
+            <div className="hidden md:flex space-x-8 lg:space-x-12 items-center">
+              {NAV_LINKS.map((link: any) => (
+                <Link 
+                  key={link.name} 
+                  to={link.href} 
+                  className={`text-[10px] font-bold uppercase tracking-widest transition-all ${
+                    location.pathname === link.href ? 'text-brand-gold' : 'text-white hover:text-brand-gold'
+                  }`}
+                >
+                  {link.name}
+                </Link>
+              ))}
+              <Link to="/admin/login" className="text-gray-500 hover:text-brand-gold transition-colors ml-4">
+                <Lock size={16} />
+              </Link>
+            </div>
+
+            <div className="md:hidden flex items-center">
+              <button 
+                onClick={() => setIsOpen(!isOpen)} 
+                className="text-brand-gold p-2 z-[110] relative focus:outline-none touch-manipulation"
+                aria-label="Toggle Menu"
+              >
+                {isOpen ? <X size={32} /> : <Menu size={32} />}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </nav>
 
       <AnimatePresence>
         {isOpen && (
           <MotionDiv
             key="mobile-menu-overlay"
-            initial={{ opacity: 0, x: '100%' }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: '100%' }}
-            transition={{ type: 'tween', duration: 0.3 }}
-            className="md:hidden fixed inset-0 bg-brand-dark z-[65] flex flex-col pt-24 px-8 overflow-y-auto"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="md:hidden fixed inset-0 bg-brand-dark z-[100] flex flex-col pt-24 px-8 overflow-y-auto mobile-menu-container"
           >
              <div className="flex flex-col space-y-6 pt-8">
                 {NAV_LINKS.map((link: any) => (
                   <Link 
                     key={link.name} 
                     to={link.href} 
-                    className={`flex items-center justify-between py-4 border-b border-white/5 transition-all ${
+                    className={`flex items-center justify-between py-5 border-b border-white/10 transition-all ${
                       location.pathname === link.href ? 'text-brand-gold' : 'text-gray-200'
                     }`}
                   >
-                    <span className="text-2xl font-serif font-bold">{link.name}</span>
-                    <ChevronRight size={20} className={location.pathname === link.href ? 'opacity-100' : 'opacity-20'} />
+                    <span className="text-3xl font-serif font-bold">{link.name}</span>
+                    <ChevronRight size={24} className={location.pathname === link.href ? 'opacity-100' : 'opacity-20'} />
                   </Link>
                 ))}
                 <div className="pt-12 mt-auto pb-12">
@@ -120,7 +121,7 @@ const Navbar = () => {
           </MotionDiv>
         )}
       </AnimatePresence>
-    </nav>
+    </>
   );
 };
 
@@ -216,9 +217,9 @@ const App = () => {
     <Router>
       <ScrollToTop />
       {/* Global Wrapper to strictly prevent horizontal overflow */}
-      <div className="min-h-screen flex flex-col bg-brand-light overflow-x-hidden relative w-full">
+      <div className="min-h-screen flex flex-col bg-brand-light overflow-x-hidden relative w-full max-w-full">
         <Navbar />
-        <main className="flex-grow w-full relative">
+        <main className="flex-grow w-full relative overflow-x-hidden">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
