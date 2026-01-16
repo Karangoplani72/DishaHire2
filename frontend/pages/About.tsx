@@ -59,9 +59,11 @@ const About: React.FC = () => {
         </div>
       </section>
 
-      {/* Section 2: Who We Are (Text-Centric Refined Layout) */}
-      <section className="py-20 sm:py-32 px-4 sm:px-6 relative">
-        <div className="absolute top-0 right-0 w-1/3 h-full bg-brand-gold/5 pointer-events-none -skew-x-12 transform translate-x-1/2" />
+      {/* Section 2: Who We Are (Text-Centric Refined Layout - NO IMAGE) */}
+      <section className="py-20 sm:py-32 px-4 sm:px-6 relative bg-white">
+        <div className="absolute top-0 right-0 w-1/4 h-full bg-brand-gold/5 pointer-events-none -skew-x-12 transform translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-1/4 h-1/2 bg-brand-dark/[0.02] pointer-events-none skew-x-12 transform -translate-x-1/2" />
+        
         <div className="max-w-4xl mx-auto relative z-10 text-center space-y-10 sm:space-y-14">
           <MotionDiv 
             initial={{ opacity: 0, y: 30 }} 
@@ -70,7 +72,7 @@ const About: React.FC = () => {
             className="space-y-6"
           >
             <div className="space-y-3">
-              <h2 className="text-[10px] font-black uppercase tracking-[0.5em] text-brand-gold">Our Legacy</h2>
+              <h2 className="text-[10px] font-black uppercase tracking-[0.5em] text-brand-gold">Our Philosophy</h2>
               <h3 className="text-4xl sm:text-6xl font-serif font-bold text-brand-dark">Who We Are</h3>
             </div>
             <div className="w-20 h-1.5 bg-brand-gold mx-auto rounded-full" />
@@ -81,16 +83,16 @@ const About: React.FC = () => {
             whileInView={{ opacity: 1 }} 
             transition={{ delay: 0.2 }}
             viewport={{ once: true }}
-            className="space-y-8"
+            className="space-y-12"
           >
-            <div className="relative inline-block">
-              <Quote className="absolute -top-6 -left-8 text-brand-gold/20" size={64} />
-              <p className="text-xl sm:text-3xl text-brand-dark leading-relaxed font-serif italic font-medium">
+            <div className="relative inline-block px-4">
+              <Quote className="absolute -top-8 -left-2 sm:-left-12 text-brand-gold/20" size={80} />
+              <p className="text-xl sm:text-4xl text-brand-dark leading-snug font-serif italic font-semibold">
                 Disha Hire is a professional recruitment consultancy committed to ethical, transparent, and result-oriented hiring solutions.
               </p>
             </div>
             
-            <p className="text-base sm:text-xl text-gray-600 leading-relaxed max-w-3xl mx-auto">
+            <p className="text-base sm:text-xl text-gray-600 leading-relaxed max-w-3xl mx-auto font-medium">
               Our experienced recruiters and career consultants focus on long-term employer–candidate alignment rather than short-term placements. We deliver end-to-end recruitment and career consulting solutions tailored to evolving industry demands and individual aspirations.
             </p>
           </MotionDiv>
@@ -99,20 +101,20 @@ const About: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="pt-8"
+            className="pt-12"
           >
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-8 text-center border-t border-gray-100 pt-12">
-               <div>
-                  <p className="text-3xl font-serif font-bold text-brand-dark">15+</p>
-                  <p className="text-[9px] font-black uppercase tracking-widest text-brand-gold">Industries</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-8 text-center border-t border-gray-100 pt-16">
+               <div className="space-y-1">
+                  <p className="text-4xl sm:text-5xl font-serif font-bold text-brand-dark">15+</p>
+                  <p className="text-[9px] font-black uppercase tracking-[0.4em] text-brand-gold">Industries</p>
                </div>
-               <div>
-                  <p className="text-3xl font-serif font-bold text-brand-dark">Ethical</p>
-                  <p className="text-[9px] font-black uppercase tracking-widest text-brand-gold">Approach</p>
+               <div className="space-y-1">
+                  <p className="text-4xl sm:text-5xl font-serif font-bold text-brand-dark">Pure</p>
+                  <p className="text-[9px] font-black uppercase tracking-[0.4em] text-brand-gold">Integrity</p>
                </div>
-               <div className="col-span-2 sm:col-span-1">
-                  <p className="text-3xl font-serif font-bold text-brand-dark">Growth</p>
-                  <p className="text-[9px] font-black uppercase tracking-widest text-brand-gold">Driven</p>
+               <div className="col-span-2 sm:col-span-1 space-y-1">
+                  <p className="text-4xl sm:text-5xl font-serif font-bold text-brand-dark">Elite</p>
+                  <p className="text-[9px] font-black uppercase tracking-[0.4em] text-brand-gold">Sourcing</p>
                </div>
             </div>
           </MotionDiv>
@@ -120,7 +122,7 @@ const About: React.FC = () => {
       </section>
 
       {/* Section 3: Mission & Vision Cards (Primary Color) */}
-      <section className="py-12 sm:py-24 bg-white px-4">
+      <section className="py-12 sm:py-24 bg-brand-light px-4">
         <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-6 sm:gap-10">
           <MotionDiv 
             whileHover={{ y: -5 }}
@@ -151,7 +153,7 @@ const About: React.FC = () => {
       </section>
 
       {/* Section 4 & 5: For Seekers & Employers */}
-      <section className="py-16 sm:py-32 px-4 space-y-24 sm:space-y-40">
+      <section className="py-16 sm:py-32 px-4 space-y-24 sm:space-y-40 bg-white">
         {/* Job Seekers */}
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 sm:gap-20 items-center">
           <MotionDiv 
