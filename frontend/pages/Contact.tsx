@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as RouterDOM from 'react-router-dom';
@@ -45,7 +44,7 @@ const FAQ_DATA = [
 const AccordionItem = ({ q, a }: { q: string, a: string }) => {
   const [isOpen, setIsOpen] = useState(false);
   return (
-    <div className="border-b border-gray-100 last:border-0">
+    <div className="border-b border-gray-100 last:border-0 bg-white">
       <button 
         onClick={() => setIsOpen(!isOpen)}
         className="w-full py-5 sm:py-6 flex justify-between items-center text-left group"
@@ -139,11 +138,11 @@ const Contact: React.FC = () => {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-brand-light flex items-center justify-center p-4">
-        <MotionDiv initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white p-8 sm:p-12 rounded-[2.5rem] text-center max-w-md w-full shadow-4xl border border-gray-100">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6 sm:mb-8"><CheckCircle size={40} /></div>
-          <h2 className="text-2xl sm:text-3xl font-serif font-bold text-brand-dark mb-4">Request Received</h2>
-          <p className="text-gray-500 mb-8 sm:mb-10 leading-relaxed font-serif italic text-sm sm:text-base">Your consultation request has been queued. An executive will contact you within 24 hours.</p>
+      <div className="min-h-screen bg-white flex items-center justify-center p-4">
+        <MotionDiv initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-brand-dark p-8 sm:p-12 rounded-[2.5rem] text-center max-w-md w-full shadow-4xl border border-white/10">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-500/10 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6 sm:mb-8"><CheckCircle size={40} /></div>
+          <h2 className="text-2xl sm:text-3xl font-serif font-bold text-white mb-4">Request Received</h2>
+          <p className="text-gray-400 mb-8 sm:mb-10 leading-relaxed font-serif italic text-sm sm:text-base">Your consultation request has been queued. An executive will contact you within 24 hours.</p>
           <button onClick={() => window.location.reload()} className="w-full bg-brand-gold text-brand-dark py-4 sm:py-5 rounded-full font-bold hover:bg-yellow-500 transition-all flex items-center justify-center">
             Return to Contact <ArrowRight size={18} className="ml-2" />
           </button>
@@ -153,7 +152,7 @@ const Contact: React.FC = () => {
   }
 
   return (
-    <div className="bg-brand-light min-h-screen">
+    <div className="bg-white min-h-screen">
       <section className="bg-brand-dark text-white pt-16 sm:pt-24 pb-32 sm:pb-48 px-4 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none" />
         <div className="max-w-7xl mx-auto text-center relative z-10">
@@ -175,71 +174,60 @@ const Contact: React.FC = () => {
             <button 
               key={path.id}
               onClick={() => setActiveTab(path.id as any)}
-              className={`p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] text-left transition-all duration-500 border-2 sm:border-4 flex items-center justify-between group ${activeTab === path.id ? 'bg-white border-brand-gold shadow-4xl' : 'bg-brand-dark/50 backdrop-blur-md border-white/5 hover:border-white/20'}`}
+              className={`p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] text-left transition-all duration-500 border-2 sm:border-4 flex items-center justify-between group ${activeTab === path.id ? 'bg-brand-dark border-brand-gold shadow-4xl text-white' : 'bg-white border-gray-100 hover:border-brand-gold/20 shadow-lg'}`}
             >
               <div className="flex items-center gap-4 sm:gap-6">
-                <div className={`p-3 sm:p-5 rounded-2xl transition-all ${activeTab === path.id ? 'bg-brand-gold text-white' : 'bg-white/10 text-brand-gold'}`}>
+                <div className={`p-3 sm:p-5 rounded-2xl transition-all ${activeTab === path.id ? 'bg-brand-gold text-brand-dark' : 'bg-brand-light text-brand-gold'}`}>
                   <path.icon size={24} className="sm:size-[32px]" />
                 </div>
                 <div>
-                  <h3 className={`text-lg sm:text-2xl font-serif font-bold transition-colors ${activeTab === path.id ? 'text-brand-dark' : 'text-white/60'}`}>{path.label}</h3>
-                  <p className={`text-[8px] sm:text-[10px] uppercase tracking-widest font-black transition-colors ${activeTab === path.id ? 'text-brand-gold' : 'text-gray-500'}`}>Initiate Path</p>
+                  <h3 className={`text-lg sm:text-2xl font-serif font-bold transition-colors ${activeTab === path.id ? 'text-white' : 'text-brand-dark'}`}>{path.label}</h3>
+                  <p className={`text-[8px] sm:text-[10px] uppercase tracking-widest font-black transition-colors ${activeTab === path.id ? 'text-brand-gold' : 'text-gray-400'}`}>Initiate Path</p>
                 </div>
               </div>
-              <ArrowRight className={`transition-all hidden sm:block ${activeTab === path.id ? 'text-brand-gold opacity-100 translate-x-0' : 'text-white opacity-0 -translate-x-4'}`} size={24} />
+              <ArrowRight className={`transition-all hidden sm:block ${activeTab === path.id ? 'text-brand-gold opacity-100 translate-x-0' : 'text-brand-dark opacity-0 -translate-x-4'}`} size={24} />
             </button>
           ))}
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8 sm:gap-12 items-start">
           <div className="lg:col-span-2">
-            <MotionDiv layout className="bg-white p-6 sm:p-14 rounded-[2rem] sm:rounded-[3.5rem] shadow-4xl border border-gray-100 overflow-hidden">
+            <MotionDiv layout className="bg-brand-dark p-6 sm:p-14 rounded-[2rem] sm:rounded-[3.5rem] shadow-4xl border border-white/5 overflow-hidden">
               <AnimatePresence mode="wait">
                 {activeTab === 'employer' ? (
                   <MotionDiv key="employer" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }}>
                     <div className="mb-8 sm:mb-10">
-                      <h2 className="text-2xl sm:text-3xl font-serif font-bold text-brand-dark">Corporate Mandate</h2>
+                      <h2 className="text-2xl sm:text-3xl font-serif font-bold text-white">Corporate Mandate</h2>
                       <p className="text-brand-gold text-[9px] sm:text-xs font-black uppercase tracking-widest mt-1">Personnel Procurement Request</p>
                     </div>
                     <form onSubmit={handleEmployerSubmit} className="space-y-6 sm:space-y-10">
                       <div className="grid sm:grid-cols-2 gap-4 sm:gap-8">
                         <div className="space-y-1">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Entity Name*</label>
-                          <input required placeholder="Your Organization" className="w-full p-4 sm:p-5 bg-gray-50 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold transition-all text-sm" value={employerForm.companyName} onChange={e => setEmployerForm({...employerForm, companyName: e.target.value})} />
+                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 ml-1">Entity Name*</label>
+                          <input required placeholder="Your Organization" className="w-full p-4 sm:p-5 bg-white/5 text-white border border-white/10 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold transition-all text-sm" value={employerForm.companyName} onChange={e => setEmployerForm({...employerForm, companyName: e.target.value})} />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Entity Type*</label>
-                          <select required className="w-full p-4 sm:p-5 bg-gray-50 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={employerForm.companyType} onChange={e => setEmployerForm({...employerForm, companyType: e.target.value})}>
+                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 ml-1">Entity Type*</label>
+                          <select required className="w-full p-4 sm:p-5 bg-white/5 text-white border border-white/10 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={employerForm.companyType} onChange={e => setEmployerForm({...employerForm, companyType: e.target.value})}>
                             <option value="">Select Type</option>
                             {COMPANY_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
                           </select>
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Sector/Industry*</label>
-                          <input required placeholder="e.g. IT, Logistics" className="w-full p-4 sm:p-5 bg-gray-50 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={employerForm.industry} onChange={e => setEmployerForm({...employerForm, industry: e.target.value})} />
+                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 ml-1">Sector/Industry*</label>
+                          <input required placeholder="e.g. IT, Logistics" className="w-full p-4 sm:p-5 bg-white/5 text-white border border-white/10 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={employerForm.industry} onChange={e => setEmployerForm({...employerForm, industry: e.target.value})} />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Company Location*</label>
-                          <input required placeholder="e.g. Rajkot, Gujarat" className="w-full p-4 sm:p-5 bg-gray-50 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={employerForm.address} onChange={e => setEmployerForm({...employerForm, address: e.target.value})} />
+                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 ml-1">Company Location*</label>
+                          <input required placeholder="e.g. Rajkot, Gujarat" className="w-full p-4 sm:p-5 bg-white/5 text-white border border-white/10 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={employerForm.address} onChange={e => setEmployerForm({...employerForm, address: e.target.value})} />
                         </div>
                         <div className="space-y-1 sm:col-span-2">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Work Email*</label>
-                          <input required type="email" placeholder="hr@yourcompany.com" className="w-full p-4 sm:p-5 bg-gray-50 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={employerForm.email} onChange={e => setEmployerForm({...employerForm, email: e.target.value})} />
+                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 ml-1">Work Email*</label>
+                          <input required type="email" placeholder="hr@yourcompany.com" className="w-full p-4 sm:p-5 bg-white/5 text-white border border-white/10 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={employerForm.email} onChange={e => setEmployerForm({...employerForm, email: e.target.value})} />
                         </div>
                       </div>
 
-                      <div className="grid sm:grid-cols-2 gap-4 sm:gap-8">
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">POC Name*</label>
-                          <input required placeholder="Contact Person" className="w-full p-4 sm:p-5 bg-gray-50 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={employerForm.contactName} onChange={e => setEmployerForm({...employerForm, contactName: e.target.value})} />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Direct Mobile*</label>
-                          <input required placeholder="+91 XXXXX XXXXX" className="w-full p-4 sm:p-5 bg-gray-50 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={employerForm.mobile} onChange={e => setEmployerForm({...employerForm, mobile: e.target.value})} />
-                        </div>
-                      </div>
-
-                      <button disabled={isSubmitting} className="w-full bg-brand-dark text-brand-gold py-5 sm:py-6 rounded-full font-bold text-sm sm:text-lg flex items-center justify-center hover:bg-black transition-all shadow-xl disabled:opacity-50">
+                      <button disabled={isSubmitting} className="w-full bg-brand-gold text-brand-dark py-5 sm:py-6 rounded-full font-bold text-sm sm:text-lg flex items-center justify-center hover:bg-yellow-500 transition-all shadow-xl disabled:opacity-50">
                         {isSubmitting ? <Loader2 className="animate-spin mr-2" /> : <Send size={18} className="mr-2" />}
                         {isSubmitting ? 'Processing...' : 'Register Corporate Mandate'}
                       </button>
@@ -248,49 +236,30 @@ const Contact: React.FC = () => {
                 ) : (
                   <MotionDiv key="seeker" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}>
                     <div className="mb-8 sm:mb-10">
-                      <h2 className="text-2xl sm:text-3xl font-serif font-bold text-brand-dark">Candidate Profile</h2>
+                      <h2 className="text-2xl sm:text-3xl font-serif font-bold text-white">Candidate Profile</h2>
                       <p className="text-brand-gold text-[9px] sm:text-xs font-black uppercase tracking-widest mt-1">Strategic Career Mapping</p>
                     </div>
                     <form onSubmit={handleSeekerSubmit} className="space-y-6 sm:space-y-10">
                       <div className="grid sm:grid-cols-2 gap-4 sm:gap-8">
                         <div className="space-y-1">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Full Name*</label>
-                          <input required placeholder="Your Legal Name" className="w-full p-4 sm:p-5 bg-gray-50 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={seekerForm.name} onChange={e => setSeekerForm({...seekerForm, name: e.target.value})} />
+                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 ml-1">Full Name*</label>
+                          <input required placeholder="Your Legal Name" className="w-full p-4 sm:p-5 bg-white/5 text-white border border-white/10 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={seekerForm.name} onChange={e => setSeekerForm({...seekerForm, name: e.target.value})} />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Email Address*</label>
-                          <input required type="email" placeholder="email@example.com" className="w-full p-4 sm:p-5 bg-gray-50 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={seekerForm.email} onChange={e => setSeekerForm({...seekerForm, email: e.target.value})} />
+                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 ml-1">Email Address*</label>
+                          <input required type="email" placeholder="email@example.com" className="w-full p-4 sm:p-5 bg-white/5 text-white border border-white/10 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={seekerForm.email} onChange={e => setSeekerForm({...seekerForm, email: e.target.value})} />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Location*</label>
-                          <input required placeholder="Current City" className="w-full p-4 sm:p-5 bg-gray-50 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={seekerForm.location} onChange={e => setSeekerForm({...seekerForm, location: e.target.value})} />
+                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 ml-1">Location*</label>
+                          <input required placeholder="Current City" className="w-full p-4 sm:p-5 bg-white/5 text-white border border-white/10 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={seekerForm.location} onChange={e => setSeekerForm({...seekerForm, location: e.target.value})} />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Mobile Number*</label>
-                          <input required placeholder="+91 XXXXX XXXXX" className="w-full p-4 sm:p-5 bg-gray-50 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={seekerForm.mobile} onChange={e => setSeekerForm({...seekerForm, mobile: e.target.value})} />
+                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 ml-1">Mobile Number*</label>
+                          <input required placeholder="+91 XXXXX XXXXX" className="w-full p-4 sm:p-5 bg-white/5 text-white border border-white/10 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={seekerForm.mobile} onChange={e => setSeekerForm({...seekerForm, mobile: e.target.value})} />
                         </div>
                       </div>
 
-                      <div className="grid sm:grid-cols-2 gap-4 sm:gap-8">
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Highest Degree*</label>
-                          <input required placeholder="e.g. MBA, B.Tech" className="w-full p-4 sm:p-5 bg-gray-50 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={seekerForm.qualification} onChange={e => setSeekerForm({...seekerForm, qualification: e.target.value})} />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Passing Year*</label>
-                          <input required placeholder="YYYY" className="w-full p-4 sm:p-5 bg-gray-50 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={seekerForm.passingYear} onChange={e => setSeekerForm({...seekerForm, passingYear: e.target.value})} />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Desired Role*</label>
-                          <input required placeholder="Target Position" className="w-full p-4 sm:p-5 bg-gray-50 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={seekerForm.preferredRole} onChange={e => setSeekerForm({...seekerForm, preferredRole: e.target.value})} />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Notice Period*</label>
-                          <input required placeholder="Availability (Days)" className="w-full p-4 sm:p-5 bg-gray-50 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={seekerForm.noticePeriod} onChange={e => setSeekerForm({...seekerForm, noticePeriod: e.target.value})} />
-                        </div>
-                      </div>
-
-                      <button disabled={isSubmitting} className="w-full bg-brand-dark text-brand-gold py-5 sm:py-6 rounded-full font-bold text-sm sm:text-lg flex items-center justify-center hover:bg-black transition-all shadow-xl disabled:opacity-50">
+                      <button disabled={isSubmitting} className="w-full bg-brand-gold text-brand-dark py-5 sm:py-6 rounded-full font-bold text-sm sm:text-lg flex items-center justify-center hover:bg-yellow-500 transition-all shadow-xl disabled:opacity-50">
                         {isSubmitting ? <Loader2 className="animate-spin mr-2" /> : <Send size={18} className="mr-2" />}
                         {isSubmitting ? 'Sending Profile...' : 'Submit Profile for Review'}
                       </button>
@@ -302,7 +271,7 @@ const Contact: React.FC = () => {
           </div>
 
           <div className="space-y-6 sm:space-y-8">
-            <div className="bg-brand-dark p-8 sm:p-10 rounded-[2rem] sm:rounded-[3rem] text-white shadow-4xl relative overflow-hidden group">
+            <div className="bg-brand-dark p-8 sm:p-10 rounded-[2rem] sm:rounded-[3rem] text-white shadow-4xl relative overflow-hidden group border border-white/5">
                <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none"><ShieldCheck size={100} /></div>
                <h3 className="text-2xl sm:text-3xl font-serif font-bold mb-8 sm:mb-10 relative z-10">Direct <br/><span className="text-brand-gold italic">Connect.</span></h3>
                <div className="space-y-6 sm:space-y-8 relative z-10">
@@ -327,13 +296,13 @@ const Contact: React.FC = () => {
                </div>
             </div>
 
-            <div className="bg-white p-8 sm:p-10 rounded-[2rem] sm:rounded-[3rem] border border-gray-100 shadow-xl space-y-6 sm:space-y-8">
-               <div className="flex items-center gap-3 text-brand-dark">
+            <div className="bg-brand-dark p-8 sm:p-10 rounded-[2rem] sm:rounded-[3rem] border border-white/5 shadow-xl space-y-6 sm:space-y-8">
+               <div className="flex items-center gap-3 text-white">
                   <Zap size={20} className="text-brand-gold sm:size-[24px]" />
                   <h4 className="text-lg sm:text-xl font-serif font-bold">Quick Assistance</h4>
                </div>
-               <p className="text-gray-500 text-xs sm:text-sm leading-relaxed">Prefer a faster response? Our consultants are available on WhatsApp for immediate support.</p>
-               <a href={CONTACT_INFO.whatsapp} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 sm:gap-3 w-full py-4 sm:py-5 rounded-full bg-green-50 text-green-600 font-bold hover:bg-green-600 hover:text-white transition-all text-xs sm:text-sm border border-green-100">
+               <p className="text-gray-400 text-xs sm:text-sm leading-relaxed">Prefer a faster response? Our consultants are available on WhatsApp for immediate support.</p>
+               <a href={CONTACT_INFO.whatsapp} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 sm:gap-3 w-full py-4 sm:py-5 rounded-full bg-brand-gold text-brand-dark font-bold hover:bg-yellow-500 transition-all text-xs sm:text-sm shadow-lg">
                   <MessageSquare size={18} className="sm:size-[20px]" /> Instant Contact
                </a>
             </div>
@@ -345,7 +314,7 @@ const Contact: React.FC = () => {
             <h2 className="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.3em] sm:tracking-[0.4em] text-brand-gold mb-3 sm:mb-4">Support Center</h2>
             <h3 className="text-2xl sm:text-5xl font-serif font-bold text-brand-dark">Common Questions</h3>
           </div>
-          <div className="bg-white rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-14 shadow-2xl border border-gray-100">
+          <div className="bg-white rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-14 shadow-2xl border border-gray-100 overflow-hidden">
             {FAQ_DATA.map((faq, i) => (
               <AccordionItem key={i} q={faq.q} a={faq.a} />
             ))}

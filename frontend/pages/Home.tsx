@@ -103,7 +103,7 @@ const Home: React.FC = () => {
   const [selectionOpen, setSelectionOpen] = useState(false);
 
   return (
-    <div className="w-full overflow-x-hidden">
+    <div className="w-full overflow-x-hidden bg-white">
       <section className="relative min-h-[70vh] sm:min-h-[85vh] lg:min-h-[90vh] flex items-center bg-brand-dark overflow-hidden px-4 sm:px-6 w-full">
         <div className="absolute inset-0 z-0 opacity-20 pointer-events-none overflow-hidden">
            <div className="absolute top-0 right-0 w-[300px] h-[300px] sm:w-[800px] sm:h-[800px] bg-brand-gold/10 rounded-full blur-[80px] sm:blur-[120px] -translate-y-1/2 translate-x-1/2" />

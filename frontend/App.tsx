@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import * as RouterDOM from 'react-router-dom';
-const { HashRouter: Router, Routes, Route, Link, useLocation, useNavigate } = RouterDOM as any;
-import { Menu, X, Mail, MapPin, Linkedin, Instagram, MessageCircle, Phone, ArrowLeft, ArrowRight, Lock, ChevronRight, ShieldAlert } from 'lucide-react';
+const { HashRouter: Router, Routes, Route, Link, useLocation } = RouterDOM as any;
+import { Menu, X, Mail, MapPin, Linkedin, Instagram, MessageCircle, Phone, ArrowLeft, ArrowRight, Lock, ChevronRight, ShieldAlert, Code } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import Home from './pages/Home.tsx';
@@ -81,7 +81,7 @@ const Navbar = () => {
     <>
       <nav className="bg-brand-dark text-white sticky top-0 z-[60] shadow-xl border-b border-white/5 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20 h-24">
+          <div className="flex justify-between items-center h-20 sm:h-24">
             <Link to="/" className="flex items-center relative z-[110]">
               <img 
                 src={logoPath} 
@@ -160,10 +160,8 @@ const Footer = () => {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin/dashboard');
   
-  // Also hide footer on login page and not found page to keep focus
   const isHideFooter = isAdmin || location.pathname === '/admin/login';
   
-  // We check if the current route is one of the valid ones. If not, we might be on 404.
   const validPaths = [...NAV_LINKS.map(l => l.href), '/admin/login', '/admin/dashboard'];
   const isNotFound = !validPaths.includes(location.pathname);
 
@@ -241,9 +239,17 @@ const Footer = () => {
           </div>
         </div>
         <div className="pt-12 border-t border-white/5">
-          <div className="flex flex-col items-center text-center">
-            <p className="text-[9px] font-bold uppercase tracking-[0.4em] text-gray-600 mb-2">ENGINEERED FOR EXCELLENCE</p>
-            <p className="text-[10px] font-serif italic text-gray-400">Handcrafted for DishaHire Consultancy</p>
+          <div className="flex flex-col md:flex-row items-center justify-between text-center md:text-left gap-6">
+            <div>
+              <p className="text-[9px] font-bold uppercase tracking-[0.4em] text-gray-600 mb-2">ENGINEERED FOR EXCELLENCE</p>
+              <p className="text-[10px] font-serif italic text-gray-400">© {new Date().getFullYear()} DishaHire Consultancy. All rights reserved.</p>
+            </div>
+            <div className="flex items-center gap-3 px-6 py-3 bg-white/5 border border-white/10 rounded-2xl">
+              <Code size={14} className="text-brand-gold" />
+              <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                Designed & Developed by <span className="text-white">Enterprise Solutions Team</span>
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -255,7 +261,7 @@ const App = () => {
   return (
     <Router>
       <ScrollToTop />
-      <div className="min-h-screen flex flex-col bg-brand-light overflow-x-hidden relative w-full max-w-full">
+      <div className="min-h-screen flex flex-col bg-white overflow-x-hidden relative w-full max-w-full">
         <Navbar />
         <main className="flex-grow w-full relative overflow-x-hidden">
           <Routes>
@@ -266,7 +272,6 @@ const App = () => {
             <Route path="/contact" element={<Contact />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            {/* Catch-all 404 Route */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>

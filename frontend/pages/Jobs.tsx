@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Briefcase, GraduationCap, Users, Banknote, Search, ArrowUpRight, Filter, Sparkles, MapPin } from 'lucide-react';
@@ -50,7 +49,7 @@ const Jobs: React.FC = () => {
   };
 
   return (
-    <div className="bg-brand-light min-h-screen overflow-x-hidden">
+    <div className="bg-white min-h-screen overflow-x-hidden">
       <section className="bg-brand-dark text-white pt-16 sm:pt-24 pb-24 sm:pb-32 px-4 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none" />
         
@@ -68,7 +67,7 @@ const Jobs: React.FC = () => {
         </div>
       </section>
 
-      <section className="py-8 sm:py-20 -mt-10 sm:-mt-16 relative z-20 px-4 sm:px-6">
+      <section className="py-8 sm:py-20 -mt-10 sm:-mt-16 relative z-20 px-4 sm:px-6 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white p-2 rounded-[1.5rem] sm:rounded-[3rem] shadow-2xl flex flex-col md:flex-row items-center mb-10 sm:mb-16 max-w-5xl mx-auto border border-gray-100 overflow-hidden">
             <div className="flex-grow flex items-center px-4 sm:px-6 py-3 sm:py-4 w-full">

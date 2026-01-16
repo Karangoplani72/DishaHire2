@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { 
@@ -16,28 +15,6 @@ import {
 } from 'lucide-react';
 
 const MotionDiv = (motion as any).div;
-
-/**
- * IMAGE GENERATION PROMPTS USED FOR SECTIONS:
- * 
- * 1. Hero Banner: 
- *    Prompt: "Realistic high-quality 16:9 photo of a modern Indian corporate office, 
- *    diverse professionals collaborating in a bright, sunlit boardroom, professional 
- *    atmosphere, blue and white neutral tones, wide angle."
- * 
- * 2. Who We Are: 
- *    Prompt: "A professional recruitment consultant in a business suit having a 
- *    face-to-face interview with a candidate in a modern Indian office setting, 
- *    trustworthy and transparent vibe."
- * 
- * 3. For Job Seekers: 
- *    Prompt: "A group of young Indian freshers and experienced professionals in a 
- *    career guidance workshop, focused expressions, mentorship environment."
- * 
- * 4. For Employers: 
- *    Prompt: "Corporate business leaders in India discussing hiring strategy around 
- *    a glass table, high-end office, handshake in background, executive presence."
- */
 
 const About: React.FC = () => {
   return (
@@ -75,7 +52,7 @@ const About: React.FC = () => {
       </section>
 
       {/* Who We Are Section */}
-      <section className="py-20 sm:py-32 px-4">
+      <section className="py-20 sm:py-32 px-4 bg-white">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
           <MotionDiv 
             initial={{ opacity: 0, y: 20 }} 
@@ -97,13 +74,13 @@ const About: React.FC = () => {
             </div>
             <div className="flex flex-wrap gap-8 pt-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-brand-light flex items-center justify-center text-brand-gold border border-brand-gold/20">
+                <div className="w-12 h-12 rounded-2xl bg-brand-dark flex items-center justify-center text-brand-gold border border-brand-gold/20">
                   <Handshake size={24} />
                 </div>
                 <span className="font-bold text-brand-dark uppercase text-[11px] tracking-widest">High Integrity</span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-brand-light flex items-center justify-center text-brand-gold border border-brand-gold/20">
+                <div className="w-12 h-12 rounded-2xl bg-brand-dark flex items-center justify-center text-brand-gold border border-brand-gold/20">
                   <Users size={24} />
                 </div>
                 <span className="font-bold text-brand-dark uppercase text-[11px] tracking-widest">Human Centric</span>
@@ -164,7 +141,7 @@ const About: React.FC = () => {
       </section>
 
       {/* Dual Solutions Section */}
-      <section className="py-20 sm:py-32 px-4 bg-gray-50">
+      <section className="py-20 sm:py-32 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16 sm:mb-24 space-y-4">
             <h2 className="text-[10px] font-black uppercase tracking-[0.5em] text-brand-gold">Our Impact</h2>
@@ -177,17 +154,17 @@ const About: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="bg-white p-8 sm:p-14 rounded-[4rem] shadow-xl border border-gray-100 flex flex-col justify-between"
+              className="bg-brand-dark p-8 sm:p-14 rounded-[4rem] shadow-xl border border-white/5 flex flex-col justify-between"
             >
               <div className="space-y-8">
                 <div className="flex justify-between items-start">
-                  <div className="w-20 h-20 rounded-[2rem] bg-brand-light flex items-center justify-center text-brand-gold">
+                  <div className="w-20 h-20 rounded-[2rem] bg-white/10 flex items-center justify-center text-brand-gold">
                     <UserPlus size={40} />
                   </div>
-                  <span className="px-4 py-2 bg-brand-gold/5 text-brand-gold rounded-full text-[9px] font-black uppercase tracking-widest border border-brand-gold/10">Path for Candidates</span>
+                  <span className="px-4 py-2 bg-brand-gold/10 text-brand-gold rounded-full text-[9px] font-black uppercase tracking-widest border border-brand-gold/20">Path for Candidates</span>
                 </div>
-                <h4 className="text-3xl font-serif font-bold text-brand-dark">For Job Seekers</h4>
-                <p className="text-gray-600 text-lg leading-relaxed">
+                <h4 className="text-3xl font-serif font-bold text-white">For Job Seekers</h4>
+                <p className="text-gray-400 text-lg leading-relaxed">
                   We support freshers and experienced professionals through career guidance, job matching, and placement assistance—helping them choose the <span className="text-brand-gold font-bold">right career path</span>, not just any job.
                 </p>
                 <img 
@@ -229,7 +206,7 @@ const About: React.FC = () => {
       </section>
 
       {/* Values Grid */}
-      <section className="py-20 sm:py-32 px-4">
+      <section className="py-20 sm:py-32 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16 sm:mb-24">
             <h2 className="text-[10px] font-black uppercase tracking-[0.5em] text-brand-gold mb-4">Foundation</h2>
@@ -252,7 +229,7 @@ const About: React.FC = () => {
                 transition={{ delay: i * 0.1 }}
                 className="flex flex-col items-center group cursor-default"
               >
-                <div className="w-full aspect-square rounded-[2rem] sm:rounded-[2.5rem] bg-brand-light flex items-center justify-center text-brand-gold border border-brand-gold/10 group-hover:bg-brand-gold group-hover:text-white transition-all duration-500 shadow-sm group-hover:shadow-xl group-hover:-translate-y-2">
+                <div className="w-full aspect-square rounded-[2rem] sm:rounded-[2.5rem] bg-brand-dark flex items-center justify-center text-brand-gold border border-brand-gold/10 group-hover:bg-brand-gold group-hover:text-white transition-all duration-500 shadow-sm group-hover:shadow-xl group-hover:-translate-y-2">
                   <value.icon size={32} />
                 </div>
                 <p className="mt-6 text-[10px] font-black uppercase tracking-[0.3em] text-brand-dark group-hover:text-brand-gold transition-colors">{value.title}</p>
