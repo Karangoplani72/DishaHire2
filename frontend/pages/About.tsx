@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { 
@@ -6,11 +5,9 @@ import {
   Target, 
   Eye, 
   Users, 
-  UserPlus, 
   Handshake, 
   Gem, 
-  Rocket, 
-  Heart,
+  TrendingUp, 
   ArrowRight
 } from 'lucide-react';
 
@@ -69,21 +66,21 @@ const About: React.FC = () => {
                 Disha Hire is a professional recruitment consultancy committed to <span className="text-brand-dark font-bold">ethical, transparent, and result-oriented hiring</span>. 
               </p>
               <p>
-                Our team of experienced recruiters and career consultants focuses on long-term employer–candidate alignment instead of short-term placements.
+                Our team focuses on long-term alignment instead of short-term placements, ensuring that every hire contributes to the growth of both the individual and the organization.
               </p>
             </div>
             <div className="flex flex-wrap gap-8 pt-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-brand-dark flex items-center justify-center text-brand-gold border-2 border-brand-gold">
+                <div className="w-12 h-12 rounded-full border-2 border-brand-gold bg-brand-dark flex items-center justify-center text-brand-gold">
                   <Handshake size={20} />
                 </div>
-                <span className="font-bold text-brand-dark uppercase text-[11px] tracking-widest">High Integrity</span>
+                <span className="font-bold text-brand-dark uppercase text-[11px] tracking-widest">Transparency</span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-brand-dark flex items-center justify-center text-brand-gold border-2 border-brand-gold">
+                <div className="w-12 h-12 rounded-full border-2 border-brand-gold bg-brand-dark flex items-center justify-center text-brand-gold">
                   <Users size={20} />
                 </div>
-                <span className="font-bold text-brand-dark uppercase text-[11px] tracking-widest">Human Centric</span>
+                <span className="font-bold text-brand-dark uppercase text-[11px] tracking-widest">Client First</span>
               </div>
             </div>
           </MotionDiv>
@@ -97,7 +94,7 @@ const About: React.FC = () => {
             <div className="absolute -inset-4 bg-brand-gold/5 rounded-[3rem] blur-2xl" />
             <img 
               src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=800" 
-              alt="Professional Consultation" 
+              alt="Consultancy in action" 
               className="relative z-10 rounded-[3rem] shadow-2xl grayscale"
             />
           </MotionDiv>
@@ -111,9 +108,9 @@ const About: React.FC = () => {
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="p-10 sm:p-16 rounded-[3rem] bg-brand-dark border border-brand-gold/20 hover:border-brand-gold transition-all group"
+            className="p-10 sm:p-16 rounded-[3rem] bg-brand-dark border border-brand-gold/10 hover:border-brand-gold/40 transition-all group shadow-xl"
           >
-            <div className="w-16 h-16 rounded-full border-2 border-brand-gold bg-brand-dark flex items-center justify-center text-brand-gold mb-8 group-hover:scale-110 transition-transform">
+            <div className="w-16 h-16 rounded-full border-2 border-brand-gold bg-brand-dark/50 flex items-center justify-center text-brand-gold mb-8 group-hover:scale-110 transition-transform">
               <Target size={32} />
             </div>
             <h4 className="text-3xl font-serif font-bold mb-6 text-white">Our Mission</h4>
@@ -126,9 +123,9 @@ const About: React.FC = () => {
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="p-10 sm:p-16 rounded-[3rem] bg-brand-dark border border-brand-gold/20 hover:border-brand-gold transition-all group"
+            className="p-10 sm:p-16 rounded-[3rem] bg-brand-dark border border-brand-gold/10 hover:border-brand-gold/40 transition-all group shadow-xl"
           >
-            <div className="w-16 h-16 rounded-full border-2 border-brand-gold bg-brand-dark flex items-center justify-center text-brand-gold mb-8 group-hover:scale-110 transition-transform">
+            <div className="w-16 h-16 rounded-full border-2 border-brand-gold bg-brand-dark/50 flex items-center justify-center text-brand-gold mb-8 group-hover:scale-110 transition-transform">
               <Eye size={32} />
             </div>
             <h4 className="text-3xl font-serif font-bold mb-6 text-white">Our Vision</h4>
@@ -139,7 +136,7 @@ const About: React.FC = () => {
         </div>
       </section>
 
-      {/* Values Grid - Green Cards with Text Inside */}
+      {/* Values Grid - Text Inside Green Cards with Gold-Bordered Icons */}
       <section className="py-20 sm:py-32 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16 sm:mb-24">
@@ -147,13 +144,13 @@ const About: React.FC = () => {
             <h3 className="text-3xl sm:text-5xl font-serif font-bold text-brand-dark">Our Values</h3>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 sm:gap-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 sm:gap-8">
             {[
-              { title: 'Integrity', icon: ShieldCheck, desc: 'Ethical conduct in every placement.' },
-              { title: 'Commitment', icon: Heart, desc: 'Dedicated to candidate success.' },
-              { title: 'Quality', icon: Gem, desc: 'Highest standards of vetting.' },
-              { title: 'Respect', icon: Users, desc: 'Dignity for every individual.' },
-              { title: 'Growth', icon: Rocket, desc: 'Continuous professional evolution.' }
+              { title: 'Integrity', icon: ShieldCheck, desc: 'Honest and ethical conduct in every professional placement.' },
+              { title: 'Commitment', icon: Target, desc: 'Dedicated to long-term alignment for both clients and candidates.' },
+              { title: 'Quality', icon: Gem, desc: 'Highest standards of vetting and customized hiring solutions.' },
+              { title: 'Respect', icon: Users, desc: 'Valuing every individual’s dignity and career aspirations.' },
+              { title: 'Growth', icon: TrendingUp, desc: 'Fostering continuous professional and organizational evolution.' }
             ].map((value, i) => (
               <MotionDiv 
                 key={value.title}
@@ -161,13 +158,17 @@ const About: React.FC = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="flex flex-col items-center bg-brand-dark p-8 rounded-[2.5rem] border border-brand-gold/10 hover:border-brand-gold transition-all group text-center"
+                className="flex flex-col items-center bg-brand-dark p-8 rounded-[2.5rem] border border-brand-gold/10 hover:border-brand-gold transition-all group text-center shadow-lg"
               >
-                <div className="w-16 h-16 rounded-full border-2 border-brand-gold flex items-center justify-center text-brand-gold mb-6 group-hover:bg-brand-gold group-hover:text-brand-dark transition-all duration-500">
+                {/* Circular Icon with Gold Border */}
+                <div className="w-16 h-16 rounded-full border-2 border-brand-gold bg-brand-dark/50 flex items-center justify-center text-brand-gold mb-6 group-hover:bg-brand-gold group-hover:text-brand-dark transition-all duration-500">
                   <value.icon size={28} />
                 </div>
-                <h5 className="text-white font-serif font-bold text-xl mb-2">{value.title}</h5>
-                <p className="text-gray-400 text-[10px] uppercase tracking-widest leading-tight">{value.desc}</p>
+                {/* Text Content Now Inside Card */}
+                <h5 className="text-white font-serif font-bold text-xl mb-3">{value.title}</h5>
+                <p className="text-gray-400 text-[10px] sm:text-[11px] uppercase tracking-widest leading-relaxed">
+                  {value.desc}
+                </p>
               </MotionDiv>
             ))}
           </div>

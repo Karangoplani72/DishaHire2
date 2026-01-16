@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import * as RouterDOM from 'react-router-dom';
 const { HashRouter: Router, Routes, Route, Link, useLocation } = RouterDOM as any;
@@ -174,15 +173,15 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Developer Attribution Section */}
+        {/* Developer Attribution Section - Highlighted with link to Karan Goplani */}
         <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
            <div className="text-center md:text-left">
               <p className="text-[10px] font-serif italic text-gray-500">© {new Date().getFullYear()} DishaHire Consulting. All Rights Reserved.</p>
            </div>
-           <div className="flex items-center gap-3 px-6 py-3 bg-white/5 border border-white/10 rounded-2xl">
+           <div className="flex items-center gap-3 px-6 py-3 bg-white/5 border border-white/10 rounded-2xl group transition-all hover:bg-white/10">
               <Code size={14} className="text-brand-gold" />
               <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
-                Designed & Developed by <span className="text-white">Enterprise Solutions Team</span>
+                Designed & Developed by <a href="https://karan-portfolio-self.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-brand-gold font-bold hover:underline">Karan Goplani</a>
               </p>
            </div>
         </div>
