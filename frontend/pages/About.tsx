@@ -1,5 +1,8 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import * as RouterDOM from 'react-router-dom';
+const { useNavigate } = RouterDOM as any;
 import { 
   ShieldCheck, 
   Target, 
@@ -8,12 +11,69 @@ import {
   Handshake, 
   Gem, 
   TrendingUp, 
-  ArrowRight
+  ArrowRight,
+  X,
+  UserCircle2,
+  Briefcase
 } from 'lucide-react';
 
 const MotionDiv = (motion as any).div;
 
+const SelectionModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+  const navigate = useNavigate();
+
+  const handleSelect = (tab: 'seeker' | 'employer') => {
+    navigate('/contact', { state: { tab } });
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-brand-dark/95 backdrop-blur-md">
+      <MotionDiv 
+        initial={{ scale: 0.9, opacity: 0 }} 
+        animate={{ scale: 1, opacity: 1 }} 
+        exit={{ scale: 0.9, opacity: 0 }}
+        className="bg-white rounded-[2.5rem] sm:rounded-[3rem] overflow-hidden max-w-2xl w-full shadow-4xl relative"
+      >
+        <button onClick={onClose} className="absolute top-6 right-6 sm:top-8 sm:right-8 p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400">
+          <X size={24} />
+        </button>
+
+        <div className="p-8 sm:p-16 text-center">
+          <h3 className="text-2xl sm:text-4xl font-serif font-bold text-brand-dark mb-3 sm:mb-4">How can we assist you?</h3>
+          <p className="text-sm sm:text-base text-gray-500 mb-8 sm:mb-12 font-serif italic">Select your professional path to continue</p>
+
+          <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
+            <button 
+              onClick={() => handleSelect('seeker')}
+              className="group p-6 sm:p-8 rounded-[2rem] border-2 border-gray-100 hover:border-brand-gold hover:bg-brand-light transition-all text-center space-y-4"
+            >
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-brand-gold/10 text-brand-gold rounded-2xl flex items-center justify-center mx-auto group-hover:bg-brand-gold group-hover:text-white transition-all">
+                <UserCircle2 size={28} className="sm:size-[32px]" />
+              </div>
+              <h4 className="text-lg sm:text-xl font-serif font-bold text-brand-dark">Candidate</h4>
+              <p className="text-[9px] uppercase tracking-widest text-gray-400 font-black">Looking for jobs</p>
+            </button>
+
+            <button 
+              onClick={() => handleSelect('employer')}
+              className="group p-6 sm:p-8 rounded-[2rem] border-2 border-gray-100 hover:border-brand-gold hover:bg-brand-light transition-all text-center space-y-4"
+            >
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-brand-gold/10 text-brand-gold rounded-2xl flex items-center justify-center mx-auto group-hover:bg-brand-gold group-hover:text-white transition-all">
+                <Briefcase size={28} className="sm:size-[32px]" />
+              </div>
+              <h4 className="text-lg sm:text-xl font-serif font-bold text-brand-dark">Employer</h4>
+              <p className="text-[9px] uppercase tracking-widest text-gray-400 font-black">Looking for talent</p>
+            </button>
+          </div>
+        </div>
+      </MotionDiv>
+    </div>
+  );
+};
+
 const About: React.FC = () => {
+  const [selectionOpen, setSelectionOpen] = useState(false);
+
   return (
     <div className="bg-white overflow-hidden">
       {/* Hero Section */}
@@ -175,18 +235,25 @@ const About: React.FC = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* CTA Section - Button now triggers SelectionModal */}
       <section className="py-16 sm:py-24 bg-brand-dark relative overflow-hidden text-center px-4">
         <div className="max-w-3xl mx-auto space-y-8 relative z-10">
           <h2 className="text-3xl sm:text-5xl font-serif font-bold text-white">Let’s choose the <span className="text-brand-gold">Right Direction.</span></h2>
           <p className="text-gray-400 text-lg leading-relaxed font-serif italic">Whether you're hiring or looking to be hired, we are ready to consult.</p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-             <a href="/#/contact" className="w-full sm:w-auto px-10 py-5 bg-brand-gold text-brand-dark rounded-full font-bold uppercase tracking-widest text-sm hover:bg-yellow-500 transition-all shadow-2xl flex items-center justify-center gap-3">
-               Start Consultation <ArrowRight size={18} />
-             </a>
+             <button 
+               onClick={() => setSelectionOpen(true)} 
+               className="w-full sm:w-auto px-10 py-5 bg-brand-gold text-brand-dark rounded-full font-bold uppercase tracking-widest text-sm hover:bg-yellow-500 transition-all shadow-2xl flex items-center justify-center gap-3"
+             >
+               Start Consultancy <ArrowRight size={18} />
+             </button>
           </div>
         </div>
       </section>
+
+      <AnimatePresence>
+        {selectionOpen && <SelectionModal onClose={() => setSelectionOpen(false)} />}
+      </AnimatePresence>
     </div>
   );
 };
