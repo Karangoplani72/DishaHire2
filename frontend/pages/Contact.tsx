@@ -219,6 +219,10 @@ const Contact: React.FC = () => {
                           <input required placeholder="e.g. IT, Logistics" className="w-full p-4 sm:p-5 bg-gray-50 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={employerForm.industry} onChange={e => setEmployerForm({...employerForm, industry: e.target.value})} />
                         </div>
                         <div className="space-y-1">
+                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Company Location*</label>
+                          <input required placeholder="e.g. Rajkot, Gujarat" className="w-full p-4 sm:p-5 bg-gray-50 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={employerForm.address} onChange={e => setEmployerForm({...employerForm, address: e.target.value})} />
+                        </div>
+                        <div className="space-y-1 sm:col-span-2">
                           <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Work Email*</label>
                           <input required type="email" placeholder="hr@yourcompany.com" className="w-full p-4 sm:p-5 bg-gray-50 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={employerForm.email} onChange={e => setEmployerForm({...employerForm, email: e.target.value})} />
                         </div>
