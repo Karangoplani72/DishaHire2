@@ -31,7 +31,9 @@ const AdminLogin: React.FC = () => {
 
       if (response.ok && data.success) {
         sessionStorage.setItem('isAdmin', 'true');
-        navigate('/admin/dashboard');
+        // Force a hard refresh to ensure App level states (Navbar/Footer) synchronize immediately
+        window.location.hash = '/admin/dashboard';
+        window.location.reload();
       } else {
         setError(data.error || 'Invalid credentials.');
       }

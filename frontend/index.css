@@ -1,17 +1,55 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --brand-dark: #0d3d3b;
+  --brand-dark: #103838;
   --brand-gold: #b08d3e;
   --brand-light: #f8f9fa;
   --brand-accent: #164e4b;
 }
 
-body {
+/* Strict overflow control to prevent 'blank space' on mobile swipe */
+html, body {
   margin: 0;
+  padding: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden !important;
+  position: relative;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #ffffff;
+  /* Prevent horizontal bounce on iOS */
+  overscroll-behavior-x: none;
+}
+
+#root {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden !important;
+  position: relative;
+}
+
+/* Custom Scrollbar for Desktop */
+@media (min-width: 1024px) {
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #b08d3e;
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #103838;
+  }
+}
+
+/* Fix for mobile menu links being cut off */
+.mobile-menu-container {
+  height: 100vh;
+  height: -webkit-fill-available;
 }
