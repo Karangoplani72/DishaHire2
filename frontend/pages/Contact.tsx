@@ -45,6 +45,23 @@ const FAQ_DATA = [
   }
 ];
 
+// Moving InputField outside the component fix the focus disappearing issue
+const InputField = ({ label, icon: Icon, value, onChange, placeholder, type = "text", required = true }: any) => (
+  <div className="space-y-1.5">
+    <label className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 ml-1 flex items-center gap-1.5">
+      <Icon size={12} className="text-brand-gold" /> {label}{required && '*'}
+    </label>
+    <input 
+      required={required}
+      type={type} 
+      placeholder={placeholder} 
+      className="w-full p-4 sm:p-5 bg-white/5 text-white border border-white/10 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold transition-all text-sm placeholder:text-white/20" 
+      value={value} 
+      onChange={onChange} 
+    />
+  </div>
+);
+
 const AccordionItem = ({ q, a }: { q: string, a: string }) => {
   const [isOpen, setIsOpen] = useState(false);
   return (
@@ -154,22 +171,6 @@ const Contact: React.FC = () => {
       </div>
     );
   }
-
-  const InputField = ({ label, icon: Icon, value, onChange, placeholder, type = "text", required = true }: any) => (
-    <div className="space-y-1.5">
-      <label className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 ml-1 flex items-center gap-1.5">
-        <Icon size={12} className="text-brand-gold" /> {label}{required && '*'}
-      </label>
-      <input 
-        required={required}
-        type={type} 
-        placeholder={placeholder} 
-        className="w-full p-4 sm:p-5 bg-white/5 text-white border border-white/10 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold transition-all text-sm placeholder:text-white/20" 
-        value={value} 
-        onChange={onChange} 
-      />
-    </div>
-  );
 
   return (
     <div className="bg-white min-h-screen">
