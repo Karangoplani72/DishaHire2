@@ -57,7 +57,7 @@ const AdminLogin: React.FC = () => {
         <div className="text-center mb-8 sm:mb-12">
           <div className="mx-auto mb-6 sm:mb-8 transform rotate-1">
             <img 
-              src="/frontend/pages/logo.png" 
+              src="/logo.png" 
               alt="DishaHire Logo" 
               className="h-24 sm:h-32 w-auto mx-auto object-contain"
             />

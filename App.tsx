@@ -13,7 +13,7 @@ import AdminLogin from './frontend/pages/AdminLogin.tsx';
 import AdminDashboard from './frontend/pages/AdminDashboard.tsx';
 import { NAV_LINKS, CONTACT_INFO, INDUSTRIES } from './frontend/constants.tsx';
 
-const logoPath = "/frontend/pages/logo.png";
+const logoPath = "/logo.png";
 
 const MotionDiv = (motion as any).div;
 
@@ -31,6 +31,15 @@ const Navbar = () => {
   const isAdmin = location.pathname.startsWith('/admin/dashboard');
 
   if (isAdmin) return null;
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => { document.body.style.overflow = 'unset'; };
+  }, [isOpen]);
 
   return (
     <nav className="bg-brand-dark text-white sticky top-0 z-50 shadow-xl border-b border-white/5 backdrop-blur-md">
@@ -62,7 +71,11 @@ const Navbar = () => {
           </div>
 
           <div className="md:hidden flex items-center">
-            <button onClick={() => setIsOpen(!isOpen)} className="text-brand-gold p-2 relative focus:outline-none">
+            <button 
+              onClick={() => setIsOpen(!isOpen)} 
+              className="text-brand-gold p-2 z-[110] relative focus:outline-none"
+              aria-label="Toggle Menu"
+            >
               {isOpen ? <X size={32} /> : <Menu size={32} />}
             </button>
           </div>
@@ -72,14 +85,21 @@ const Navbar = () => {
       <AnimatePresence>
         {isOpen && (
           <MotionDiv
+            key="mobile-menu-overlay"
             initial={{ opacity: 0, x: '100%' }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: '100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
             className="md:hidden fixed inset-0 bg-brand-dark z-[100] flex flex-col pt-24 px-8 overflow-y-auto"
           >
              <div className="flex flex-col space-y-6 pt-8">
                 {NAV_LINKS.map((link: any) => (
-                  <Link key={link.name} to={link.href} onClick={() => setIsOpen(false)} className="flex items-center justify-between py-4 border-b border-white/5 transition-all text-gray-200">
+                  <Link 
+                    key={link.name} 
+                    to={link.href} 
+                    onClick={() => setIsOpen(false)} 
+                    className="flex items-center justify-between py-4 border-b border-white/5 transition-all text-gray-200"
+                  >
                     <span className="text-2xl font-serif font-bold">{link.name}</span>
                     <ChevronRight size={20} />
                   </Link>
@@ -89,6 +109,41 @@ const Navbar = () => {
         )}
       </AnimatePresence>
     </nav>
+  );
+};
+
+const Footer = () => {
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith('/admin/dashboard');
+  if (isAdmin) return null;
+
+  return (
+    <footer className="bg-brand-dark text-white pt-20 pb-12 border-t border-white/5 relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 sm:gap-16 mb-20">
+          <div className="space-y-8">
+            <Link to="/" className="inline-block">
+              <img 
+                src={logoPath} 
+                alt="DishaHire Logo" 
+                className="h-16 sm:h-20 w-auto object-contain"
+              />
+            </Link>
+            <p className="text-gray-400 text-sm leading-relaxed font-serif italic max-w-xs">
+              Empowering organizations by bridging the gap between exceptional talent and strategic vision.
+            </p>
+          </div>
+          <div>
+            <h4 className="text-brand-gold text-[10px] font-black uppercase tracking-[0.3em] mb-10">QUICK NAVIGATION</h4>
+            <ul className="space-y-4">
+              {NAV_LINKS.map(link => (
+                <li key={link.name}><Link to={link.href} className="text-gray-300 hover:text-brand-gold text-sm transition-colors">{link.name}</Link></li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </footer>
   );
 };
 
@@ -109,6 +164,7 @@ const App = () => {
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
           </Routes>
         </main>
+        <Footer />
       </div>
     </Router>
   );

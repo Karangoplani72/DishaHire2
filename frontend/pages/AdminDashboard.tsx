@@ -131,7 +131,7 @@ const AdminDashboard: React.FC = () => {
         <div className="mb-12 px-2 flex justify-between items-center">
           <Link to="/" className="block">
             <img 
-              src="/frontend/pages/logo.png" 
+              src="/logo.png" 
               alt="DishaHire Logo" 
               className="h-12 w-auto object-contain"
             />

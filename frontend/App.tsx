@@ -13,7 +13,7 @@ import AdminLogin from './pages/AdminLogin.tsx';
 import AdminDashboard from './pages/AdminDashboard.tsx';
 import { NAV_LINKS, CONTACT_INFO, INDUSTRIES } from './constants.tsx';
 
-const logoPath = "/frontend/pages/logo.png";
+const logoPath = "/logo.png";
 
 const MotionDiv = (motion as any).div;
 
@@ -50,10 +50,6 @@ const Navbar = () => {
               src={logoPath} 
               alt="DishaHire Logo" 
               className="h-12 sm:h-16 w-auto object-contain hover:opacity-90 transition-opacity"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = "/logo.png"; // Fallback to root public if misconfigured
-              }}
             />
           </Link>
 
