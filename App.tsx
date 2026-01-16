@@ -41,19 +41,15 @@ const Navbar = () => {
     return () => { document.body.style.overflow = 'unset'; };
   }, [isOpen]);
 
-  useEffect(() => {
-    setIsOpen(false);
-  }, [location.pathname]);
-
   return (
     <nav className="bg-brand-dark text-white sticky top-0 z-50 shadow-xl border-b border-white/5 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20 sm:h-24">
-          <Link to="/" className="flex items-center relative z-[110]" onClick={() => setIsOpen(false)}>
+          <Link to="/" className="flex items-center" onClick={() => setIsOpen(false)}>
             <img 
               src={logoPath} 
               alt="DishaHire Logo" 
-              className="h-10 sm:h-16 w-auto object-contain hover:opacity-90 transition-opacity"
+              className="h-12 sm:h-16 w-auto object-contain hover:opacity-90 transition-opacity"
             />
           </Link>
 
@@ -102,17 +98,12 @@ const Navbar = () => {
                     key={link.name} 
                     to={link.href} 
                     onClick={() => setIsOpen(false)} 
-                    className={`flex items-center justify-between py-5 border-b border-white/10 transition-all ${location.pathname === link.href ? 'text-brand-gold' : 'text-gray-200'}`}
+                    className="flex items-center justify-between py-4 border-b border-white/5 transition-all text-gray-200"
                   >
                     <span className="text-2xl font-serif font-bold">{link.name}</span>
-                    <ChevronRight size={20} className={location.pathname === link.href ? 'opacity-100' : 'opacity-20'} />
+                    <ChevronRight size={20} />
                   </Link>
                 ))}
-                <div className="mt-auto pb-12">
-                   <Link to="/admin/login" onClick={() => setIsOpen(false)} className="flex items-center gap-3 text-gray-500 text-sm font-black uppercase tracking-[0.3em]">
-                      <Lock size={14} /> Personnel Access
-                   </Link>
-                </div>
              </div>
           </MotionDiv>
         )}
@@ -141,65 +132,14 @@ const Footer = () => {
             <p className="text-gray-400 text-sm leading-relaxed font-serif italic max-w-xs">
               Empowering organizations by bridging the gap between exceptional talent and strategic vision.
             </p>
-            <div className="flex space-x-4">
-              <a href={CONTACT_INFO.linkedin} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-full border border-white/10 flex items-center justify-center hover:bg-brand-gold hover:text-brand-dark transition-all">
-                <Linkedin size={18} />
-              </a>
-              <a href={CONTACT_INFO.instagram} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-full border border-white/10 flex items-center justify-center hover:bg-brand-gold hover:text-brand-dark transition-all">
-                <Instagram size={18} />
-              </a>
-              <a href={CONTACT_INFO.whatsapp} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-full border border-white/10 flex items-center justify-center hover:bg-brand-gold hover:text-brand-dark transition-all">
-                <MessageCircle size={18} />
-              </a>
-            </div>
           </div>
-
           <div>
             <h4 className="text-brand-gold text-[10px] font-black uppercase tracking-[0.3em] mb-10">QUICK NAVIGATION</h4>
             <ul className="space-y-4">
               {NAV_LINKS.map(link => (
-                <li key={link.name}>
-                  <Link to={link.href} className="text-gray-300 hover:text-brand-gold text-sm transition-colors">{link.name}</Link>
-                </li>
+                <li key={link.name}><Link to={link.href} className="text-gray-300 hover:text-brand-gold text-sm transition-colors">{link.name}</Link></li>
               ))}
             </ul>
-          </div>
-
-          <div>
-            <h4 className="text-brand-gold text-[10px] font-black uppercase tracking-[0.3em] mb-10">Industries Served</h4>
-            <ul className="space-y-3">
-              {INDUSTRIES.slice(0, 6).map(industry => (
-                <li key={industry} className="text-gray-300 text-[13px] flex items-center cursor-default">
-                  <div className="w-1.5 h-1.5 bg-brand-gold rounded-full mr-3 flex-shrink-0" />
-                  <span className="truncate">{industry}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-brand-gold text-[10px] font-black uppercase tracking-[0.3em] mb-10">CORPORATE HUB</h4>
-            <ul className="space-y-6">
-              <li className="flex items-start space-x-4">
-                <MapPin size={20} className="text-brand-gold flex-shrink-0 mt-0.5" />
-                <span className="text-gray-300 text-sm">{CONTACT_INFO.address}</span>
-              </li>
-              <li className="flex items-center space-x-4">
-                <Mail size={20} className="text-brand-gold flex-shrink-0" />
-                <a href={`mailto:${CONTACT_INFO.email}`} className="text-gray-300 hover:text-brand-gold text-sm transition-colors truncate">{CONTACT_INFO.email}</a>
-              </li>
-              <li className="flex items-center space-x-4">
-                <Phone size={20} className="text-brand-gold flex-shrink-0" />
-                <a href={`tel:${CONTACT_INFO.phone.replace(/\s/g, '')}`} className="text-gray-300 hover:text-brand-gold text-sm transition-colors">{CONTACT_INFO.phone}</a>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="pt-12 border-t border-white/5">
-          <div className="flex flex-col items-center text-center">
-            <p className="text-[9px] font-bold uppercase tracking-[0.4em] text-gray-600 mb-2">ENGINEERED FOR EXCELLENCE</p>
-            <p className="text-[10px] font-serif italic text-gray-400">Handcrafted for DishaHire Consultancy</p>
           </div>
         </div>
       </div>

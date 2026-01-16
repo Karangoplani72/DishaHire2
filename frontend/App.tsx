@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import * as RouterDOM from 'react-router-dom';
-const { HashRouter: Router, Routes, Route, Link, useLocation } = RouterDOM as any;
-import { Menu, X, Mail, MapPin, Linkedin, Instagram, MessageCircle, Phone, ArrowRight, Lock, ChevronRight, Code2 } from 'lucide-react';
+const { HashRouter: Router, Routes, Route, Link, useLocation, useNavigate } = RouterDOM as any;
+import { Menu, X, Mail, MapPin, Linkedin, Instagram, MessageCircle, Phone, ArrowLeft, ArrowRight, Lock, ChevronRight, ShieldAlert } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import Home from './pages/Home.tsx';
@@ -25,6 +25,38 @@ const ScrollToTop = () => {
   return null;
 };
 
+// Premium Error Page Component
+const NotFound = () => {
+  return (
+    <div className="min-h-screen bg-brand-dark flex items-center justify-center p-6 text-center relative overflow-hidden">
+      <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none" />
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-brand-gold/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
+      
+      <MotionDiv 
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="relative z-10 space-y-8"
+      >
+        <div className="inline-flex p-6 rounded-[2.5rem] bg-brand-gold/10 border border-brand-gold/20 text-brand-gold mb-4">
+          <ShieldAlert size={64} />
+        </div>
+        <h1 className="text-7xl sm:text-9xl font-serif font-bold text-white leading-none">404</h1>
+        <div className="space-y-4">
+          <h2 className="text-2xl sm:text-4xl font-serif font-bold text-brand-gold italic">Mandate Not Found</h2>
+          <p className="text-gray-400 max-w-md mx-auto text-sm sm:text-lg font-serif italic">
+            The professional path you are seeking has been moved or does not exist in our current registry.
+          </p>
+        </div>
+        <div className="pt-8">
+          <Link to="/" className="inline-flex items-center gap-3 px-10 py-5 bg-brand-gold text-brand-dark rounded-full font-bold uppercase tracking-widest text-sm hover:bg-yellow-500 transition-all shadow-2xl">
+            <ArrowLeft size={18} /> Return to Headquarters
+          </Link>
+        </div>
+      </MotionDiv>
+    </div>
+  );
+};
+
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
@@ -46,70 +78,73 @@ const Navbar = () => {
   }, [location.pathname]);
 
   return (
-    <nav className="bg-brand-dark text-white sticky top-0 z-50 shadow-xl border-b border-white/5 backdrop-blur-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20 sm:h-24">
-          <Link to="/" className="flex items-center relative z-[110]" onClick={() => setIsOpen(false)}>
-            <img 
-              src={logoPath} 
-              alt="DishaHire Logo" 
-              className="h-10 sm:h-16 w-auto object-contain hover:opacity-90 transition-opacity"
-            />
-          </Link>
-
-          <div className="hidden md:flex space-x-8 lg:space-x-12 items-center">
-            {NAV_LINKS.map((link: any) => (
-              <Link 
-                key={link.name} 
-                to={link.href} 
-                className={`text-[10px] font-bold uppercase tracking-widest transition-all ${
-                  location.pathname === link.href ? 'text-brand-gold' : 'text-white hover:text-brand-gold'
-                }`}
-              >
-                {link.name}
-              </Link>
-            ))}
-            <Link to="/admin/login" className="text-gray-500 hover:text-brand-gold transition-colors">
-              <Lock size={16} />
+    <>
+      <nav className="bg-brand-dark text-white sticky top-0 z-[60] shadow-xl border-b border-white/5 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-20 h-24">
+            <Link to="/" className="flex items-center relative z-[110]">
+              <img 
+                src={logoPath} 
+                alt="DishaHire Logo" 
+                className="h-10 sm:h-16 w-auto object-contain hover:opacity-90 transition-opacity"
+              />
             </Link>
-          </div>
 
-          <div className="md:hidden flex items-center">
-            <button 
-              onClick={() => setIsOpen(!isOpen)} 
-              className="text-brand-gold p-2 z-[110] relative focus:outline-none"
-              aria-label="Toggle Menu"
-            >
-              {isOpen ? <X size={32} /> : <Menu size={32} />}
-            </button>
+            <div className="hidden md:flex space-x-8 lg:space-x-12 items-center">
+              {NAV_LINKS.map((link: any) => (
+                <Link 
+                  key={link.name} 
+                  to={link.href} 
+                  className={`text-[10px] font-bold uppercase tracking-widest transition-all ${
+                    location.pathname === link.href ? 'text-brand-gold' : 'text-white hover:text-brand-gold'
+                  }`}
+                >
+                  {link.name}
+                </Link>
+              ))}
+              <Link to="/admin/login" className="text-gray-500 hover:text-brand-gold transition-colors ml-4">
+                <Lock size={16} />
+              </Link>
+            </div>
+
+            <div className="md:hidden flex items-center">
+              <button 
+                onClick={() => setIsOpen(!isOpen)} 
+                className="text-brand-gold p-2 z-[110] relative focus:outline-none touch-manipulation"
+                aria-label="Toggle Menu"
+              >
+                {isOpen ? <X size={32} /> : <Menu size={32} />}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </nav>
 
       <AnimatePresence>
         {isOpen && (
           <MotionDiv
             key="mobile-menu-overlay"
-            initial={{ opacity: 0, x: '100%' }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="md:hidden fixed inset-0 bg-brand-dark z-[100] flex flex-col pt-24 px-8 overflow-y-auto"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="md:hidden fixed inset-0 bg-brand-dark z-[100] flex flex-col pt-24 px-8 overflow-y-auto mobile-menu-container"
           >
              <div className="flex flex-col space-y-6 pt-8">
                 {NAV_LINKS.map((link: any) => (
                   <Link 
                     key={link.name} 
                     to={link.href} 
-                    onClick={() => setIsOpen(false)} 
-                    className={`flex items-center justify-between py-5 border-b border-white/10 transition-all ${location.pathname === link.href ? 'text-brand-gold' : 'text-gray-200'}`}
+                    className={`flex items-center justify-between py-5 border-b border-white/10 transition-all ${
+                      location.pathname === link.href ? 'text-brand-gold' : 'text-gray-200'
+                    }`}
                   >
-                    <span className="text-2xl font-serif font-bold">{link.name}</span>
-                    <ChevronRight size={20} className={location.pathname === link.href ? 'opacity-100' : 'opacity-20'} />
+                    <span className="text-3xl font-serif font-bold">{link.name}</span>
+                    <ChevronRight size={24} className={location.pathname === link.href ? 'opacity-100' : 'opacity-20'} />
                   </Link>
                 ))}
-                <div className="mt-auto pb-12">
-                   <Link to="/admin/login" onClick={() => setIsOpen(false)} className="flex items-center gap-3 text-gray-500 text-sm font-black uppercase tracking-[0.3em]">
+                <div className="pt-12 mt-auto pb-12">
+                   <Link to="/admin/login" className="flex items-center gap-3 text-gray-500 text-sm font-black uppercase tracking-[0.3em]">
                       <Lock size={14} /> Personnel Access
                    </Link>
                 </div>
@@ -117,14 +152,22 @@ const Navbar = () => {
           </MotionDiv>
         )}
       </AnimatePresence>
-    </nav>
+    </>
   );
 };
 
 const Footer = () => {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin/dashboard');
-  if (isAdmin) return null;
+  
+  // Also hide footer on login page and not found page to keep focus
+  const isHideFooter = isAdmin || location.pathname === '/admin/login';
+  
+  // We check if the current route is one of the valid ones. If not, we might be on 404.
+  const validPaths = [...NAV_LINKS.map(l => l.href), '/admin/login', '/admin/dashboard'];
+  const isNotFound = !validPaths.includes(location.pathname);
+
+  if (isHideFooter || isNotFound) return null;
 
   return (
     <footer className="bg-brand-dark text-white pt-20 pb-12 border-t border-white/5 relative overflow-hidden">
@@ -154,27 +197,29 @@ const Footer = () => {
             </div>
           </div>
 
-          <div>
+          <div className="lg:pl-8">
             <h4 className="text-brand-gold text-[10px] font-black uppercase tracking-[0.3em] mb-10">QUICK NAVIGATION</h4>
             <ul className="space-y-4">
               {NAV_LINKS.map(link => (
                 <li key={link.name}>
-                  <Link to={link.href} className="text-gray-300 hover:text-brand-gold text-sm transition-colors">{link.name}</Link>
+                  <Link to={link.href} className="text-gray-300 hover:text-brand-gold text-sm font-medium transition-colors">
+                    {link.name}
+                  </Link>
                 </li>
               ))}
             </ul>
           </div>
 
           <div>
-            <h4 className="text-brand-gold text-[10px] font-black uppercase tracking-[0.3em] mb-10">Industries Served</h4>
-            <ul className="space-y-3">
+            <h4 className="text-brand-gold text-[10px] font-black uppercase tracking-[0.3em] mb-10">Industries We Serve</h4>
+            <div className="space-y-4">
               {INDUSTRIES.slice(0, 6).map(industry => (
-                <li key={industry} className="text-gray-300 text-[13px] flex items-center cursor-default">
-                  <div className="w-1.5 h-1.5 bg-brand-gold rounded-full mr-3 flex-shrink-0" />
+                <div key={industry} className="text-gray-300 text-sm font-medium flex items-center hover:text-brand-gold transition-colors cursor-default">
+                  <div className="w-1.5 h-1.5 bg-brand-gold rounded-full mr-4 flex-shrink-0" />
                   <span className="truncate">{industry}</span>
-                </li>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
 
           <div>
@@ -186,7 +231,7 @@ const Footer = () => {
               </li>
               <li className="flex items-center space-x-4">
                 <Mail size={20} className="text-brand-gold flex-shrink-0" />
-                <a href={`mailto:${CONTACT_INFO.email}`} className="text-gray-300 hover:text-brand-gold text-sm transition-colors truncate">{CONTACT_INFO.email}</a>
+                <a href={`mailto:${CONTACT_INFO.email}`} className="text-gray-300 hover:text-brand-gold text-sm transition-colors">{CONTACT_INFO.email}</a>
               </li>
               <li className="flex items-center space-x-4">
                 <Phone size={20} className="text-brand-gold flex-shrink-0" />
@@ -195,26 +240,10 @@ const Footer = () => {
             </ul>
           </div>
         </div>
-
         <div className="pt-12 border-t border-white/5">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left">
-            <div className="space-y-1">
-              <p className="text-[9px] font-bold uppercase tracking-[0.4em] text-gray-600">TECHNICAL ARCHITECTURE</p>
-              <p className="text-[11px] font-serif italic text-gray-400">Handcrafted for DishaHire Consultancy Excellence</p>
-            </div>
-            
-            <MotionDiv 
-              whileHover={{ scale: 1.02 }}
-              className="px-8 py-4 bg-brand-gold/5 border border-brand-gold/20 rounded-[2rem] flex items-center gap-4 group transition-all hover:bg-brand-gold/10 hover:border-brand-gold/40 shadow-xl shadow-black/20"
-            >
-              <div className="p-3 bg-brand-gold/10 rounded-2xl group-hover:bg-brand-gold/20 transition-colors">
-                <Code2 size={20} className="text-brand-gold group-hover:rotate-12 transition-transform duration-500" />
-              </div>
-              <div className="text-left">
-                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-500">Architected & Engineered by</p>
-                <p className="text-sm font-bold uppercase tracking-[0.1em] text-brand-gold">ST Tech Solutions</p>
-              </div>
-            </MotionDiv>
+          <div className="flex flex-col items-center text-center">
+            <p className="text-[9px] font-bold uppercase tracking-[0.4em] text-gray-600 mb-2">ENGINEERED FOR EXCELLENCE</p>
+            <p className="text-[10px] font-serif italic text-gray-400">Handcrafted for DishaHire Consultancy</p>
           </div>
         </div>
       </div>
@@ -226,9 +255,9 @@ const App = () => {
   return (
     <Router>
       <ScrollToTop />
-      <div className="min-h-screen flex flex-col bg-brand-light">
+      <div className="min-h-screen flex flex-col bg-brand-light overflow-x-hidden relative w-full max-w-full">
         <Navbar />
-        <main className="flex-grow">
+        <main className="flex-grow w-full relative overflow-x-hidden">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
@@ -237,6 +266,8 @@ const App = () => {
             <Route path="/contact" element={<Contact />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            {/* Catch-all 404 Route */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
         <Footer />
