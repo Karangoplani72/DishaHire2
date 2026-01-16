@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --brand-dark: #0d3d3b;
+  --brand-dark: #103838;
   --brand-gold: #b08d3e;
   --brand-light: #f8f9fa;
   --brand-accent: #164e4b;
@@ -44,7 +44,7 @@ html, body {
     border-radius: 10px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #0d3d3b;
+    background: #103838;
   }
 }
 

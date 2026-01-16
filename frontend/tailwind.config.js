@@ -1,4 +1,3 @@
-
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -9,7 +8,7 @@ export default {
     extend: {
       colors: {
         brand: {
-          dark: '#0d3d3b',
+          dark: '#103838',
           gold: '#b08d3e',
           light: '#f8f9fa',
           accent: '#164e4b'
