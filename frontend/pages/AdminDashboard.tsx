@@ -8,7 +8,7 @@ import {
   GraduationCap, Banknote, Archive, MapPin, 
   Building2, UserCircle2, Mail, Phone, Menu,
   ChevronRight, ClipboardCheck, Info, Loader2, CheckCircle, Calendar, BriefcaseBusiness,
-  Users, Search, Filter, Database
+  Users, Search, Filter, Database, ArrowUpDown, CalendarDays
 } from 'lucide-react';
 import { API_BASE_URL, COMPANY_TYPES, INDUSTRIES } from '../constants.tsx';
 
@@ -29,6 +29,9 @@ const AdminDashboard: React.FC = () => {
   // Filter States
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
 
   const [newJob, setNewJob] = useState({
     title: '', education: '', gender: 'Any', salary: '', industry: '', location: '', otherInfo: ''
@@ -46,6 +49,9 @@ const AdminDashboard: React.FC = () => {
   useEffect(() => {
     setSearchQuery('');
     setCategoryFilter('All');
+    setStartDate('');
+    setEndDate('');
+    setSortOrder('newest');
   }, [activeTab]);
 
   const fetchAllData = async () => {
@@ -73,33 +79,48 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  // --- Filtered Data Computations ---
-  const filteredJobs = useMemo(() => {
-    return jobs.filter(j => {
-      const matchesSearch = j.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                           j.location.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesCategory = categoryFilter === 'All' || j.industry === categoryFilter;
-      return matchesSearch && matchesCategory;
-    });
-  }, [jobs, searchQuery, categoryFilter]);
+  // --- Filtering & Sorting Helper ---
+  const processData = (data: any[], filterField: string, category: string) => {
+    let result = data.filter(item => {
+      // Search matching
+      const searchStr = searchQuery.toLowerCase();
+      const matchesSearch = filterField === 'job' 
+        ? (item.title.toLowerCase().includes(searchStr) || item.location.toLowerCase().includes(searchStr))
+        : filterField === 'company'
+        ? (item.companyName.toLowerCase().includes(searchStr) || item.contactName.toLowerCase().includes(searchStr))
+        : (item.name.toLowerCase().includes(searchStr) || item.email.toLowerCase().includes(searchStr));
 
-  const filteredCompanies = useMemo(() => {
-    return companyEnquiries.filter(c => {
-      const matchesSearch = c.companyName.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                           c.contactName.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesCategory = categoryFilter === 'All' || c.companyType === categoryFilter;
-      return matchesSearch && matchesCategory;
-    });
-  }, [companyEnquiries, searchQuery, categoryFilter]);
+      // Category matching
+      const matchesCategory = category === 'All' || (
+        filterField === 'job' ? item.industry === category : 
+        filterField === 'company' ? item.companyType === category :
+        item.qualification === category
+      );
 
-  const filteredCandidates = useMemo(() => {
-    return candidateEnquiries.filter(c => {
-      const matchesSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                           c.email.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesCategory = categoryFilter === 'All' || c.qualification === categoryFilter;
-      return matchesSearch && matchesCategory;
+      // Date range matching
+      const itemDate = new Date(item.createdAt);
+      const start = startDate ? new Date(startDate) : null;
+      const end = endDate ? new Date(endDate) : null;
+      if (end) end.setHours(23, 59, 59, 999);
+
+      const matchesDate = (!start || itemDate >= start) && (!end || itemDate <= end);
+
+      return matchesSearch && matchesCategory && matchesDate;
     });
-  }, [candidateEnquiries, searchQuery, categoryFilter]);
+
+    // Sort by time
+    result.sort((a, b) => {
+      const timeA = new Date(a.createdAt).getTime();
+      const timeB = new Date(b.createdAt).getTime();
+      return sortOrder === 'newest' ? timeB - timeA : timeA - timeB;
+    });
+
+    return result;
+  };
+
+  const filteredJobs = useMemo(() => processData(jobs, 'job', categoryFilter), [jobs, searchQuery, categoryFilter, startDate, endDate, sortOrder]);
+  const filteredCompanies = useMemo(() => processData(companyEnquiries, 'company', categoryFilter), [companyEnquiries, searchQuery, categoryFilter, startDate, endDate, sortOrder]);
+  const filteredCandidates = useMemo(() => processData(candidateEnquiries, 'candidate', categoryFilter), [candidateEnquiries, searchQuery, categoryFilter, startDate, endDate, sortOrder]);
 
   // Derived filters for selects
   const uniqueQualifications = useMemo(() => ['All', ...new Set(candidateEnquiries.map(c => c.qualification))], [candidateEnquiries]);
@@ -170,29 +191,71 @@ const AdminDashboard: React.FC = () => {
   );
 
   const FilterBar = ({ placeholder, filterOptions, categoryLabel }: { placeholder: string, filterOptions: string[], categoryLabel: string }) => (
-    <div className="flex flex-col md:flex-row gap-4 mb-8 bg-white p-4 rounded-2xl border border-white shadow-sm">
-      <div className="flex-grow relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-        <input 
-          type="text" 
-          placeholder={placeholder}
-          className="w-full pl-11 pr-4 py-3 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-brand-gold/20 text-sm transition-all"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
+    <div className="space-y-4 mb-8">
+      <div className="flex flex-col lg:flex-row gap-4 bg-white p-4 rounded-3xl border border-white shadow-sm">
+        <div className="flex-grow relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+          <input 
+            type="text" 
+            placeholder={placeholder}
+            className="w-full pl-11 pr-4 py-3 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold/20 text-sm transition-all"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+        <div className="flex items-center gap-3 bg-gray-50 px-4 py-3 rounded-2xl border border-gray-100 min-w-[200px]">
+          <Filter className="text-brand-gold" size={14} />
+          <select 
+            className="bg-transparent outline-none text-[10px] font-black uppercase tracking-widest text-brand-dark cursor-pointer w-full"
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+          >
+            <option value="All">All {categoryLabel}s</option>
+            {filterOptions.map(opt => (
+              <option key={opt} value={opt}>{opt}</option>
+            ))}
+          </select>
+        </div>
+        <div className="flex items-center gap-3 bg-gray-50 px-4 py-3 rounded-2xl border border-gray-100 min-w-[180px]">
+          <ArrowUpDown className="text-brand-gold" size={14} />
+          <select 
+            className="bg-transparent outline-none text-[10px] font-black uppercase tracking-widest text-brand-dark cursor-pointer w-full"
+            value={sortOrder}
+            onChange={(e: any) => setSortOrder(e.target.value)}
+          >
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+          </select>
+        </div>
       </div>
-      <div className="flex items-center gap-3 bg-gray-50 px-4 py-3 rounded-xl border border-gray-100 min-w-[200px]">
-        <Filter className="text-brand-gold" size={14} />
-        <select 
-          className="bg-transparent outline-none text-[10px] font-black uppercase tracking-widest text-brand-dark cursor-pointer w-full"
-          value={categoryFilter}
-          onChange={(e) => setCategoryFilter(e.target.value)}
-        >
-          <option value="All">All {categoryLabel}s</option>
-          {filterOptions.map(opt => (
-            <option key={opt} value={opt}>{opt}</option>
-          ))}
-        </select>
+      
+      <div className="flex flex-wrap gap-4 items-center bg-white/50 p-4 rounded-3xl border border-white/40 shadow-sm backdrop-blur-sm">
+        <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-xl border border-gray-100">
+          <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">From</span>
+          <input 
+            type="date" 
+            className="text-xs bg-transparent outline-none text-brand-dark font-bold cursor-pointer"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+          />
+        </div>
+        <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-xl border border-gray-100">
+          <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">To</span>
+          <input 
+            type="date" 
+            className="text-xs bg-transparent outline-none text-brand-dark font-bold cursor-pointer"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+          />
+        </div>
+        {(startDate || endDate || searchQuery || categoryFilter !== 'All') && (
+          <button 
+            onClick={() => { setStartDate(''); setEndDate(''); setSearchQuery(''); setCategoryFilter('All'); }}
+            className="text-[9px] font-black text-brand-gold uppercase tracking-[0.2em] px-4 py-2 hover:bg-brand-gold/5 rounded-xl transition-all flex items-center gap-2"
+          >
+            <X size={12}/> Reset Filters
+          </button>
+        )}
       </div>
     </div>
   );
@@ -208,14 +271,12 @@ const AdminDashboard: React.FC = () => {
       </div>
       <h3 className="text-xl font-serif font-bold text-brand-dark mb-2">No {type} Found</h3>
       <p className="text-gray-400 font-serif italic text-sm mb-6">{message}</p>
-      {(searchQuery || categoryFilter !== 'All') && (
-        <button 
-          onClick={() => { setSearchQuery(''); setCategoryFilter('All'); }}
-          className="text-brand-gold text-[10px] font-black uppercase tracking-widest hover:underline"
-        >
-          Clear All Filters
-        </button>
-      )}
+      <button 
+        onClick={() => { setSearchQuery(''); setCategoryFilter('All'); setStartDate(''); setEndDate(''); setSortOrder('newest'); }}
+        className="text-brand-gold text-[10px] font-black uppercase tracking-widest hover:underline"
+      >
+        Clear All Filters
+      </button>
     </MotionDiv>
   );
 
@@ -262,7 +323,7 @@ const AdminDashboard: React.FC = () => {
           </button>
           <div className="hidden lg:block">
             <p className="text-gray-400 text-[10px] font-black uppercase tracking-[0.3em]">Administrative Interface</p>
-            <h1 className="text-sm font-bold text-brand-dark">Control Center v1.2.0</h1>
+            <h1 className="text-sm font-bold text-brand-dark">Control Center v1.2.1</h1>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-right hidden sm:block">
@@ -324,6 +385,7 @@ const AdminDashboard: React.FC = () => {
                              <span className="flex items-center gap-1.5"><Banknote size={14}/> {job.salary}</span>
                              <span className="flex items-center gap-1.5"><Users size={14}/> {job.gender}</span>
                              <span className="flex items-center gap-1.5"><GraduationCap size={14}/> {job.education}</span>
+                             <span className="flex items-center gap-1.5 text-brand-gold font-bold"><CalendarDays size={14}/> {new Date(job.createdAt).toLocaleDateString()}</span>
                           </div>
                         </div>
                       </div>
@@ -333,7 +395,7 @@ const AdminDashboard: React.FC = () => {
                       </div>
                     </div>
                   )) : (
-                    <EmptyState icon={Database} message="We couldn't find any job postings matching your current selection." type="Jobs" />
+                    <EmptyState icon={Database} message="No job postings were found matching your current selection or date range." type="Jobs" />
                   )}
                 </div>
               </MotionDiv>
@@ -354,7 +416,10 @@ const AdminDashboard: React.FC = () => {
                               <p className="text-[10px] font-black uppercase text-gray-400 truncate">{enq.companyType} • {enq.industry}</p>
                            </div>
                         </div>
-                        <span className="shrink-0 px-4 py-2 bg-gray-50 text-gray-500 text-[10px] font-bold uppercase rounded-full self-start">{new Date(enq.createdAt).toLocaleDateString()}</span>
+                        <div className="shrink-0 flex flex-col items-end gap-1">
+                          <span className="px-4 py-2 bg-gray-50 text-gray-500 text-[10px] font-bold uppercase rounded-full">{new Date(enq.createdAt).toLocaleDateString()}</span>
+                          <span className="text-[8px] font-black text-brand-gold uppercase tracking-widest">{new Date(enq.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        </div>
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
                          <div className="space-y-1">
@@ -380,7 +445,7 @@ const AdminDashboard: React.FC = () => {
                       </div>
                     </div>
                   )) : (
-                    <EmptyState icon={Building2} message="No corporate leads were found matching your current filters." type="Company Enquiries" />
+                    <EmptyState icon={Building2} message="No corporate leads were found matching your current filters or date range." type="Company Enquiries" />
                   )}
                 </div>
               </MotionDiv>
@@ -406,9 +471,12 @@ const AdminDashboard: React.FC = () => {
                           </div>
                         </div>
                         <div className="flex md:flex-col justify-between items-center md:items-end gap-2 shrink-0">
-                           <div className="flex items-center gap-1.5 text-gray-400">
-                              <Calendar size={14} />
-                              <span className="text-[10px] font-bold uppercase">{new Date(enq.createdAt).toLocaleDateString()}</span>
+                           <div className="flex flex-col items-end gap-0.5 text-gray-400">
+                              <div className="flex items-center gap-1.5">
+                                <Calendar size={14} />
+                                <span className="text-[10px] font-bold uppercase">{new Date(enq.createdAt).toLocaleDateString()}</span>
+                              </div>
+                              <span className="text-[9px] font-black text-brand-gold uppercase tracking-widest">{new Date(enq.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                            </div>
                            <span className="px-3 py-1 bg-brand-light text-brand-gold text-[9px] font-black uppercase rounded-full border border-brand-gold/10">Candidate</span>
                         </div>
@@ -436,7 +504,7 @@ const AdminDashboard: React.FC = () => {
                       </div>
                     </div>
                   )) : (
-                    <EmptyState icon={UserCircle2} message="No professional profiles were found matching your search criteria." type="Candidate Enquiries" />
+                    <EmptyState icon={UserCircle2} message="No professional profiles were found matching your search criteria or date range." type="Candidate Enquiries" />
                   )}
                 </div>
               </MotionDiv>
