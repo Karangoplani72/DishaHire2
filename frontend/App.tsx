@@ -31,7 +31,6 @@ const Navbar = () => {
 
   if (isAdmin) return null;
 
-  // Sync scroll lock when mobile menu is open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -46,10 +45,11 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20 sm:h-24">
           <Link to="/" className="flex items-center" onClick={() => setIsOpen(false)}>
-            <div className="flex flex-col">
-              <span className="text-xl sm:text-2xl font-serif font-bold tracking-widest leading-none">DISHA<span className="text-brand-gold">HIRE</span></span>
-              <span className="text-[8px] sm:text-[9px] uppercase tracking-[0.4em] text-gray-500 font-black mt-1">Right Talent, Right Direction</span>
-            </div>
+            <img 
+              src="/logo.png" 
+              alt="DishaHire Logo" 
+              className="h-12 sm:h-16 w-auto object-contain hover:opacity-90 transition-opacity"
+            />
           </Link>
 
           {/* Desktop Nav */}
@@ -134,10 +134,13 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 sm:gap-16 mb-20">
           {/* Brand Column */}
           <div className="space-y-8">
-            <div className="flex flex-col">
-              <span className="text-3xl font-serif font-bold tracking-widest leading-none">DISHA<span className="text-brand-gold">HIRE</span></span>
-              <span className="text-[10px] uppercase tracking-[0.4em] text-gray-500 font-black mt-2">RIGHT TALENT, RIGHT DIRECTION</span>
-            </div>
+            <Link to="/" className="inline-block">
+              <img 
+                src="/logo.png" 
+                alt="DishaHire Logo" 
+                className="h-16 sm:h-20 w-auto object-contain"
+              />
+            </Link>
             <p className="text-gray-400 text-sm leading-relaxed font-serif italic max-w-xs">
               Empowering organizations by bridging the gap between exceptional talent and strategic vision.
             </p>
@@ -173,7 +176,7 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Elite Verticals Column - Tight Spacing & Gold Bullets */}
+          {/* Elite Verticals Column */}
           <div>
             <h4 className="text-brand-gold text-[10px] font-black uppercase tracking-[0.3em] mb-10">Industries We Serve</h4>
             <div className="space-y-4">
@@ -206,7 +209,7 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Footer Bottom Bar - Centered with separator lines */}
+        {/* Footer Bottom Bar */}
         <div className="pt-12 border-t border-white/5">
           <div className="flex flex-col items-center text-center">
             <p className="text-[9px] font-bold uppercase tracking-[0.4em] text-gray-600 mb-2">ENGINEERED FOR EXCELLENCE</p>

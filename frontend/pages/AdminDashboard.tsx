@@ -1,9 +1,8 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'export default';
 import * as RouterDOM from 'react-router-dom';
 const { useNavigate, Link } = RouterDOM as any;
 import { motion, AnimatePresence } from 'framer-motion';
-// Fixed: Added missing Loader2 and CheckCircle to lucide-react imports
 import { 
   Plus, Trash2, Briefcase, LayoutDashboard, LogOut, X, 
   GraduationCap, Banknote, Archive, MapPin, Calendar, 
@@ -141,19 +140,22 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <div className="flex min-h-screen bg-[#F0F2F5]">
-      {/* Sidebar - Dark theme preserved */}
+      {/* Sidebar - Official Logo integrated */}
       <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-brand-dark p-6 transition-transform lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="mb-12 px-2 flex justify-between items-center">
-          <div className="flex flex-col">
-            <span className="text-2xl font-serif font-bold tracking-widest text-white">DISHA<span className="text-brand-gold">HIRE</span></span>
-            <span className="text-[8px] uppercase tracking-[0.4em] text-gray-500 font-black mt-1">PERSONNEL OPERATIONS</span>
-          </div>
+          <Link to="/" className="block">
+            <img 
+              src="/logo.png" 
+              alt="DishaHire Logo" 
+              className="h-12 w-auto object-contain"
+            />
+          </Link>
           <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden text-white"><X size={20}/></button>
         </div>
         
         <nav className="space-y-2">
           <NavItem id="overview" icon={LayoutDashboard} label="Dashboard" />
-          <NavItem id="jobs" icon={Briefcase} label="Job" />
+          <NavItem id="jobs" icon={Briefcase} label="Mandate Hub" />
           <NavItem id="companies" icon={Building2} label="Entity Leads" />
           <NavItem id="candidates" icon={UserCircle2} label="Talent Pipeline" />
         </nav>
@@ -187,7 +189,6 @@ const AdminDashboard: React.FC = () => {
 
         {loading ? (
           <div className="flex flex-col justify-center items-center h-[60vh] text-brand-gold">
-            {/* Added Loader2 component */}
             <Loader2 className="animate-spin mb-4" size={40} />
             <p className="text-[10px] font-black uppercase tracking-widest">Synchronizing Encrypted Data...</p>
           </div>
@@ -220,7 +221,7 @@ const AdminDashboard: React.FC = () => {
                          <p className="text-gray-400 text-sm">Create a new job mandate to find exceptional talent instantly.</p>
                       </div>
                    </div>
-                   <button onClick={() => setActiveTab('jobs')} className="px-10 py-5 bg-brand-gold text-brand-dark font-bold uppercase tracking-widest text-[10px] rounded-full hover:bg-yellow-500 transition-all">Go to Job</button>
+                   <button onClick={() => setActiveTab('jobs')} className="px-10 py-5 bg-brand-gold text-brand-dark font-bold uppercase tracking-widest text-[10px] rounded-full hover:bg-yellow-500 transition-all">Go to Mandate Hub</button>
                 </div>
               </MotionDiv>
             )}
@@ -228,7 +229,7 @@ const AdminDashboard: React.FC = () => {
             {activeTab === 'jobs' && (
               <MotionDiv key="jobs" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-10">
                 <SectionHeader 
-                  title="Job" 
+                  title="Mandate Hub" 
                   subtitle="Enterprise Opportunities" 
                   action={
                     <button onClick={() => setShowAddForm(true)} className="px-8 py-4 bg-brand-dark text-brand-gold rounded-2xl font-bold uppercase tracking-widest text-[10px] flex items-center gap-2 shadow-xl hover:bg-black transition-all">
@@ -366,7 +367,7 @@ const AdminDashboard: React.FC = () => {
                         {/* Professional Info Snippet */}
                         {(enq.currentTitle || enq.currentSalary) && (
                           <div className="mt-8 flex items-center gap-3 px-4 py-3 bg-brand-light rounded-2xl border border-brand-gold/10">
-                            <Info size={14} className="text-brand-gold"/>
+                            <span className="text-brand-gold"><Info size={14}/></span>
                             <p className="text-[10px] text-brand-dark">
                               Currently working as <span className="font-bold">{enq.currentTitle || 'N/A'}</span> 
                               {enq.currentSalary && <span> with CTC of <span className="font-bold">{enq.currentSalary}</span></span>}
@@ -419,7 +420,6 @@ const AdminDashboard: React.FC = () => {
                  </div>
                  <div className="sm:col-span-2 pt-4">
                     <button disabled={isSubmitting} className="w-full bg-brand-dark text-brand-gold py-6 rounded-3xl font-bold uppercase tracking-[0.3em] text-[12px] shadow-2xl flex items-center justify-center gap-4 hover:bg-black transition-all">
-                       {/* Fixed: Used imported Loader2 and CheckCircle */}
                        {isSubmitting ? <Loader2 className="animate-spin"/> : <CheckCircle size={20}/>}
                        {isSubmitting ? 'Publishing...' : 'Confirm and Authorize Mandate'}
                     </button>
