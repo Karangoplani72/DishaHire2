@@ -8,7 +8,7 @@ import {
   GraduationCap, Banknote, Archive, MapPin, 
   Building2, UserCircle2, Mail, Phone, Menu,
   ChevronRight, ClipboardCheck, Info, Loader2, CheckCircle, Calendar, BriefcaseBusiness,
-  Users, Search, Filter, Database, ArrowUpDown, CalendarDays
+  Users, Search, Filter, Database, ArrowUpDown, CalendarDays, Cake
 } from 'lucide-react';
 import { API_BASE_URL, COMPANY_TYPES, INDUSTRIES } from '../constants.tsx';
 
@@ -323,7 +323,7 @@ const AdminDashboard: React.FC = () => {
           </button>
           <div className="hidden lg:block">
             <p className="text-gray-400 text-[10px] font-black uppercase tracking-[0.3em]">Administrative Interface</p>
-            <h1 className="text-sm font-bold text-brand-dark">Control Center v1.2.1</h1>
+            <h1 className="text-sm font-bold text-brand-dark">Control Center v1.2.2</h1>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-right hidden sm:block">
@@ -483,10 +483,14 @@ const AdminDashboard: React.FC = () => {
                       </div>
 
                       {/* Details Grid */}
-                      <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+                      <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-5 gap-6 sm:gap-8">
                          <div className="space-y-1">
                             <p className="text-[9px] font-black uppercase text-gray-400 tracking-widest flex items-center gap-1.5"><MapPin size={10} /> Residence</p>
                             <p className="text-sm font-bold text-brand-dark">{enq.location}</p>
+                         </div>
+                         <div className="space-y-1">
+                            <p className="text-[9px] font-black uppercase text-gray-400 tracking-widest flex items-center gap-1.5"><Cake size={10} /> Date of Birth</p>
+                            <p className="text-sm font-bold text-brand-dark">{enq.dob ? new Date(enq.dob).toLocaleDateString() : 'Not Provided'}</p>
                          </div>
                          <div className="space-y-1">
                             <p className="text-[9px] font-black uppercase text-gray-400 tracking-widest flex items-center gap-1.5"><GraduationCap size={10} /> Education</p>

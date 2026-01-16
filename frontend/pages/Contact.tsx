@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as RouterDOM from 'react-router-dom';
@@ -107,7 +108,7 @@ const Contact: React.FC = () => {
   });
 
   const [seekerForm, setSeekerForm] = useState({
-    name: '', email: '', mobile: '', location: '', qualification: '', 
+    name: '', email: '', mobile: '', location: '', dob: '', qualification: '', 
     passingYear: '', preferredRole: '', noticePeriod: ''
   });
 
@@ -268,11 +269,15 @@ const Contact: React.FC = () => {
                         <InputField label="Mobile Number" icon={Phone} placeholder="+91 XXXXX XXXXX" value={seekerForm.mobile} onChange={(e: any) => setSeekerForm({...seekerForm, mobile: e.target.value})} />
                         <InputField label="Current Location" icon={MapPin} placeholder="Your City" value={seekerForm.location} onChange={(e: any) => setSeekerForm({...seekerForm, location: e.target.value})} />
                         
+                        <InputField label="Date of Birth" icon={CalendarDays} type="date" value={seekerForm.dob} onChange={(e: any) => setSeekerForm({...seekerForm, dob: e.target.value})} />
                         <InputField label="Education (Highest)" icon={GraduationCap} placeholder="e.g. MBA, B.Tech, M.Com" value={seekerForm.qualification} onChange={(e: any) => setSeekerForm({...seekerForm, qualification: e.target.value})} />
-                        <InputField label="Passing Year" icon={CalendarDays} placeholder="e.g. 2022" value={seekerForm.passingYear} onChange={(e: any) => setSeekerForm({...seekerForm, passingYear: e.target.value})} />
                         
+                        <InputField label="Passing Year" icon={CalendarDays} placeholder="e.g. 2022" value={seekerForm.passingYear} onChange={(e: any) => setSeekerForm({...seekerForm, passingYear: e.target.value})} />
                         <InputField label="Target Role" icon={BriefcaseBusiness} placeholder="e.g. Software Engineer, Sales Head" value={seekerForm.preferredRole} onChange={(e: any) => setSeekerForm({...seekerForm, preferredRole: e.target.value})} />
-                        <InputField label="Notice Period" icon={Clock} placeholder="Days (e.g. 30, Immediate)" value={seekerForm.noticePeriod} onChange={(e: any) => setSeekerForm({...seekerForm, noticePeriod: e.target.value})} />
+                        
+                        <div className="sm:col-span-2">
+                           <InputField label="Notice Period" icon={Clock} placeholder="Days (e.g. 30, Immediate)" value={seekerForm.noticePeriod} onChange={(e: any) => setSeekerForm({...seekerForm, noticePeriod: e.target.value})} />
+                        </div>
                       </div>
 
                       <button disabled={isSubmitting} className="w-full mt-4 bg-brand-gold text-brand-dark py-5 sm:py-6 rounded-full font-bold text-sm sm:text-lg flex items-center justify-center hover:bg-yellow-500 transition-all shadow-xl disabled:opacity-50">
