@@ -45,9 +45,23 @@ const Jobs: React.FC = () => {
   });
 
   const handleWhatsAppApply = (job: any) => {
-    // Removed emojis to ensure support on all platforms including PC and Laptop web browsers
-    const message = `Hi DishaHire Team!%0A%0AI saw this job posting on your website and would like to apply:%0A%0A*Role:* ${job.title}%0A*Location:* ${job.location}%0A*Education:* ${job.education}%0A*Gender:* ${job.gender}%0A*Salary:* ${job.salary}%0A*Industry:* ${job.industry}%0A%0AI have my profile ready. Could you please share the next steps?`;
-    window.open(`${CONTACT_INFO.whatsapp}?text=${message}`, '_blank');
+    // Using a template literal with encodeURIComponent is the most robust way
+    // to ensure details like spaces in job titles or locations don't break the URL on PC/Laptops.
+    const text = `Hi DishaHire Team!
+
+I saw this job posting on your website and would like to apply:
+
+*Role:* ${job.title}
+*Location:* ${job.location}
+*Education:* ${job.education}
+*Gender:* ${job.gender}
+*Salary:* ${job.salary}
+*Industry:* ${job.industry}
+
+I have my profile ready. Could you please share the next steps?`;
+
+    const encodedText = encodeURIComponent(text);
+    window.open(`${CONTACT_INFO.whatsapp}?text=${encodedText}`, '_blank');
   };
 
   return (
