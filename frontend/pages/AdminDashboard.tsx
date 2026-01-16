@@ -153,7 +153,7 @@ const AdminDashboard: React.FC = () => {
         
         <nav className="space-y-2">
           <NavItem id="overview" icon={LayoutDashboard} label="Dashboard" />
-          <NavItem id="jobs" icon={Briefcase} label="Mandate Hub" />
+          <NavItem id="jobs" icon={Briefcase} label="Job" />
           <NavItem id="companies" icon={Building2} label="Entity Leads" />
           <NavItem id="candidates" icon={UserCircle2} label="Talent Pipeline" />
         </nav>
@@ -220,7 +220,7 @@ const AdminDashboard: React.FC = () => {
                          <p className="text-gray-400 text-sm">Create a new job mandate to find exceptional talent instantly.</p>
                       </div>
                    </div>
-                   <button onClick={() => setActiveTab('jobs')} className="px-10 py-5 bg-brand-gold text-brand-dark font-bold uppercase tracking-widest text-[10px] rounded-full hover:bg-yellow-500 transition-all">Go to Mandate Hub</button>
+                   <button onClick={() => setActiveTab('jobs')} className="px-10 py-5 bg-brand-gold text-brand-dark font-bold uppercase tracking-widest text-[10px] rounded-full hover:bg-yellow-500 transition-all">Go to Job</button>
                 </div>
               </MotionDiv>
             )}
@@ -228,7 +228,7 @@ const AdminDashboard: React.FC = () => {
             {activeTab === 'jobs' && (
               <MotionDiv key="jobs" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-10">
                 <SectionHeader 
-                  title="Mandate Hub" 
+                  title="Job" 
                   subtitle="Enterprise Opportunities" 
                   action={
                     <button onClick={() => setShowAddForm(true)} className="px-8 py-4 bg-brand-dark text-brand-gold rounded-2xl font-bold uppercase tracking-widest text-[10px] flex items-center gap-2 shadow-xl hover:bg-black transition-all">
