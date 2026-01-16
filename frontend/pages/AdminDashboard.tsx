@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'export default';
+import React, { useEffect, useState } from 'react';
 import * as RouterDOM from 'react-router-dom';
 const { useNavigate, Link } = RouterDOM as any;
 import { motion, AnimatePresence } from 'framer-motion';
