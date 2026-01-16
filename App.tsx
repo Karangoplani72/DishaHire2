@@ -248,7 +248,7 @@ const Footer = () => {
             <div className="flex items-center gap-3 px-6 py-3 bg-white/5 border border-white/10 rounded-2xl group transition-all hover:bg-white/10">
               <Code size={14} className="text-brand-gold" />
               <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
-                Designed & Developed by <a href="https://karan-portfolio-self.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-brand-gold font-bold hover:underline transition-all">Karan Goplani</a>
+                Designed & Developed by <a href="https://karan-portfolio-self.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-brand-gold font-bold hover:underline  transition-all">KARAN GOPLANI </a>
               </p>
             </div>
           </div>
