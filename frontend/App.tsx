@@ -244,10 +244,19 @@ const Footer = () => {
               <p className="text-[9px] font-bold uppercase tracking-[0.4em] text-gray-600 mb-2">ENGINEERED FOR EXCELLENCE</p>
               <p className="text-[10px] font-serif italic text-gray-400">© {new Date().getFullYear()} DishaHire Consultancy. All rights reserved.</p>
             </div>
-            <div className="flex items-center gap-3 px-6 py-3 bg-white/5 border border-white/10 rounded-2xl">
+            
+            {/* Highlighted Developer Attribution */}
+            <div className="flex items-center gap-3 px-6 py-3 bg-brand-gold/5 border border-brand-gold/20 rounded-2xl group transition-all hover:bg-brand-gold/10 hover:border-brand-gold/40 shadow-[0_0_20px_rgba(176,141,62,0.05)]">
               <Code size={14} className="text-brand-gold" />
               <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
-                Designed & Developed by <span className="text-white">Enterprise Solutions Team</span>
+                Designed & Developed by <a 
+                  href="https://karan-portfolio-self.vercel.app/" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-brand-gold font-bold hover:text-white transition-all underline decoration-brand-gold/30 underline-offset-4"
+                >
+                  Karan Goplani
+                </a>
               </p>
             </div>
           </div>
