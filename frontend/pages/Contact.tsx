@@ -16,7 +16,8 @@ import {
   ShieldCheck, 
   ChevronDown,
   MessageSquare,
-  Zap
+  Zap,
+  Loader2
 } from 'lucide-react';
 import { API_BASE_URL, COMPANY_TYPES, CONTACT_INFO } from '../constants.tsx';
 
@@ -99,11 +100,15 @@ const Contact: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(employerForm)
       });
-      if (res.ok) setSuccess(true);
-      else throw new Error("Submission Failed");
+      if (res.ok) {
+        setSuccess(true);
+      } else {
+        const data = await res.json();
+        alert(data.error || "Submission Failed. Please try again.");
+      }
     } catch (err) { 
       console.error(err); 
-      alert("Submission error. Please verify your details.");
+      alert("Network Error. Check your connection.");
     } finally { 
       setIsSubmitting(false); 
     }
@@ -118,11 +123,15 @@ const Contact: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(seekerForm)
       });
-      if (res.ok) setSuccess(true);
-      else throw new Error("Submission Failed");
+      if (res.ok) {
+        setSuccess(true);
+      } else {
+        const data = await res.json();
+        alert(data.error || "Submission Failed. Please try again.");
+      }
     } catch (err) { 
       console.error(err); 
-      alert("Submission error. Please verify your details.");
+      alert("Network Error. Check your connection.");
     } finally { 
       setIsSubmitting(false); 
     }
@@ -227,7 +236,8 @@ const Contact: React.FC = () => {
                       </div>
 
                       <button disabled={isSubmitting} className="w-full bg-brand-dark text-brand-gold py-5 sm:py-6 rounded-full font-bold text-sm sm:text-lg flex items-center justify-center hover:bg-black transition-all shadow-xl disabled:opacity-50">
-                        {isSubmitting ? 'Submitting...' : 'Register Corporate Mandate'} <Send size={18} className="ml-2 sm:ml-3" />
+                        {isSubmitting ? <Loader2 className="animate-spin mr-2" /> : <Send size={18} className="mr-2" />}
+                        {isSubmitting ? 'Processing...' : 'Register Corporate Mandate'}
                       </button>
                     </form>
                   </MotionDiv>
@@ -277,7 +287,8 @@ const Contact: React.FC = () => {
                       </div>
 
                       <button disabled={isSubmitting} className="w-full bg-brand-dark text-brand-gold py-5 sm:py-6 rounded-full font-bold text-sm sm:text-lg flex items-center justify-center hover:bg-black transition-all shadow-xl disabled:opacity-50">
-                        {isSubmitting ? 'Sending...' : 'Submit Profile for Review'} <Send size={18} className="ml-2 sm:ml-3" />
+                        {isSubmitting ? <Loader2 className="animate-spin mr-2" /> : <Send size={18} className="mr-2" />}
+                        {isSubmitting ? 'Sending Profile...' : 'Submit Profile for Review'}
                       </button>
                     </form>
                   </MotionDiv>

@@ -3,10 +3,12 @@ import React, { useEffect, useState } from 'react';
 import * as RouterDOM from 'react-router-dom';
 const { useNavigate, Link } = RouterDOM as any;
 import { motion, AnimatePresence } from 'framer-motion';
+// Fixed: Added missing Loader2 and CheckCircle to lucide-react imports
 import { 
   Plus, Trash2, Briefcase, LayoutDashboard, LogOut, X, 
   GraduationCap, Banknote, Archive, MapPin, Calendar, 
-  Building2, UserCircle2, Filter, Globe, Mail, Phone, ExternalLink, Menu, ArrowLeft
+  Building2, UserCircle2, Filter, Globe, Mail, Phone, ExternalLink, Menu, ArrowLeft,
+  ChevronRight, ClipboardCheck, Users, Info, Loader2, CheckCircle
 } from 'lucide-react';
 import { API_BASE_URL } from '../constants.tsx';
 
@@ -22,7 +24,6 @@ const AdminDashboard: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'jobs' | 'companies' | 'candidates'>('overview');
-  const [jobView, setJobView] = useState<'active' | 'archived'>('active');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
   const [filters, setFilters] = useState({
@@ -41,7 +42,7 @@ const AdminDashboard: React.FC = () => {
       return;
     }
     fetchAllData();
-  }, [navigate]);
+  }, [navigate, activeTab]);
 
   const fetchAllData = async () => {
     setLoading(true);
@@ -120,207 +121,309 @@ const AdminDashboard: React.FC = () => {
   const NavItem = ({ id, icon: Icon, label }: { id: any, icon: any, label: string }) => (
     <button 
       onClick={() => { setActiveTab(id); setIsSidebarOpen(false); }}
-      className={`w-full flex items-center space-x-4 px-6 py-4 rounded-2xl transition-all ${activeTab === id ? 'bg-brand-gold text-brand-dark font-bold shadow-lg' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+      className={`w-full flex items-center space-x-4 px-6 py-4 rounded-2xl transition-all relative ${activeTab === id ? 'bg-brand-gold text-brand-dark font-bold shadow-lg' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
     >
-      <Icon size={20} />
-      <span className="text-xs uppercase tracking-widest">{label}</span>
+      <Icon size={18} />
+      <span className="text-[10px] uppercase tracking-widest">{label}</span>
+      {activeTab === id && <MotionDiv layoutId="nav-active" className="absolute left-0 w-1 h-6 bg-brand-dark rounded-r-full" />}
     </button>
   );
 
-  const DateFilterUI = ({ tab }: { tab: 'jobs' | 'companies' | 'candidates' }) => (
-    <div className="bg-white p-6 sm:p-8 rounded-[2rem] shadow-xl mb-10 border border-gray-50">
-      <div className="flex flex-col md:flex-row items-end gap-6">
-        <div className="flex-1 w-full">
-          <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-2 block">Start Date</label>
-          <input 
-            type="date" 
-            className="w-full px-4 py-3.5 bg-gray-50 rounded-2xl text-sm outline-none" 
-            value={filters[tab].start} 
-            onChange={e => setFilters({...filters, [tab]: { ...filters[tab], start: e.target.value }})} 
-          />
-        </div>
-        <div className="flex-1 w-full">
-          <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1 mb-2 block">End Date</label>
-          <input 
-            type="date" 
-            className="w-full px-4 py-3.5 bg-gray-50 rounded-2xl text-sm outline-none" 
-            value={filters[tab].end} 
-            onChange={e => setFilters({...filters, [tab]: { ...filters[tab], end: e.target.value }})} 
-          />
-        </div>
-        <button onClick={fetchAllData} className="w-full md:w-auto bg-brand-dark text-brand-gold px-10 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-black transition-all shadow-lg">
-          <Filter size={14} /> Update Results
-        </button>
+  const SectionHeader = ({ title, subtitle, action }: { title: string, subtitle: string, action?: React.ReactNode }) => (
+    <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
+      <div>
+        <h2 className="text-3xl font-serif font-bold text-brand-dark">{title}</h2>
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-gold mt-1">{subtitle}</p>
       </div>
+      {action}
     </div>
   );
 
   return (
-    <div className="flex min-h-screen bg-brand-light">
-      <aside className="hidden lg:flex flex-col w-72 bg-brand-dark fixed h-full z-40 p-6">
-        <div className="mb-12 px-2">
-          <span className="text-2xl font-serif font-bold tracking-widest text-white block">DISHA<span className="text-brand-gold">HIRE</span></span>
-          <span className="text-[8px] uppercase tracking-[0.4em] text-gray-500 font-black mt-1">Personnel Ops</span>
+    <div className="flex min-h-screen bg-[#F0F2F5]">
+      {/* Sidebar - Dark theme preserved */}
+      <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-brand-dark p-6 transition-transform lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="mb-12 px-2 flex justify-between items-center">
+          <div className="flex flex-col">
+            <span className="text-2xl font-serif font-bold tracking-widest text-white">DISHA<span className="text-brand-gold">HIRE</span></span>
+            <span className="text-[8px] uppercase tracking-[0.4em] text-gray-500 font-black mt-1">PERSONNEL OPERATIONS</span>
+          </div>
+          <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden text-white"><X size={20}/></button>
         </div>
-        <nav className="flex-grow space-y-2">
+        
+        <nav className="space-y-2">
           <NavItem id="overview" icon={LayoutDashboard} label="Dashboard" />
-          <NavItem id="jobs" icon={Briefcase} label="Mandates" />
-          <NavItem id="companies" icon={Building2} label="Leads" />
-          <NavItem id="candidates" icon={UserCircle2} label="Applicants" />
+          <NavItem id="jobs" icon={Briefcase} label="Mandate Hub" />
+          <NavItem id="companies" icon={Building2} label="Entity Leads" />
+          <NavItem id="candidates" icon={UserCircle2} label="Talent Pipeline" />
         </nav>
-        <div className="pt-6 border-t border-white/10 space-y-2">
-          <button onClick={handleLogout} className="w-full flex items-center space-x-4 px-6 py-4 rounded-2xl text-gray-400 hover:text-red-400 transition-all">
-            <LogOut size={20} />
-            <span className="text-xs uppercase tracking-widest font-bold">Log Out</span>
+
+        <div className="absolute bottom-10 left-6 right-6 pt-6 border-t border-white/10">
+          <button onClick={handleLogout} className="w-full flex items-center space-x-4 px-6 py-4 rounded-2xl text-gray-500 hover:text-red-400 transition-all">
+            <LogOut size={18} />
+            <span className="text-[10px] uppercase tracking-widest font-bold">Terminate Session</span>
           </button>
         </div>
       </aside>
 
-      <main className="flex-grow lg:ml-72 p-4 sm:p-8 lg:p-12 pb-24 lg:pb-12">
-        <header className="flex justify-between items-center mb-8 lg:mb-12">
-          <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-3 bg-brand-dark text-brand-gold rounded-2xl">
+      {/* Main Content Area */}
+      <main className="flex-grow lg:ml-72 p-6 sm:p-10 lg:p-14">
+        <header className="flex justify-between items-center mb-10">
+          <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-3 bg-brand-dark text-brand-gold rounded-2xl shadow-xl">
             <Menu size={24} />
           </button>
           <div className="hidden lg:block">
-            <h1 className="text-3xl font-serif font-bold text-brand-dark">Administrative Command</h1>
-            <p className="text-gray-400 text-[10px] uppercase tracking-widest font-bold">Session Active: {activeTab}</p>
+            <p className="text-gray-400 text-[10px] font-black uppercase tracking-[0.3em]">Administrative Interface</p>
+            <h1 className="text-sm font-bold text-brand-dark">Control Center v1.1.0</h1>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="text-right hidden sm:block">
+               <p className="text-[10px] font-bold text-brand-dark">Super Admin</p>
+               <p className="text-[9px] text-gray-400">Secure Environment</p>
+            </div>
+            <div className="w-10 h-10 bg-brand-gold rounded-full flex items-center justify-center text-brand-dark font-bold">A</div>
           </div>
         </header>
 
         {loading ? (
-          <div className="flex justify-center items-center h-64 text-brand-gold">
-            <div className="w-10 h-10 border-4 border-brand-gold border-t-transparent rounded-full animate-spin" />
+          <div className="flex flex-col justify-center items-center h-[60vh] text-brand-gold">
+            {/* Added Loader2 component */}
+            <Loader2 className="animate-spin mb-4" size={40} />
+            <p className="text-[10px] font-black uppercase tracking-widest">Synchronizing Encrypted Data...</p>
           </div>
         ) : (
           <AnimatePresence mode="wait">
             {activeTab === 'overview' && (
-              <MotionDiv key="overview" className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12">
-                <div className="bg-white p-8 rounded-[2.5rem] shadow-xl border border-gray-50">
-                  <p className="text-[10px] font-black uppercase text-gray-400 mb-1">Total Jobs</p>
-                  <p className="text-4xl font-serif font-bold text-brand-dark">{stats.jobCount}</p>
+              <MotionDiv key="overview" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
+                <SectionHeader title="Operational Summary" subtitle="Live Intelligence Feed" />
+                
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+                  {[
+                    { label: 'Active Mandates', val: stats.jobCount, icon: Briefcase, color: 'text-brand-gold' },
+                    { label: 'Company Enquiries', val: stats.companyCount, icon: Building2, color: 'text-blue-500' },
+                    { label: 'Candidate Submissions', val: stats.candidateCount, icon: UserCircle2, color: 'text-green-500' }
+                  ].map((s, i) => (
+                    <div key={i} className="bg-white p-10 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-white flex flex-col items-center text-center group hover:border-brand-gold transition-all duration-500">
+                      <div className={`p-5 rounded-3xl bg-gray-50 ${s.color} mb-6 transition-transform group-hover:scale-110`}><s.icon size={28}/></div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">{s.label}</p>
+                      <p className="text-5xl font-serif font-bold text-brand-dark">{s.val}</p>
+                    </div>
+                  ))}
                 </div>
-                <div className="bg-white p-8 rounded-[2.5rem] shadow-xl border border-gray-50">
-                  <p className="text-[10px] font-black uppercase text-gray-400 mb-1">Company Leads</p>
-                  <p className="text-4xl font-serif font-bold text-brand-dark">{stats.companyCount}</p>
-                </div>
-                <div className="bg-white p-8 rounded-[2.5rem] shadow-xl border border-gray-50">
-                  <p className="text-[10px] font-black uppercase text-gray-400 mb-1">Applicants</p>
-                  <p className="text-4xl font-serif font-bold text-brand-dark">{stats.candidateCount}</p>
+
+                {/* Quick Shortcuts */}
+                <div className="bg-brand-dark p-10 rounded-[3rem] text-white flex flex-col md:flex-row items-center justify-between gap-8">
+                   <div className="flex items-center gap-6">
+                      <div className="p-4 bg-brand-gold rounded-2xl text-brand-dark"><ClipboardCheck size={28}/></div>
+                      <div>
+                         <h3 className="text-2xl font-serif font-bold">Ready to scale?</h3>
+                         <p className="text-gray-400 text-sm">Create a new job mandate to find exceptional talent instantly.</p>
+                      </div>
+                   </div>
+                   <button onClick={() => setActiveTab('jobs')} className="px-10 py-5 bg-brand-gold text-brand-dark font-bold uppercase tracking-widest text-[10px] rounded-full hover:bg-yellow-500 transition-all">Go to Mandate Hub</button>
                 </div>
               </MotionDiv>
             )}
 
             {activeTab === 'jobs' && (
-              <MotionDiv key="jobs" className="space-y-8">
-                <div className="flex justify-between items-center">
-                  <h2 className="text-2xl font-serif font-bold text-brand-dark">Mandate Portfolio</h2>
-                  <button onClick={() => setShowAddForm(true)} className="bg-brand-dark text-brand-gold px-6 py-3 rounded-2xl font-bold text-[10px] uppercase tracking-widest flex items-center gap-2"><Plus size={16} /> New Mandate</button>
-                </div>
-                <DateFilterUI tab="jobs" />
-                <div className="grid gap-6">
-                  {jobs.map(job => (
-                    <div key={job._id} className="bg-white p-8 rounded-[2.5rem] shadow-xl border border-gray-50 flex flex-col md:flex-row justify-between gap-6">
-                      <div className="flex-grow">
-                        <span className="px-2 py-1 bg-brand-light text-brand-gold text-[8px] font-black uppercase rounded-full mb-2 inline-block">{job.industry}</span>
-                        <h3 className="text-xl font-serif font-bold text-brand-dark">{job.title}</h3>
-                        <div className="flex items-center gap-4 text-xs text-gray-400 mt-2">
-                           <span className="flex items-center gap-1"><MapPin size={12}/> {job.location}</span>
-                           <span className="flex items-center gap-1"><Banknote size={12}/> {job.salary}</span>
+              <MotionDiv key="jobs" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-10">
+                <SectionHeader 
+                  title="Mandate Hub" 
+                  subtitle="Enterprise Opportunities" 
+                  action={
+                    <button onClick={() => setShowAddForm(true)} className="px-8 py-4 bg-brand-dark text-brand-gold rounded-2xl font-bold uppercase tracking-widest text-[10px] flex items-center gap-2 shadow-xl hover:bg-black transition-all">
+                      <Plus size={16} /> Create Mandate
+                    </button>
+                  } 
+                />
+
+                {jobs.length === 0 ? (
+                  <div className="bg-white p-20 rounded-[3rem] text-center border-2 border-dashed border-gray-100">
+                    <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-300"><Briefcase size={40}/></div>
+                    <p className="text-brand-dark font-serif text-xl font-bold">No Mandates Active</p>
+                    <p className="text-gray-400 text-sm mt-2">Begin by creating your first executive job posting.</p>
+                  </div>
+                ) : (
+                  <div className="grid gap-8">
+                    {jobs.map(job => (
+                      <div key={job._id} className={`bg-white p-8 rounded-[2.5rem] shadow-sm border border-white flex flex-col md:flex-row justify-between gap-6 hover:shadow-xl transition-all ${job.isArchived ? 'opacity-60 grayscale' : ''}`}>
+                        <div className="flex-grow flex items-start gap-6">
+                          <div className={`p-4 rounded-2xl ${job.isArchived ? 'bg-gray-100 text-gray-400' : 'bg-brand-light text-brand-gold'}`}><Briefcase size={24}/></div>
+                          <div>
+                            <span className="text-[8px] font-black uppercase tracking-[0.2em] text-brand-gold mb-1 block">{job.industry}</span>
+                            <h3 className="text-2xl font-serif font-bold text-brand-dark">{job.title}</h3>
+                            <div className="flex flex-wrap items-center gap-6 text-xs text-gray-400 mt-3 font-medium">
+                               <span className="flex items-center gap-1.5"><MapPin size={14}/> {job.location}</span>
+                               <span className="flex items-center gap-1.5"><Banknote size={14}/> {job.salary}</span>
+                               <span className="flex items-center gap-1.5"><Users size={14}/> {job.gender}</span>
+                               <span className="flex items-center gap-1.5"><GraduationCap size={14}/> {job.education}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                           <button onClick={() => toggleArchive(job._id, job.isArchived)} title={job.isArchived ? 'Activate' : 'Archive'} className="p-4 bg-gray-50 rounded-2xl text-gray-400 hover:text-brand-gold transition-all"><Archive size={18} /></button>
+                           <button onClick={() => handleDeleteJob(job._id)} title="Delete" className="p-4 bg-gray-50 rounded-2xl text-gray-400 hover:text-red-500 transition-all"><Trash2 size={18} /></button>
                         </div>
                       </div>
-                      <div className="flex gap-2">
-                         <button onClick={() => toggleArchive(job._id, job.isArchived)} className="p-4 bg-gray-50 rounded-2xl text-gray-400 hover:text-brand-gold"><Archive size={20} /></button>
-                         <button onClick={() => handleDeleteJob(job._id)} className="p-4 bg-gray-50 rounded-2xl text-gray-400 hover:text-red-500"><Trash2 size={20} /></button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </MotionDiv>
             )}
 
             {activeTab === 'companies' && (
-              <MotionDiv key="companies" className="space-y-8">
-                <h2 className="text-2xl font-serif font-bold text-brand-dark">Corporate Enquiries</h2>
-                <DateFilterUI tab="companies" />
-                <div className="grid gap-6">
-                  {companyEnquiries.map(enq => (
-                    <div key={enq._id} className="bg-white p-8 rounded-[2.5rem] shadow-xl border border-gray-50">
-                      <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <span className="px-2 py-1 bg-blue-50 text-blue-600 text-[8px] font-black uppercase rounded-full mb-2 inline-block">{enq.companyType}</span>
-                          <h3 className="text-xl font-serif font-bold text-brand-dark">{enq.companyName}</h3>
+              <MotionDiv key="companies" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-10">
+                <SectionHeader title="Entity Leads" subtitle="B2B Acquisition Requests" />
+                {companyEnquiries.length === 0 ? (
+                  <div className="bg-white p-20 rounded-[3rem] text-center">
+                    <p className="text-gray-400">Waiting for company leads...</p>
+                  </div>
+                ) : (
+                  <div className="grid gap-8">
+                    {companyEnquiries.map(enq => (
+                      <div key={enq._id} className="bg-white p-10 rounded-[3rem] shadow-sm border border-white hover:shadow-xl transition-all">
+                        <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-8">
+                          <div className="flex items-center gap-6">
+                             <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center font-bold text-2xl">{enq.companyName.charAt(0)}</div>
+                             <div>
+                                <h3 className="text-2xl font-serif font-bold text-brand-dark">{enq.companyName}</h3>
+                                <p className="text-[10px] font-black uppercase text-gray-400">{enq.companyType} • {enq.industry}</p>
+                             </div>
+                          </div>
+                          <span className="px-4 py-2 bg-gray-50 text-gray-500 text-[10px] font-bold uppercase rounded-full">{new Date(enq.createdAt).toLocaleDateString()}</span>
                         </div>
-                        <span className="text-[10px] text-gray-400 font-bold uppercase">{new Date(enq.createdAt).toLocaleDateString()}</span>
+                        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                           <div className="space-y-2">
+                              <p className="text-[9px] font-black uppercase text-gray-400">Primary Contact</p>
+                              <p className="text-sm font-bold text-brand-dark">{enq.contactName}</p>
+                              <p className="text-xs italic text-gray-500">{enq.designation}</p>
+                           </div>
+                           <div className="space-y-2">
+                              <p className="text-[9px] font-black uppercase text-gray-400">Communication</p>
+                              <a href={`mailto:${enq.email}`} className="text-xs font-bold text-brand-gold hover:underline flex items-center gap-2"><Mail size={12}/> {enq.email}</a>
+                              <a href={`tel:${enq.mobile}`} className="text-xs font-bold text-brand-gold hover:underline flex items-center gap-2"><Phone size={12}/> {enq.mobile}</a>
+                           </div>
+                           <div className="lg:col-span-2 space-y-2">
+                              <p className="text-[9px] font-black uppercase text-gray-400">Origin/Location</p>
+                              <p className="text-xs text-gray-600 flex items-center gap-2"><MapPin size={12}/> {enq.address || 'Not Provided'}</p>
+                              {enq.website && <a href={enq.website} target="_blank" className="text-[10px] text-blue-500 hover:underline flex items-center gap-1"><Globe size={10}/> {enq.website}</a>}
+                           </div>
+                        </div>
                       </div>
-                      <div className="grid sm:grid-cols-2 gap-4 text-sm text-gray-600">
-                        <div className="space-y-1">
-                          <p className="flex items-center gap-2"><Mail size={14} className="text-brand-gold"/> {enq.email}</p>
-                          <p className="flex items-center gap-2"><Phone size={14} className="text-brand-gold"/> {enq.mobile}</p>
-                        </div>
-                        <div className="space-y-1">
-                          <p className="font-bold text-brand-dark">{enq.contactName}</p>
-                          <p className="text-xs italic">{enq.designation}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </MotionDiv>
             )}
 
             {activeTab === 'candidates' && (
-              <MotionDiv key="candidates" className="space-y-8">
-                <h2 className="text-2xl font-serif font-bold text-brand-dark">Applicant Talent Pool</h2>
-                <DateFilterUI tab="candidates" />
-                <div className="grid gap-6">
-                  {candidateEnquiries.map(enq => (
-                    <div key={enq._id} className="bg-white p-8 rounded-[2.5rem] shadow-xl border border-gray-50">
-                      <div className="flex justify-between items-start mb-6">
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center"><UserCircle2 size={24}/></div>
-                          <div>
-                             <h3 className="text-xl font-serif font-bold text-brand-dark">{enq.name}</h3>
-                             <p className="text-xs text-gray-400">{enq.email}</p>
+              <MotionDiv key="candidates" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-10">
+                <SectionHeader title="Talent Pipeline" subtitle="Career Mapping Pool" />
+                {candidateEnquiries.length === 0 ? (
+                  <div className="bg-white p-20 rounded-[3rem] text-center border-2 border-gray-50">
+                    <p className="text-gray-400">Pipeline is currently empty.</p>
+                  </div>
+                ) : (
+                  <div className="grid gap-8">
+                    {candidateEnquiries.map(enq => (
+                      <div key={enq._id} className="bg-white p-10 rounded-[3rem] shadow-sm border border-white hover:shadow-xl transition-all">
+                        <div className="flex flex-col md:flex-row justify-between gap-8 mb-10">
+                          <div className="flex items-center gap-6">
+                            <div className="w-16 h-16 bg-green-50 text-green-600 rounded-3xl flex items-center justify-center"><UserCircle2 size={32}/></div>
+                            <div>
+                               <h3 className="text-2xl font-serif font-bold text-brand-dark">{enq.name}</h3>
+                               <div className="flex items-center gap-4 text-xs font-bold mt-1">
+                                  <a href={`mailto:${enq.email}`} className="text-brand-gold hover:underline flex items-center gap-1"><Mail size={12}/> {enq.email}</a>
+                                  <a href={`tel:${enq.mobile}`} className="text-brand-gold hover:underline flex items-center gap-1"><Phone size={12}/> {enq.mobile}</a>
+                               </div>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                             <p className="text-[10px] font-black text-gray-400 uppercase">Received At</p>
+                             <p className="text-sm font-bold text-brand-dark">{new Date(enq.createdAt).toLocaleString()}</p>
                           </div>
                         </div>
-                        <span className="text-[10px] text-gray-400 font-bold uppercase">{new Date(enq.createdAt).toLocaleDateString()}</span>
+
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 bg-gray-50 p-8 rounded-[2rem]">
+                           <div className="space-y-1">
+                              <p className="text-[8px] font-black text-gray-400 uppercase">Target Role</p>
+                              <p className="text-sm font-bold text-brand-dark">{enq.preferredRole}</p>
+                           </div>
+                           <div className="space-y-1">
+                              <p className="text-[8px] font-black text-gray-400 uppercase">Academic Level</p>
+                              <p className="text-sm font-bold text-brand-dark">{enq.qualification}</p>
+                           </div>
+                           <div className="space-y-1">
+                              <p className="text-[8px] font-black text-gray-400 uppercase">Current City</p>
+                              <p className="text-sm font-bold text-brand-dark">{enq.location}</p>
+                           </div>
+                           <div className="space-y-1">
+                              <p className="text-[8px] font-black text-gray-400 uppercase">Availability</p>
+                              <p className="text-sm font-bold text-brand-gold">{enq.noticePeriod} Notice</p>
+                           </div>
+                        </div>
+
+                        {/* Professional Info Snippet */}
+                        {(enq.currentTitle || enq.currentSalary) && (
+                          <div className="mt-8 flex items-center gap-3 px-4 py-3 bg-brand-light rounded-2xl border border-brand-gold/10">
+                            <Info size={14} className="text-brand-gold"/>
+                            <p className="text-[10px] text-brand-dark">
+                              Currently working as <span className="font-bold">{enq.currentTitle || 'N/A'}</span> 
+                              {enq.currentSalary && <span> with CTC of <span className="font-bold">{enq.currentSalary}</span></span>}
+                            </p>
+                          </div>
+                        )}
                       </div>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-5 bg-gray-50 rounded-2xl text-xs">
-                         <div><p className="text-gray-400 mb-1">Preferred Role</p><p className="font-bold">{enq.preferredRole}</p></div>
-                         <div><p className="text-gray-400 mb-1">Education</p><p className="font-bold">{enq.qualification}</p></div>
-                         <div><p className="text-gray-400 mb-1">Location</p><p className="font-bold">{enq.location}</p></div>
-                         <div><p className="text-gray-400 mb-1">Mobile</p><p className="font-bold">{enq.mobile}</p></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </MotionDiv>
             )}
           </AnimatePresence>
         )}
       </main>
 
-      {/* Add Job Modal */}
+      {/* Modern Centered Modal */}
       <AnimatePresence>
         {showAddForm && (
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-brand-dark/95 backdrop-blur-md">
-            <MotionDiv className="bg-white w-full max-w-lg rounded-[2.5rem] p-8 sm:p-10 relative">
-               <button onClick={() => setShowAddForm(false)} className="absolute top-6 right-6 text-gray-400"><X size={24}/></button>
-               <h2 className="text-2xl font-serif font-bold text-brand-dark mb-8">New Mandate</h2>
-               <form onSubmit={handleAddJob} className="space-y-4">
-                 <input required className="w-full bg-gray-50 p-4 rounded-xl outline-none" placeholder="Title*" value={newJob.title} onChange={e => setNewJob({...newJob, title: e.target.value})} />
-                 <input required className="w-full bg-gray-50 p-4 rounded-xl outline-none" placeholder="Industry*" value={newJob.industry} onChange={e => setNewJob({...newJob, industry: e.target.value})} />
-                 <input required className="w-full bg-gray-50 p-4 rounded-xl outline-none" placeholder="Location*" value={newJob.location} onChange={e => setNewJob({...newJob, location: e.target.value})} />
-                 <input required className="w-full bg-gray-50 p-4 rounded-xl outline-none" placeholder="Education Required*" value={newJob.education} onChange={e => setNewJob({...newJob, education: e.target.value})} />
-                 <input required className="w-full bg-gray-50 p-4 rounded-xl outline-none" placeholder="Salary Slab*" value={newJob.salary} onChange={e => setNewJob({...newJob, salary: e.target.value})} />
-                 <select required className="w-full bg-gray-50 p-4 rounded-xl outline-none" value={newJob.gender} onChange={e => setNewJob({...newJob, gender: e.target.value})}>
-                   <option value="Any">Equal Opportunity (Any)</option>
-                   <option value="Male">Male</option>
-                   <option value="Female">Female</option>
-                 </select>
-                 <button disabled={isSubmitting} className="w-full bg-brand-dark text-brand-gold py-5 rounded-xl font-bold uppercase tracking-widest text-sm shadow-xl">
-                    Confirm and Publish Mandate
-                 </button>
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 sm:p-10 bg-brand-dark/90 backdrop-blur-md">
+            <MotionDiv 
+              initial={{ scale: 0.95, opacity: 0 }} 
+              animate={{ scale: 1, opacity: 1 }}
+              className="bg-white w-full max-w-2xl rounded-[3rem] p-10 sm:p-14 relative shadow-4xl"
+            >
+               <button onClick={() => setShowAddForm(false)} className="absolute top-10 right-10 text-gray-400 hover:text-brand-dark"><X size={28}/></button>
+               <h2 className="text-3xl font-serif font-bold text-brand-dark mb-4">Mandate Architect</h2>
+               <p className="text-[10px] font-black uppercase text-brand-gold tracking-[0.3em] mb-10">Configure Personnel Procurement</p>
+               
+               <form onSubmit={handleAddJob} className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                 <div className="sm:col-span-2">
+                    <label className="text-[9px] font-black uppercase text-gray-400 mb-2 block">Job Title*</label>
+                    <input required className="w-full bg-gray-50 p-5 rounded-2xl outline-none border border-transparent focus:border-brand-gold transition-all" placeholder="e.g. Senior VP of Operations" value={newJob.title} onChange={e => setNewJob({...newJob, title: e.target.value})} />
+                 </div>
+                 <div>
+                    <label className="text-[9px] font-black uppercase text-gray-400 mb-2 block">Industry Verticals*</label>
+                    <input required className="w-full bg-gray-50 p-5 rounded-2xl outline-none" placeholder="e.g. IT & Tech" value={newJob.industry} onChange={e => setNewJob({...newJob, industry: e.target.value})} />
+                 </div>
+                 <div>
+                    <label className="text-[9px] font-black uppercase text-gray-400 mb-2 block">Location*</label>
+                    <input required className="w-full bg-gray-50 p-5 rounded-2xl outline-none" placeholder="e.g. Remote / Rajkot" value={newJob.location} onChange={e => setNewJob({...newJob, location: e.target.value})} />
+                 </div>
+                 <div>
+                    <label className="text-[9px] font-black uppercase text-gray-400 mb-2 block">Academic Prerequisites*</label>
+                    <input required className="w-full bg-gray-50 p-5 rounded-2xl outline-none" placeholder="e.g. MBA / B.Tech" value={newJob.education} onChange={e => setNewJob({...newJob, education: e.target.value})} />
+                 </div>
+                 <div>
+                    <label className="text-[9px] font-black uppercase text-gray-400 mb-2 block">Compensation Slab*</label>
+                    <input required className="w-full bg-gray-50 p-5 rounded-2xl outline-none" placeholder="e.g. 15L - 25L PA" value={newJob.salary} onChange={e => setNewJob({...newJob, salary: e.target.value})} />
+                 </div>
+                 <div className="sm:col-span-2 pt-4">
+                    <button disabled={isSubmitting} className="w-full bg-brand-dark text-brand-gold py-6 rounded-3xl font-bold uppercase tracking-[0.3em] text-[12px] shadow-2xl flex items-center justify-center gap-4 hover:bg-black transition-all">
+                       {/* Fixed: Used imported Loader2 and CheckCircle */}
+                       {isSubmitting ? <Loader2 className="animate-spin"/> : <CheckCircle size={20}/>}
+                       {isSubmitting ? 'Publishing...' : 'Confirm and Authorize Mandate'}
+                    </button>
+                 </div>
                </form>
             </MotionDiv>
           </div>
