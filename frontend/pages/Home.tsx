@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as RouterDOM from 'react-router-dom';
@@ -104,8 +103,8 @@ const Home: React.FC = () => {
   const [selectionOpen, setSelectionOpen] = useState(false);
 
   return (
-    <div className="overflow-hidden">
-      <section className="relative min-h-[70vh] sm:min-h-[85vh] lg:min-h-[90vh] flex items-center bg-brand-dark overflow-hidden px-4 sm:px-6">
+    <div className="w-full overflow-x-hidden">
+      <section className="relative min-h-[70vh] sm:min-h-[85vh] lg:min-h-[90vh] flex items-center bg-brand-dark overflow-hidden px-4 sm:px-6 w-full">
         <div className="absolute inset-0 z-0 opacity-20 pointer-events-none overflow-hidden">
            <div className="absolute top-0 right-0 w-[300px] h-[300px] sm:w-[800px] sm:h-[800px] bg-brand-gold/10 rounded-full blur-[80px] sm:blur-[120px] -translate-y-1/2 translate-x-1/2" />
         </div>
@@ -156,7 +155,7 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      <section className="py-16 sm:py-32 bg-white px-4 sm:px-6">
+      <section className="py-16 sm:py-32 bg-white px-4 sm:px-6 overflow-hidden">
         <div className="max-w-[1400px] mx-auto">
           <div className="text-center mb-12 sm:mb-24 space-y-3 sm:space-y-4">
             <h2 className="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.3em] sm:tracking-[0.5em] text-brand-gold">Our Expertise</h2>

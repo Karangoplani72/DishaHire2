@@ -35,21 +35,27 @@ const Navbar = () => {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      document.body.style.paddingRight = '0px'; // Prevent shift if any
     } else {
       document.body.style.overflow = 'unset';
     }
     return () => { document.body.style.overflow = 'unset'; };
   }, [isOpen]);
 
+  // Close menu on navigation
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location.pathname]);
+
   return (
-    <nav className="bg-brand-dark text-white sticky top-0 z-50 shadow-xl border-b border-white/5 backdrop-blur-md">
+    <nav className="bg-brand-dark text-white sticky top-0 z-[60] shadow-xl border-b border-white/5 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20 sm:h-24">
-          <Link to="/" className="flex items-center" onClick={() => setIsOpen(false)}>
+          <Link to="/" className="flex items-center relative z-[70]">
             <img 
               src={logoPath} 
               alt="DishaHire Logo" 
-              className="h-12 sm:h-16 w-auto object-contain hover:opacity-90 transition-opacity"
+              className="h-10 sm:h-16 w-auto object-contain hover:opacity-90 transition-opacity"
             />
           </Link>
 
@@ -73,7 +79,7 @@ const Navbar = () => {
           <div className="md:hidden flex items-center">
             <button 
               onClick={() => setIsOpen(!isOpen)} 
-              className="text-brand-gold p-2 z-[110] relative focus:outline-none"
+              className="text-brand-gold p-2 z-[70] relative focus:outline-none touch-manipulation"
               aria-label="Toggle Menu"
             >
               {isOpen ? <X size={32} /> : <Menu size={32} />}
@@ -89,17 +95,16 @@ const Navbar = () => {
             initial={{ opacity: 0, x: '100%' }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="md:hidden fixed inset-0 bg-brand-dark z-[100] flex flex-col pt-24 px-8 overflow-y-auto"
+            transition={{ type: 'tween', duration: 0.3 }}
+            className="md:hidden fixed inset-0 bg-brand-dark z-[65] flex flex-col pt-24 px-8 overflow-y-auto"
           >
              <div className="flex flex-col space-y-6 pt-8">
                 {NAV_LINKS.map((link: any) => (
                   <Link 
                     key={link.name} 
                     to={link.href} 
-                    onClick={() => setIsOpen(false)} 
                     className={`flex items-center justify-between py-4 border-b border-white/5 transition-all ${
-                      location.pathname === link.href ? 'text-brand-gold pl-4 border-l-2 border-l-brand-gold' : 'text-gray-200'
+                      location.pathname === link.href ? 'text-brand-gold' : 'text-gray-200'
                     }`}
                   >
                     <span className="text-2xl font-serif font-bold">{link.name}</span>
@@ -107,7 +112,7 @@ const Navbar = () => {
                   </Link>
                 ))}
                 <div className="pt-12 mt-auto pb-12">
-                   <Link to="/admin/login" onClick={() => setIsOpen(false)} className="flex items-center gap-3 text-gray-500 text-sm font-black uppercase tracking-[0.3em]">
+                   <Link to="/admin/login" className="flex items-center gap-3 text-gray-500 text-sm font-black uppercase tracking-[0.3em]">
                       <Lock size={14} /> Personnel Access
                    </Link>
                 </div>
@@ -210,9 +215,10 @@ const App = () => {
   return (
     <Router>
       <ScrollToTop />
-      <div className="min-h-screen flex flex-col bg-brand-light">
+      {/* Global Wrapper to strictly prevent horizontal overflow */}
+      <div className="min-h-screen flex flex-col bg-brand-light overflow-x-hidden relative w-full">
         <Navbar />
-        <main className="flex-grow">
+        <main className="flex-grow w-full relative">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
