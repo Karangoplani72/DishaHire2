@@ -7,7 +7,6 @@ import {
   Building2, 
   UserCircle2, 
   CheckCircle, 
-  Upload, 
   Send, 
   ArrowRight, 
   Mail, 
@@ -87,34 +86,9 @@ const Contact: React.FC = () => {
   });
 
   const [seekerForm, setSeekerForm] = useState({
-    name: '', mobile: '', location: '', dob: '', qualification: '', 
-    passingYear: '', currentTitle: '', preferredRole: '', preferredIndustry: '', 
-    preferredLocation: '', currentSalary: '', expectedSalary: '', 
-    noticePeriod: '', resumeData: '', resumeName: ''
+    name: '', email: '', mobile: '', location: '', qualification: '', 
+    passingYear: '', preferredRole: '', noticePeriod: ''
   });
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const allowedExtensions = ['pdf', 'doc', 'docx'];
-      const fileExtension = file.name.split('.').pop()?.toLowerCase();
-      if (!fileExtension || !allowedExtensions.includes(fileExtension)) {
-        alert("Invalid format. Only PDF or Word files (.doc, .docx) are permitted.");
-        e.target.value = '';
-        return;
-      }
-      if (file.size > 2 * 1024 * 1024) {
-        alert("File size exceeds 2MB limit.");
-        e.target.value = '';
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setSeekerForm({ ...seekerForm, resumeData: reader.result as string, resumeName: file.name });
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   const handleEmployerSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -126,13 +100,17 @@ const Contact: React.FC = () => {
         body: JSON.stringify(employerForm)
       });
       if (res.ok) setSuccess(true);
-    } catch (err) { console.error(err); } 
-    finally { setIsSubmitting(false); }
+      else throw new Error("Submission Failed");
+    } catch (err) { 
+      console.error(err); 
+      alert("Submission error. Please verify your details.");
+    } finally { 
+      setIsSubmitting(false); 
+    }
   };
 
   const handleSeekerSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!seekerForm.resumeData) { alert("Please upload your resume"); return; }
     setIsSubmitting(true);
     try {
       const res = await fetch(`${API_BASE_URL}/api/enquiries/candidate`, {
@@ -141,8 +119,13 @@ const Contact: React.FC = () => {
         body: JSON.stringify(seekerForm)
       });
       if (res.ok) setSuccess(true);
-    } catch (err) { console.error(err); } 
-    finally { setIsSubmitting(false); }
+      else throw new Error("Submission Failed");
+    } catch (err) { 
+      console.error(err); 
+      alert("Submission error. Please verify your details.");
+    } finally { 
+      setIsSubmitting(false); 
+    }
   };
 
   if (success) {
@@ -227,12 +210,10 @@ const Contact: React.FC = () => {
                           <input required placeholder="e.g. IT, Logistics" className="w-full p-4 sm:p-5 bg-gray-50 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={employerForm.industry} onChange={e => setEmployerForm({...employerForm, industry: e.target.value})} />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Company Website*</label>
-                          <input required type="url" placeholder="https://..." className="w-full p-4 sm:p-5 bg-gray-50 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={employerForm.website} onChange={e => setEmployerForm({...employerForm, website: e.target.value})} />
+                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Work Email*</label>
+                          <input required type="email" placeholder="hr@yourcompany.com" className="w-full p-4 sm:p-5 bg-gray-50 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={employerForm.email} onChange={e => setEmployerForm({...employerForm, email: e.target.value})} />
                         </div>
                       </div>
-
-                      <div className="h-[1px] bg-gray-100" />
 
                       <div className="grid sm:grid-cols-2 gap-4 sm:gap-8">
                         <div className="space-y-1">
@@ -240,16 +221,8 @@ const Contact: React.FC = () => {
                           <input required placeholder="Contact Person" className="w-full p-4 sm:p-5 bg-gray-50 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={employerForm.contactName} onChange={e => setEmployerForm({...employerForm, contactName: e.target.value})} />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Work Email*</label>
-                          <input required type="email" placeholder="hr@yourcompany.com" className="w-full p-4 sm:p-5 bg-gray-50 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={employerForm.email} onChange={e => setEmployerForm({...employerForm, email: e.target.value})} />
-                        </div>
-                        <div className="space-y-1">
                           <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Direct Mobile*</label>
                           <input required placeholder="+91 XXXXX XXXXX" className="w-full p-4 sm:p-5 bg-gray-50 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={employerForm.mobile} onChange={e => setEmployerForm({...employerForm, mobile: e.target.value})} />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Designation*</label>
-                          <input required placeholder="Current Role" className="w-full p-4 sm:p-5 bg-gray-50 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={employerForm.designation} onChange={e => setEmployerForm({...employerForm, designation: e.target.value})} />
                         </div>
                       </div>
 
@@ -271,9 +244,20 @@ const Contact: React.FC = () => {
                           <input required placeholder="Your Legal Name" className="w-full p-4 sm:p-5 bg-gray-50 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={seekerForm.name} onChange={e => setSeekerForm({...seekerForm, name: e.target.value})} />
                         </div>
                         <div className="space-y-1">
+                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Email Address*</label>
+                          <input required type="email" placeholder="email@example.com" className="w-full p-4 sm:p-5 bg-gray-50 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={seekerForm.email} onChange={e => setSeekerForm({...seekerForm, email: e.target.value})} />
+                        </div>
+                        <div className="space-y-1">
                           <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Location*</label>
                           <input required placeholder="Current City" className="w-full p-4 sm:p-5 bg-gray-50 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={seekerForm.location} onChange={e => setSeekerForm({...seekerForm, location: e.target.value})} />
                         </div>
+                        <div className="space-y-1">
+                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Mobile Number*</label>
+                          <input required placeholder="+91 XXXXX XXXXX" className="w-full p-4 sm:p-5 bg-gray-50 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={seekerForm.mobile} onChange={e => setSeekerForm({...seekerForm, mobile: e.target.value})} />
+                        </div>
+                      </div>
+
+                      <div className="grid sm:grid-cols-2 gap-4 sm:gap-8">
                         <div className="space-y-1">
                           <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Highest Degree*</label>
                           <input required placeholder="e.g. MBA, B.Tech" className="w-full p-4 sm:p-5 bg-gray-50 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={seekerForm.qualification} onChange={e => setSeekerForm({...seekerForm, qualification: e.target.value})} />
@@ -282,11 +266,6 @@ const Contact: React.FC = () => {
                           <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Passing Year*</label>
                           <input required placeholder="YYYY" className="w-full p-4 sm:p-5 bg-gray-50 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={seekerForm.passingYear} onChange={e => setSeekerForm({...seekerForm, passingYear: e.target.value})} />
                         </div>
-                      </div>
-
-                      <div className="h-[1px] bg-gray-100" />
-
-                      <div className="grid sm:grid-cols-2 gap-4 sm:gap-8">
                         <div className="space-y-1">
                           <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Desired Role*</label>
                           <input required placeholder="Target Position" className="w-full p-4 sm:p-5 bg-gray-50 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={seekerForm.preferredRole} onChange={e => setSeekerForm({...seekerForm, preferredRole: e.target.value})} />
@@ -295,21 +274,10 @@ const Contact: React.FC = () => {
                           <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Notice Period*</label>
                           <input required placeholder="Availability (Days)" className="w-full p-4 sm:p-5 bg-gray-50 rounded-xl sm:rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold text-sm" value={seekerForm.noticePeriod} onChange={e => setSeekerForm({...seekerForm, noticePeriod: e.target.value})} />
                         </div>
-                        <div className="sm:col-span-2 space-y-1">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Curated CV (PDF/Word)*</label>
-                          <div className="relative group">
-                            <input required type="file" accept=".pdf,.doc,.docx" onChange={handleFileChange} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
-                            <div className="w-full p-6 sm:p-10 bg-gray-50 rounded-2xl sm:rounded-3xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center text-gray-400 group-hover:border-brand-gold group-hover:text-brand-gold transition-all">
-                              <Upload size={24} className="mb-2 sm:mb-4 sm:size-[32px]" />
-                              <span className="font-bold text-xs sm:text-sm text-center">{seekerForm.resumeName || "Browse or Drop CV"}</span>
-                              <span className="text-[8px] sm:text-[10px] mt-2 italic text-gray-400">PDF, DOC, DOCX up to 2MB</span>
-                            </div>
-                          </div>
-                        </div>
                       </div>
 
                       <button disabled={isSubmitting} className="w-full bg-brand-dark text-brand-gold py-5 sm:py-6 rounded-full font-bold text-sm sm:text-lg flex items-center justify-center hover:bg-black transition-all shadow-xl disabled:opacity-50">
-                        {isSubmitting ? 'Uploading...' : 'Submit Profile for Review'} <Send size={18} className="ml-2 sm:ml-3" />
+                        {isSubmitting ? 'Sending...' : 'Submit Profile for Review'} <Send size={18} className="ml-2 sm:ml-3" />
                       </button>
                     </form>
                   </MotionDiv>

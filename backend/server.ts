@@ -13,11 +13,11 @@ const FRONTEND_URL = process.env.FRONTEND_URL || 'https://dishahire-huya.onrende
 const companyEnquirySchema = new mongoose.Schema({
   companyName: { type: String, required: true },
   industry: { type: String, required: true },
-  website: { type: String, required: true },
-  address: { type: String, required: true },
+  website: { type: String },
+  address: { type: String },
   companyType: { type: String, required: true },
   contactName: { type: String, required: true },
-  designation: { type: String, required: true },
+  designation: { type: String },
   email: { type: String, required: true },
   mobile: { type: String, required: true },
   alternateNumber: { type: String },
@@ -26,20 +26,19 @@ const companyEnquirySchema = new mongoose.Schema({
 
 const candidateEnquirySchema = new mongoose.Schema({
   name: { type: String, required: true },
+  email: { type: String, required: true },
   mobile: { type: String, required: true },
   location: { type: String, required: true },
-  dob: { type: String, required: true },
+  dob: { type: String },
   qualification: { type: String, required: true },
   passingYear: { type: String, required: true },
   currentTitle: { type: String },
   preferredRole: { type: String, required: true },
   preferredIndustry: { type: String },
-  preferredLocation: { type: String, required: true },
+  preferredLocation: { type: String },
   currentSalary: { type: String },
-  expectedSalary: { type: String, required: true },
-  noticePeriod: { type: String, required: true },
-  resumeName: { type: String },
-  resumeData: { type: String, required: true }, // base64
+  expectedSalary: { type: String },
+  noticePeriod: { type: String },
   createdAt: { type: Date, default: Date.now }
 });
 
@@ -171,6 +170,7 @@ app.post('/api/enquiries/company', async (req, res) => {
     await enquiry.save();
     res.status(201).json({ success: true });
   } catch (err) {
+    console.error("Company Submission Error:", err);
     res.status(500).json({ error: 'Submission failed.' });
   }
 });
@@ -181,6 +181,7 @@ app.post('/api/enquiries/candidate', async (req, res) => {
     await enquiry.save();
     res.status(201).json({ success: true });
   } catch (err) {
+    console.error("Candidate Submission Error:", err);
     res.status(500).json({ error: 'Submission failed.' });
   }
 });
