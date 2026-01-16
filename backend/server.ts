@@ -13,11 +13,11 @@ const FRONTEND_URL = process.env.FRONTEND_URL || 'https://dishahire-huya.onrende
 const companyEnquirySchema = new mongoose.Schema({
   companyName: { type: String, required: true },
   industry: { type: String, required: true },
-  website: { type: String, required: true },
-  address: { type: String, required: true },
+  website: { type: String },
+  address: { type: String },
   companyType: { type: String, required: true },
   contactName: { type: String, required: true },
-  designation: { type: String, required: true },
+  designation: { type: String },
   email: { type: String, required: true },
   mobile: { type: String, required: true },
   alternateNumber: { type: String },
@@ -26,20 +26,19 @@ const companyEnquirySchema = new mongoose.Schema({
 
 const candidateEnquirySchema = new mongoose.Schema({
   name: { type: String, required: true },
+  email: { type: String, required: true },
   mobile: { type: String, required: true },
   location: { type: String, required: true },
-  dob: { type: String, required: true },
+  dob: { type: String }, // Optional
   qualification: { type: String, required: true },
   passingYear: { type: String, required: true },
-  currentTitle: { type: String },
+  currentTitle: { type: String }, // Optional
   preferredRole: { type: String, required: true },
-  preferredIndustry: { type: String },
-  preferredLocation: { type: String, required: true },
-  currentSalary: { type: String },
-  expectedSalary: { type: String, required: true },
-  noticePeriod: { type: String, required: true },
-  resumeName: { type: String },
-  resumeData: { type: String, required: true }, // base64
+  preferredIndustry: { type: String }, // Optional
+  preferredLocation: { type: String }, // Optional
+  currentSalary: { type: String }, // Optional
+  expectedSalary: { type: String }, // Optional
+  noticePeriod: { type: String }, // Optional
   createdAt: { type: Date, default: Date.now }
 });
 
@@ -107,13 +106,9 @@ const getDateQuery = (startDate?: any, endDate?: any) => {
 // --- STATS ---
 app.get('/api/admin/stats', async (req, res) => {
   try {
-    const { startDate, endDate } = req.query;
-    const query = getDateQuery(startDate, endDate);
-
-    const jobCount = await Job.countDocuments(query);
-    const companyCount = await CompanyEnquiry.countDocuments(query);
-    const candidateCount = await CandidateEnquiry.countDocuments(query);
-
+    const jobCount = await Job.countDocuments();
+    const companyCount = await CompanyEnquiry.countDocuments();
+    const candidateCount = await CandidateEnquiry.countDocuments();
     res.json({ jobCount, companyCount, candidateCount });
   } catch (err) {
     res.status(500).json({ error: 'Stats error' });
@@ -167,21 +162,25 @@ app.delete('/api/jobs/:id', async (req, res) => {
 // --- ENQUIRIES ---
 app.post('/api/enquiries/company', async (req, res) => {
   try {
+    console.log('Receiving company enquiry:', req.body);
     const enquiry = new CompanyEnquiry(req.body);
     await enquiry.save();
     res.status(201).json({ success: true });
   } catch (err) {
-    res.status(500).json({ error: 'Submission failed.' });
+    console.error("Company Submission Error:", err);
+    res.status(400).json({ error: 'Validation failed or database error.' });
   }
 });
 
 app.post('/api/enquiries/candidate', async (req, res) => {
   try {
+    console.log('Receiving candidate enquiry:', req.body);
     const enquiry = new CandidateEnquiry(req.body);
     await enquiry.save();
     res.status(201).json({ success: true });
   } catch (err) {
-    res.status(500).json({ error: 'Submission failed.' });
+    console.error("Candidate Submission Error:", err);
+    res.status(400).json({ error: 'Validation failed or database error.' });
   }
 });
 

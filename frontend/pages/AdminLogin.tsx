@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import * as RouterDOM from 'react-router-dom';
 const { useNavigate } = RouterDOM as any;
 import { motion } from 'framer-motion';
-import { Lock, Mail, ArrowRight, ShieldAlert, ShieldCheck } from 'lucide-react';
+import { Lock, Mail, ArrowRight, ShieldAlert } from 'lucide-react';
 import { API_BASE_URL } from '../constants.tsx';
 
 const MotionDiv = (motion as any).div;
@@ -21,10 +20,7 @@ const AdminLogin: React.FC = () => {
     setError('');
 
     try {
-      // Use the absolute URL from constants
       const apiUrl = `${API_BASE_URL}/api/auth/login`;
-      console.log('Attempting login at:', apiUrl);
-
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -40,8 +36,7 @@ const AdminLogin: React.FC = () => {
         setError(data.error || 'Invalid credentials.');
       }
     } catch (err) {
-      console.error('Fetch error:', err);
-      setError('Cannot reach security server. Verify backend URL in constants.');
+      setError('Cannot reach security server. Verify backend URL.');
     } finally {
       setIsAuthenticating(false);
     }
@@ -60,8 +55,12 @@ const AdminLogin: React.FC = () => {
         className="bg-brand-dark p-8 sm:p-14 rounded-[2.5rem] sm:rounded-[4rem] shadow-4xl w-full max-w-lg border border-white/5 relative z-10"
       >
         <div className="text-center mb-8 sm:mb-12">
-          <div className="w-16 h-16 sm:w-24 sm:h-24 bg-brand-gold/10 rounded-[1.5rem] sm:rounded-3xl flex items-center justify-center mx-auto mb-6 sm:mb-8 text-brand-gold border border-brand-gold/20 transform rotate-3">
-            <ShieldCheck size={40} className="sm:size-[48px]" />
+          <div className="mx-auto mb-6 sm:mb-8 transform rotate-1">
+            <img 
+              src="/logo.png" 
+              alt="DishaHire Logo" 
+              className="h-24 sm:h-32 w-auto mx-auto object-contain"
+            />
           </div>
           <h2 className="text-3xl sm:text-4xl font-serif font-bold text-white mb-3 tracking-tight">Admin Gateway</h2>
           <p className="text-gray-500 text-[9px] sm:text-[11px] uppercase tracking-[0.4em] sm:tracking-[0.5em] font-black">Personnel Management Portal</p>
@@ -70,7 +69,7 @@ const AdminLogin: React.FC = () => {
         <form onSubmit={handleLogin} className="space-y-6 sm:space-y-8">
           <div className="space-y-4 sm:space-y-6">
             <div className="group">
-              <label className="block text-[9px] font-black uppercase tracking-widest text-gray-500 ml-2 mb-2">Credential Identifier</label>
+              <label className="block text-[9px] font-black uppercase tracking-widest text-gray-400 ml-2 mb-2">Credential Identifier</label>
               <div className="relative">
                 <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
                 <input 
@@ -85,7 +84,7 @@ const AdminLogin: React.FC = () => {
             </div>
 
             <div className="group">
-              <label className="block text-[9px] font-black uppercase tracking-widest text-gray-500 ml-2 mb-2">Access Keyphrase</label>
+              <label className="block text-[9px] font-black uppercase tracking-widest text-gray-400 ml-2 mb-2">Access Keyphrase</label>
               <div className="relative">
                 <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
                 <input 
